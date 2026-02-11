@@ -57,6 +57,39 @@ export const useAppState = () => {
   const [portalConfig, setPortalConfig] = useState(DEFAULT_PORTAL_CONFIG);
   const [activePortalGuest, setActivePortalGuest] = useState<Application | null>(null);
 
+  const fetchInquiriesFromApi = async () => {
+    try {
+      const response = await fetch('http://localhost:8000/api/inquiries');
+      const result = await response.json();
+      
+      if (result.success && Array.isArray(result.data)) {
+        const mappedInquiries: Application[] = result.data.map((apiInquiry: any) => ({
+          id: apiInquiry.refId || apiInquiry._id,
+          sessionId: apiInquiry.sessionId || '', 
+          guestName: apiInquiry.fullName,
+          email: apiInquiry.email,
+          phone: apiInquiry.phone,
+          gender: '', 
+          roomPreferenceId: apiInquiry.roomId,
+          roomName: apiInquiry.roomName,
+          residencyDate: apiInquiry.date,
+          bookingType: 'solo', 
+          status: (apiInquiry.status.charAt(0).toUpperCase() + apiInquiry.status.slice(1)) as ApplicationStatus,
+          consentBathroom: apiInquiry.isBathroomProtocolChecked,
+          consentAlcohol: apiInquiry.isAlcoholFreeEstateChecked,
+          totalPrice: 0, 
+          depositPaid: false,
+          timestamp: new Date(apiInquiry.createdAt).getTime(),
+          healthNotes: apiInquiry.backgroundDescription
+        }));
+        setApplications(mappedInquiries);
+        saveToStorage('aj_apps', mappedInquiries);
+      }
+    } catch (error) {
+      console.warn("Inquiries API unavailable:", error);
+    }
+  };
+
   const fetchRoomsFromApi = async () => {
     try {
       const response = await fetch('http://localhost:8000/api/getAllRooms');
@@ -78,7 +111,7 @@ export const useAppState = () => {
         saveToStorage('aj_rooms', mappedRooms);
       }
     } catch (error) {
-      console.warn("Rooms API unavailable, using cached/default rooms:", error);
+      console.warn("Rooms API unavailable:", error);
     }
   };
 
@@ -99,13 +132,15 @@ export const useAppState = () => {
         saveToStorage('aj_sessions', mappedSessions);
       }
     } catch (error) {
-      console.warn("Sessions API unavailable, using cached/default sessions:", error);
+      console.warn("Sessions API unavailable:", error);
     }
   };
 
   useEffect(() => {
     const get = (key: string) => localStorage.getItem(key);
-    setApplications(JSON.parse(get('aj_apps') || '[]'));
+    const storedApps = JSON.parse(get('aj_apps') || '[]');
+    setApplications(storedApps);
+    fetchInquiriesFromApi();
     
     const localSessions = JSON.parse(get('aj_sessions') || JSON.stringify(DEFAULT_SESSIONS));
     setSessions(localSessions);
@@ -121,7 +156,6 @@ export const useAppState = () => {
 
     const portalId = new URLSearchParams(window.location.search).get('portal');
     if (portalId) {
-      const storedApps = JSON.parse(get('aj_apps') || '[]');
       const guest = storedApps.find((a: Application) => a.id === portalId);
       if (guest && (guest.status === 'Confirmed' || guest.status === 'Approved')) {
         setActivePortalGuest(guest);
@@ -135,7 +169,6 @@ export const useAppState = () => {
 
   const submitApplication = async (form: BookingState) => {
     const selectedSession = sessions.find(s => s.id === form.sessionId);
-    
     const payload = {
       fullName: form.guestName,
       email: form.guestEmail,
@@ -153,33 +186,10 @@ export const useAppState = () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
       });
-      
       const result = await response.json();
-      
       if (result.success && result.data) {
-        const apiData = result.data;
-        const newApp: Application = {
-          id: apiData.refId,
-          sessionId: form.sessionId,
-          guestName: apiData.fullName,
-          email: apiData.email,
-          phone: apiData.phone,
-          gender: form.gender as any,
-          roomPreferenceId: apiData.roomId,
-          bookingType: form.bookingType,
-          status: 'Pending',
-          consentBathroom: apiData.isBathroomProtocolChecked,
-          consentAlcohol: apiData.isAlcoholFreeEstateChecked,
-          totalPrice: rooms.find(r => r.id === apiData.roomId)?.basePrice || 0,
-          depositPaid: false,
-          timestamp: Date.now(),
-          healthNotes: apiData.backgroundDescription
-        };
-        
-        const updated = [newApp, ...applications];
-        setApplications(updated);
-        saveToStorage('aj_apps', updated);
-        return apiData;
+        await fetchInquiriesFromApi(); // Refresh list after successful add
+        return result.data;
       } else {
         throw new Error(result.message || "Failed to transmit inquiry");
       }
@@ -205,6 +215,7 @@ export const useAppState = () => {
     activePortalGuest, setActivePortalGuest,
     submitApplication,
     updateAppStatus,
-    saveToStorage
+    saveToStorage,
+    fetchInquiriesFromApi
   };
 };

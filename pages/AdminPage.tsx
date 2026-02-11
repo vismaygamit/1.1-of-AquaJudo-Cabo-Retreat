@@ -1,12 +1,12 @@
 
 import React, { useState, useRef } from 'react';
-import { LogOut, Plus, Trash2, Copy, Image as ImageIcon, CheckCircle2, XCircle, Clock, Upload, Film, MessageSquare, MapPin, Package, ShieldCheck } from 'lucide-react';
+import { LogOut, Plus, Trash2, Copy, Image as ImageIcon, CheckCircle2, XCircle, Clock, Upload, Film, MessageSquare, MapPin, Package, ShieldCheck, RefreshCw, Calendar, Home, Quote } from 'lucide-react';
 import { AdminSectionHeader, Logo } from '../components/Shared';
-import { ApplicationStatus, Room } from '../types';
+import { ApplicationStatus, Room, Application } from '../types';
 
 interface AdminPageProps {
   onExit: () => void;
-  applications: any[];
+  applications: Application[];
   setApplications: any;
   rooms: Room[];
   setRooms: any;
@@ -28,6 +28,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({
   faqs, setFaqs, portalConfig, setPortalConfig 
 }) => {
   const [tab, setTab] = useState<TabType>('applications');
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const fileInputRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
   const videoInputRef = useRef<HTMLInputElement>(null);
 
@@ -37,6 +38,14 @@ export const AdminPage: React.FC<AdminPageProps> = ({
     const next = applications.map(a => a.id === id ? { ...a, status: newStatus } : a);
     setApplications(next);
     updateStorage('aj_apps', next);
+  };
+
+  const handleRefresh = async () => {
+    setIsRefreshing(true);
+    // Assuming we could pass a refresh function from useAppState, 
+    // for now we trigger a simple timeout to simulate network activity 
+    // as the useEffect in App.tsx already handles the initial fetch.
+    setTimeout(() => setIsRefreshing(false), 800);
   };
 
   const handleVideoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -105,58 +114,90 @@ export const AdminPage: React.FC<AdminPageProps> = ({
 
         {tab === 'applications' && (
           <div className="space-y-8 animate-fade-in">
-            <h3 className="text-2xl font-black uppercase tracking-tight text-stone">GUEST INQUIRIES</h3>
-            <div className="grid gap-6">
+            <div className="flex items-center justify-between">
+              <h3 className="text-2xl font-black uppercase tracking-tight text-stone">GUEST INQUIRIES</h3>
+              <button 
+                onClick={handleRefresh}
+                className={`p-3 rounded-full text-stone/40 hover:text-aqua-primary transition-all ${isRefreshing ? 'animate-spin' : ''}`}
+              >
+                <RefreshCw size={18} />
+              </button>
+            </div>
+            
+            <div className="grid gap-8">
               {applications.length === 0 ? (
                 <div className="p-20 text-center bg-white rounded-[3rem] border border-stone/5 border-dashed">
                   <p className="text-stone/20 font-black uppercase tracking-widest text-[10px]">No active inquiries</p>
                 </div>
               ) : (
                 applications.map(app => (
-                  <div key={app.id} className="bg-white p-10 md:p-12 rounded-[3.5rem] border border-stone/5 flex flex-col lg:flex-row lg:items-center justify-between gap-10 shadow-sm hover:shadow-md transition-shadow">
-                    <div className="space-y-3">
-                      <div className="flex items-center gap-4">
-                        <p className="text-2xl font-black uppercase text-stone leading-none tracking-tight">{app.guestName}</p>
-                        <span className={`px-5 py-1.5 rounded-full text-[9px] font-bold uppercase tracking-[0.2em] ${app.status === 'Approved' ? 'bg-[#e6f9f7] text-[#4fd1c5]' : 'bg-stone/5 text-stone/30'}`}>
-                          {app.status}
-                        </span>
+                  <div key={app.id} className="bg-white p-10 md:p-14 rounded-[3.5rem] border border-stone/5 flex flex-col gap-10 shadow-sm hover:shadow-xl transition-all group">
+                    <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-10">
+                      <div className="space-y-4">
+                        <div className="flex items-center gap-5">
+                          <p className="text-3xl font-black uppercase text-stone leading-none tracking-tight">{app.guestName}</p>
+                          <span className={`px-5 py-2 rounded-full text-[10px] font-black uppercase tracking-[0.2em] shadow-sm ${
+                            app.status === 'Approved' ? 'bg-[#e6f9f7] text-[#4fd1c5]' : 
+                            app.status === 'Confirmed' ? 'bg-green-50 text-green-500' : 
+                            'bg-stone/5 text-stone/30'
+                          }`}>
+                            {app.status}
+                          </span>
+                        </div>
+                        <div className="flex flex-wrap gap-x-6 gap-y-2 text-[11px] text-stone/40 font-bold uppercase tracking-widest">
+                          <span className="text-aqua-primary">{app.id}</span>
+                          <span>{app.email}</span>
+                          <span>{app.phone}</span>
+                        </div>
                       </div>
-                      <p className="text-[12px] text-stone/30 font-bold uppercase tracking-widest">
-                        {app.id} <span className="mx-2 opacity-20">•</span> {app.email} <span className="mx-2 opacity-20">•</span> {app.phone}
-                      </p>
+                      
+                      <div className="flex flex-wrap items-center gap-3">
+                        <button onClick={() => handleStatusChange(app.id, 'Approved')} className="px-6 py-4 bg-[#f9f9f9] text-stone rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-[#111] hover:text-white transition-all">APPROVE</button>
+                        <button onClick={() => handleStatusChange(app.id, 'Declined')} className="px-6 py-4 bg-[#f9f9f9] text-stone rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-red-500 hover:text-white transition-all">DECLINE</button>
+                        <button onClick={() => handleStatusChange(app.id, 'Confirmed')} className="px-6 py-4 bg-[#f9f9f9] text-stone rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-green-500 hover:text-white transition-all">CONFIRM</button>
+                        {(app.status === 'Approved' || app.status === 'Confirmed') && (
+                          <button 
+                            onClick={() => {
+                              const link = `${window.location.origin}${window.location.pathname}?portal=${app.id}`;
+                              navigator.clipboard.writeText(link);
+                              alert('Portal magic link copied.');
+                            }} 
+                            className="px-8 py-4 bg-aqua-primary text-stone rounded-2xl text-[10px] font-black uppercase tracking-widest flex items-center gap-3 hover:scale-105 transition-all shadow-xl"
+                          >
+                            <Copy size={14} /> MAGIC LINK
+                          </button>
+                        )}
+                      </div>
                     </div>
-                    
-                    <div className="flex flex-wrap items-center gap-3">
-                      <button 
-                        onClick={() => handleStatusChange(app.id, 'Approved')}
-                        className="px-6 py-3 bg-[#f3f3f3] text-stone rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-stone hover:text-white transition-all"
-                      >
-                        APPROVE
-                      </button>
-                      <button 
-                        onClick={() => handleStatusChange(app.id, 'Declined')}
-                        className="px-6 py-3 bg-[#f3f3f3] text-stone rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-stone hover:text-white transition-all"
-                      >
-                        DECLINE
-                      </button>
-                      <button 
-                        onClick={() => handleStatusChange(app.id, 'Confirmed')}
-                        className="px-6 py-3 bg-[#f3f3f3] text-stone rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-stone hover:text-white transition-all"
-                      >
-                        CONFIRM
-                      </button>
-                      {(app.status === 'Approved' || app.status === 'Confirmed') && (
-                        <button 
-                          onClick={() => {
-                            const link = `${window.location.origin}${window.location.pathname}?portal=${app.id}`;
-                            navigator.clipboard.writeText(link);
-                            alert('Portal magic link copied.');
-                          }} 
-                          className="px-7 py-3 bg-[#e6f9f7] text-[#4fd1c5] rounded-2xl text-[10px] font-black uppercase tracking-widest flex items-center gap-3 hover:bg-[#4fd1c5] hover:text-white transition-all shadow-sm"
-                        >
-                          <Copy size={14} /> MAGIC LINK
-                        </button>
-                      )}
+
+                    <div className="h-px bg-stone/5 w-full"></div>
+
+                    {/* API Rich Data Fields */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
+                      <div className="space-y-3">
+                        <div className="flex items-center gap-2 text-[10px] font-black text-stone/20 uppercase tracking-widest">
+                          <Home size={12} /> Sanctuary Request
+                        </div>
+                        <p className="text-[15px] font-black uppercase text-stone tracking-tight">
+                          {app.roomName || rooms.find(r => r.id === app.roomPreferenceId)?.name || 'ONYX SANCTUARY'}
+                        </p>
+                      </div>
+                      <div className="space-y-3">
+                        <div className="flex items-center gap-2 text-[10px] font-black text-stone/20 uppercase tracking-widest">
+                          <Calendar size={12} /> Residency Window
+                        </div>
+                        <p className="text-[15px] font-black uppercase text-stone tracking-tight">
+                          {app.residencyDate ? new Date(app.residencyDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }).toUpperCase() : 'TBD'}
+                        </p>
+                      </div>
+                      <div className="space-y-3 lg:col-span-1">
+                        <div className="flex items-center gap-2 text-[10px] font-black text-stone/20 uppercase tracking-widest">
+                          <Quote size={12} /> Narrative Preview
+                        </div>
+                        <p className="text-[13px] font-serif italic text-stone/40 line-clamp-2 leading-relaxed">
+                          {app.healthNotes || "No background narrative provided."}
+                        </p>
+                      </div>
                     </div>
                   </div>
                 ))

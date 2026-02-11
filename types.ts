@@ -1,3 +1,4 @@
+
 export type SessionStatus = 'Open' | 'Limited' | 'Full';
 export type ApplicationStatus = 'Pending' | 'Approved' | 'Declined' | 'Waitlisted' | 'Confirmed';
 
@@ -17,6 +18,8 @@ export interface Application {
   phone: string;
   gender: 'male' | 'female' | 'other' | '';
   roomPreferenceId: string;
+  roomName?: string;
+  residencyDate?: string;
   bookingType: 'solo' | 'couple' | 'group';
   companionName?: string;
   status: ApplicationStatus;
@@ -66,7 +69,6 @@ export interface FAQItem {
   a: string;
 }
 
-// Fixed: Added missing properties to the AddOn interface to satisfy definitions in constants.tsx
 export interface AddOn {
   id: string;
   title: string;
