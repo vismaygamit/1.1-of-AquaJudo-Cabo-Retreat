@@ -147,7 +147,7 @@ export const useAppState = () => {
           id: apiSession._id,
           startDate: apiSession.startDate,
           endDate: apiSession.endDate,
-          status: 'Open',
+          status: 'Open', // Default to Open as API doesn't provide status
           maxGuests: apiSession.maxGuests
         }));
         setSessions(mappedSessions);

@@ -109,7 +109,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ sessions, rooms, itine
             <h2 className="text-3xl md:text-5xl font-display font-light uppercase tracking-tighter">Residency Windows</h2>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {sessions.slice(0, 3).map((s) => (
+            {sessions.map((s) => (
               <div key={s.id} className="bg-white p-10 rounded-[3rem] border border-stone/5 space-y-8 shadow-sm flex flex-col justify-between">
                 <div className="space-y-4">
                   <div className="flex justify-between items-start">
