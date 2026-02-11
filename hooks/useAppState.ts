@@ -4,7 +4,9 @@ import {
   VILLA_ROOMS as DEFAULT_ROOMS, 
   RESIDENCY_SESSIONS as DEFAULT_SESSIONS, 
   FAQS as DEFAULT_FAQS,
-  ITINERARY_DAYS as DEFAULT_ITINERARY
+  ITINERARY_DAYS as DEFAULT_ITINERARY,
+  API_BASE_URL,
+  API_ROOT
 } from '../constants';
 import { BookingState, Room, ResidencySession, Application, FAQItem, ApplicationStatus } from '../types';
 
@@ -96,7 +98,7 @@ export const useAppState = () => {
     lastInquiryPage.current = page;
     
     try {
-      const response = await fetch(`http://localhost:8000/api/inquiries?page=${page}&limit=${limit}`);
+      const response = await fetch(`${API_BASE_URL}/inquiries?page=${page}&limit=${limit}`);
       const result = await response.json();
       
       if (result.success && result.data) {
@@ -145,7 +147,7 @@ export const useAppState = () => {
     lastRoomFetch.current = now;
     
     try {
-      const response = await fetch('http://localhost:8000/api/getAllRooms');
+      const response = await fetch(`${API_BASE_URL}/getAllRooms`);
       const result = await response.json();
       
       if (result.success && Array.isArray(result.data)) {
@@ -156,7 +158,7 @@ export const useAppState = () => {
           location: "Estate Wing", 
           bedType: apiRoom.bedType,
           basePrice: apiRoom.price,
-          image: apiRoom.imgPath.startsWith('http') ? apiRoom.imgPath : `http://localhost:8000${apiRoom.imgPath}`,
+          image: apiRoom.imgPath.startsWith('http') ? apiRoom.imgPath : `${API_ROOT}${apiRoom.imgPath}`,
           maxOccupancy: 2,
           bathType: apiRoom.bathRoomType.toLowerCase().includes('shared') ? 'shared' : 'private'
         }));
@@ -179,7 +181,7 @@ export const useAppState = () => {
     lastSessionFetch.current = now;
     
     try {
-      const response = await fetch('http://localhost:8000/api/session/getAllSessions');
+      const response = await fetch(`${API_BASE_URL}/session/getAllSessions`);
       const result = await response.json();
       
       if (result.success && Array.isArray(result.data)) {
@@ -233,13 +235,14 @@ export const useAppState = () => {
       phone: form.guestPhone,
       date: selectedSession ? selectedSession.startDate.split('T')[0] : new Date().toISOString().split('T')[0],
       roomId: form.roomPreferenceId,
+      // Fix: Property names updated to match BookingState interface from types.ts
       isBathroomProtocolChecked: form.bathroomConsent,
       isAlcoholFreeEstateChecked: form.alcoholConsent,
       backgroundDescription: form.healthNotes
     };
 
     try {
-      const response = await fetch('http://localhost:8000/api/inquiries/add', {
+      const response = await fetch(`${API_BASE_URL}/inquiries/add`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)

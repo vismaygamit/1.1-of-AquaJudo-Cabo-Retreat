@@ -1,6 +1,9 @@
 
 import { AddOn, Room, FAQItem, ResidencySession } from './types';
 
+export const API_ROOT = 'http://localhost:8000';
+export const API_BASE_URL = `${API_ROOT}/api`;
+
 export const RESIDENCY_SESSIONS: ResidencySession[] = [
   { id: 's1', startDate: '2026-04-07', endDate: '2026-04-14', status: 'Limited', maxGuests: 4 },
   { id: 's2', startDate: '2026-05-05', endDate: '2026-05-12', status: 'Open', maxGuests: 4 },
