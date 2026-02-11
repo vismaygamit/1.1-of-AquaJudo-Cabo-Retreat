@@ -142,13 +142,12 @@ export const useAppState = () => {
     setApplications(storedApps);
     fetchInquiriesFromApi();
     
+    // Load local defaults, but do not trigger API refresh automatically
     const localSessions = JSON.parse(get('aj_sessions') || JSON.stringify(DEFAULT_SESSIONS));
     setSessions(localSessions);
-    fetchSessionsFromApi();
     
     const localRooms = JSON.parse(get('aj_rooms') || JSON.stringify(DEFAULT_ROOMS));
     setRooms(localRooms);
-    fetchRoomsFromApi();
 
     setFaqs(JSON.parse(get('aj_faqs') || JSON.stringify(DEFAULT_FAQS)));
     setItinerary(JSON.parse(get('aj_itinerary') || JSON.stringify(DEFAULT_ITINERARY)));
@@ -188,7 +187,7 @@ export const useAppState = () => {
       });
       const result = await response.json();
       if (result.success && result.data) {
-        await fetchInquiriesFromApi(); // Refresh list after successful add
+        await fetchInquiriesFromApi(); 
         return result.data;
       } else {
         throw new Error(result.message || "Failed to transmit inquiry");
@@ -216,6 +215,8 @@ export const useAppState = () => {
     submitApplication,
     updateAppStatus,
     saveToStorage,
-    fetchInquiriesFromApi
+    fetchInquiriesFromApi,
+    fetchRoomsFromApi,
+    fetchSessionsFromApi
   };
 };

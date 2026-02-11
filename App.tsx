@@ -16,8 +16,13 @@ const App: React.FC = () => {
   const [targetSessionId, setTargetSessionId] = useState('');
 
   // Handle Internal Routing Actions
-  const openApply = (sessionId?: string) => {
+  const openApply = async (sessionId?: string) => {
     setTargetSessionId(sessionId || '');
+    // Fetch fresh data from API only upon opening the inquiry form
+    await Promise.all([
+      state.fetchSessionsFromApi(),
+      state.fetchRoomsFromApi()
+    ]);
     setShowApplyModal(true);
   };
 
