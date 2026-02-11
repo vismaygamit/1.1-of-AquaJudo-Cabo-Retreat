@@ -1,7 +1,8 @@
 
 import { AddOn, Room, FAQItem, ResidencySession } from './types';
-
-export const API_ROOT = 'http://localhost:8000';
+// https://aquajudo-backend.onrender.com/
+// http://localhost:8000
+export const API_ROOT = 'https://aquajudo-backend.onrender.com';
 export const API_BASE_URL = `${API_ROOT}/api`;
 
 export const RESIDENCY_SESSIONS: ResidencySession[] = [
