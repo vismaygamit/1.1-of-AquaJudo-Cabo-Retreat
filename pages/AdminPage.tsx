@@ -11,6 +11,8 @@ interface AdminPageProps {
   pagination: PaginationInfo | null;
   setApplications: any;
   fetchInquiriesFromApi: (page?: number, limit?: number, force?: boolean) => Promise<void>;
+  fetchSessionsFromApi: (force?: boolean) => Promise<void>;
+  fetchRoomsFromApi: (force?: boolean) => Promise<void>;
   rooms: Room[];
   setRooms: any;
   sessions: any[];
@@ -28,7 +30,7 @@ type TabType = 'applications' | 'sessions' | 'rooms' | 'itinerary' | 'faqs' | 'p
 const ITEMS_PER_PAGE = 5;
 
 export const AdminPage: React.FC<AdminPageProps> = ({ 
-  onExit, applications, pagination, setApplications, fetchInquiriesFromApi, rooms, setRooms, 
+  onExit, applications, pagination, setApplications, fetchInquiriesFromApi, fetchSessionsFromApi, fetchRoomsFromApi, rooms, setRooms, 
   sessions, setSessions, itinerary, setItinerary, 
   faqs, setFaqs, portalConfig, setPortalConfig 
 }) => {
@@ -40,16 +42,21 @@ export const AdminPage: React.FC<AdminPageProps> = ({
   // Ref to track if we've done the initial load for the current tab
   const initialLoadDone = useRef<Record<string, boolean>>({});
 
-  // Trigger inquiry fetch only when the applications tab is opened for the first time
+  // Unified fetch logic for tabs
   useEffect(() => {
-    if (tab === 'applications' && !initialLoadDone.current[tab]) {
-      fetchInquiriesFromApi(1, ITEMS_PER_PAGE, false); 
-      initialLoadDone.current[tab] = true;
+    if (!initialLoadDone.current[tab]) {
+      if (tab === 'applications') {
+        fetchInquiriesFromApi(1, ITEMS_PER_PAGE, false);
+        initialLoadDone.current[tab] = true;
+      } else if (tab === 'sessions') {
+        fetchSessionsFromApi(false);
+        initialLoadDone.current[tab] = true;
+      } else if (tab === 'rooms') {
+        fetchRoomsFromApi(false);
+        initialLoadDone.current[tab] = true;
+      }
     }
-    
-    // Reset tracker if we switch away from the tab to allow fresh entry later if needed
-    // or keep it true to preserve session pagination. Here we keep it per session.
-  }, [tab, fetchInquiriesFromApi]);
+  }, [tab, fetchInquiriesFromApi, fetchSessionsFromApi, fetchRoomsFromApi]);
 
   const updateStorage = (key: string, val: any) => localStorage.setItem(key, JSON.stringify(val));
 
@@ -61,7 +68,13 @@ export const AdminPage: React.FC<AdminPageProps> = ({
 
   const handleRefresh = async () => {
     setIsRefreshing(true);
-    await fetchInquiriesFromApi(pagination?.page || 1, ITEMS_PER_PAGE, true); // Forced fetch of current page
+    if (tab === 'applications') {
+      await fetchInquiriesFromApi(pagination?.page || 1, ITEMS_PER_PAGE, true);
+    } else if (tab === 'sessions') {
+      await fetchSessionsFromApi(true);
+    } else if (tab === 'rooms') {
+      await fetchRoomsFromApi(true);
+    }
     setIsRefreshing(false);
   };
 
@@ -96,7 +109,6 @@ export const AdminPage: React.FC<AdminPageProps> = ({
   const tabs: TabType[] = ['applications', 'sessions', 'rooms', 'itinerary', 'faqs', 'portal'];
 
   const goToPage = (page: number) => {
-    // We pass force=true here to ensure the API is called even if we were just there
     fetchInquiriesFromApi(page, ITEMS_PER_PAGE, true);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -277,17 +289,25 @@ export const AdminPage: React.FC<AdminPageProps> = ({
         {tab === 'portal' && (
           <div className="space-y-16 animate-fade-in pb-20">
             <h3 className="text-2xl font-black uppercase tracking-tight text-stone">Portal Settings</h3>
-            {/* ... Rest of Tab Logic ... */}
+            {/* ... rest of portal tab ... */}
           </div>
         )}
 
         {tab === 'rooms' && (
           <div className="space-y-8 animate-fade-in">
-            <AdminSectionHeader title="Sanctuary Management" onAdd={() => {
-              const newId = `room-${Math.random().toString(36).substr(2, 5).toUpperCase()}`;
-              const next = [...rooms, { id: newId, name: "NEW SANCTUARY", basePrice: 5000, description: "", image: "", location: "Main Floor", bedType: "King Bed", maxOccupancy: 2, bathType: 'private' }];
-              setRooms(next); updateStorage('aj_rooms', next);
-            }} />
+            <div className="flex items-center justify-between mb-8">
+              <AdminSectionHeader title="Sanctuary Management" onAdd={() => {
+                const newId = `room-${Math.random().toString(36).substr(2, 5).toUpperCase()}`;
+                const next = [...rooms, { id: newId, name: "NEW SANCTUARY", basePrice: 5000, description: "", image: "", location: "Main Floor", bedType: "King Bed", maxOccupancy: 2, bathType: 'private' }];
+                setRooms(next); updateStorage('aj_rooms', next);
+              }} />
+              <button 
+                onClick={handleRefresh}
+                className={`p-3 rounded-full text-stone/40 hover:text-aqua-primary transition-all ${isRefreshing ? 'animate-spin' : ''}`}
+              >
+                <RefreshCw size={18} />
+              </button>
+            </div>
             <div className="space-y-10">
               {rooms.map((room, idx) => (
                 <div key={room.id} className="bg-white p-10 rounded-[2.5rem] border border-stone/5 shadow-2xl shadow-stone/5 space-y-8">
@@ -348,10 +368,18 @@ export const AdminPage: React.FC<AdminPageProps> = ({
 
         {tab === 'sessions' && (
           <div className="space-y-8 animate-fade-in">
-            <AdminSectionHeader title="Residency Windows" onAdd={() => {
-              const next = [...sessions, { id: Date.now().toString(), startDate: '2026-07-01', endDate: '2026-07-08', status: 'Open', maxGuests: 4 }];
-              setSessions(next); updateStorage('aj_sessions', next);
-            }} />
+            <div className="flex items-center justify-between mb-8">
+              <AdminSectionHeader title="Residency Windows" onAdd={() => {
+                const next = [...sessions, { id: Date.now().toString(), startDate: '2026-07-01', endDate: '2026-07-08', status: 'Open', maxGuests: 4 }];
+                setSessions(next); updateStorage('aj_sessions', next);
+              }} />
+              <button 
+                onClick={handleRefresh}
+                className={`p-3 rounded-full text-stone/40 hover:text-aqua-primary transition-all ${isRefreshing ? 'animate-spin' : ''}`}
+              >
+                <RefreshCw size={18} />
+              </button>
+            </div>
             <div className="grid gap-6">
               {sessions.map((s, idx) => (
                 <div key={s.id} className="bg-white p-8 rounded-[2rem] border border-stone/5 shadow-lg flex items-center gap-8">

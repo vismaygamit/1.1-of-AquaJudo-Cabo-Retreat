@@ -60,6 +60,8 @@ const App: React.FC = () => {
           pagination={state.pagination}
           setApplications={state.setApplications} 
           fetchInquiriesFromApi={state.fetchInquiriesFromApi}
+          fetchSessionsFromApi={state.fetchSessionsFromApi}
+          fetchRoomsFromApi={state.fetchRoomsFromApi}
           rooms={state.rooms} 
           setRooms={state.setRooms} 
           sessions={state.sessions} 

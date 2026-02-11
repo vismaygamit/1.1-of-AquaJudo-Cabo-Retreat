@@ -86,7 +86,6 @@ export const useAppState = () => {
     const now = Date.now();
     if (isFetchingInquiries.current) return;
     
-    // Use refs instead of state for throttle check to keep the callback stable
     const isSamePage = lastInquiryPage.current === page;
     const isWithinThrottle = (now - lastInquiryFetch.current < FETCH_THROTTLE_MS);
     
@@ -126,7 +125,6 @@ export const useAppState = () => {
         
         setApplications(mappedInquiries);
         setPagination(paginationData);
-        // Only save to storage if it's the first page to maintain a consistent "latest" view offline
         if (page === 1) {
           saveToStorage('aj_apps', mappedInquiries);
         }
@@ -136,7 +134,7 @@ export const useAppState = () => {
     } finally {
       isFetchingInquiries.current = false;
     }
-  }, []); // Stable callback
+  }, []);
 
   const fetchRoomsFromApi = useCallback(async (force = false) => {
     const now = Date.now();
@@ -187,8 +185,9 @@ export const useAppState = () => {
       if (result.success && Array.isArray(result.data)) {
         const mappedSessions: ResidencySession[] = result.data.map((apiSession: any) => ({
           id: apiSession._id,
-          startDate: apiSession.startDate,
-          endDate: apiSession.endDate,
+          // Split at 'T' to get only YYYY-MM-DD for the HTML date inputs
+          startDate: apiSession.startDate.split('T')[0],
+          endDate: apiSession.endDate.split('T')[0],
           status: 'Open', 
           maxGuests: apiSession.maxGuests
         }));
