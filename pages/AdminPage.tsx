@@ -1,5 +1,5 @@
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { LogOut, Plus, Trash2, Copy, Image as ImageIcon, CheckCircle2, XCircle, Clock, Upload, Film, MessageSquare, MapPin, Package, ShieldCheck, RefreshCw, Calendar, Home, Quote } from 'lucide-react';
 import { AdminSectionHeader, Logo } from '../components/Shared';
 import { ApplicationStatus, Room, Application } from '../types';
@@ -8,6 +8,7 @@ interface AdminPageProps {
   onExit: () => void;
   applications: Application[];
   setApplications: any;
+  fetchInquiriesFromApi: () => Promise<void>;
   rooms: Room[];
   setRooms: any;
   sessions: any[];
@@ -23,7 +24,7 @@ interface AdminPageProps {
 type TabType = 'applications' | 'sessions' | 'rooms' | 'itinerary' | 'faqs' | 'portal';
 
 export const AdminPage: React.FC<AdminPageProps> = ({ 
-  onExit, applications, setApplications, rooms, setRooms, 
+  onExit, applications, setApplications, fetchInquiriesFromApi, rooms, setRooms, 
   sessions, setSessions, itinerary, setItinerary, 
   faqs, setFaqs, portalConfig, setPortalConfig 
 }) => {
@@ -31,6 +32,13 @@ export const AdminPage: React.FC<AdminPageProps> = ({
   const [isRefreshing, setIsRefreshing] = useState(false);
   const fileInputRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
   const videoInputRef = useRef<HTMLInputElement>(null);
+
+  // Trigger inquiry fetch only when the applications tab is opened
+  useEffect(() => {
+    if (tab === 'applications') {
+      fetchInquiriesFromApi();
+    }
+  }, [tab]);
 
   const updateStorage = (key: string, val: any) => localStorage.setItem(key, JSON.stringify(val));
 
@@ -42,10 +50,8 @@ export const AdminPage: React.FC<AdminPageProps> = ({
 
   const handleRefresh = async () => {
     setIsRefreshing(true);
-    // Assuming we could pass a refresh function from useAppState, 
-    // for now we trigger a simple timeout to simulate network activity 
-    // as the useEffect in App.tsx already handles the initial fetch.
-    setTimeout(() => setIsRefreshing(false), 800);
+    await fetchInquiriesFromApi();
+    setIsRefreshing(false);
   };
 
   const handleVideoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {

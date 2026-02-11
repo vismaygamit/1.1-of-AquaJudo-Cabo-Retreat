@@ -46,6 +46,7 @@ const App: React.FC = () => {
         onExit={() => setView('landing')} 
         applications={state.applications} 
         setApplications={state.setApplications} 
+        fetchInquiriesFromApi={state.fetchInquiriesFromApi}
         rooms={state.rooms} 
         setRooms={state.setRooms} 
         sessions={state.sessions} 

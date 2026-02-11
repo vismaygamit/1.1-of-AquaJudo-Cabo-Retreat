@@ -140,9 +140,7 @@ export const useAppState = () => {
     const get = (key: string) => localStorage.getItem(key);
     const storedApps = JSON.parse(get('aj_apps') || '[]');
     setApplications(storedApps);
-    fetchInquiriesFromApi();
     
-    // Load local defaults, but do not trigger API refresh automatically
     const localSessions = JSON.parse(get('aj_sessions') || JSON.stringify(DEFAULT_SESSIONS));
     setSessions(localSessions);
     
@@ -187,7 +185,6 @@ export const useAppState = () => {
       });
       const result = await response.json();
       if (result.success && result.data) {
-        await fetchInquiriesFromApi(); 
         return result.data;
       } else {
         throw new Error(result.message || "Failed to transmit inquiry");
