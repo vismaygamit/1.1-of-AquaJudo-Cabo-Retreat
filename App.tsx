@@ -57,6 +57,7 @@ const App: React.FC = () => {
         <AdminPage 
           onExit={() => setView('landing')} 
           applications={state.applications} 
+          pagination={state.pagination}
           setApplications={state.setApplications} 
           fetchInquiriesFromApi={state.fetchInquiriesFromApi}
           rooms={state.rooms} 

@@ -51,8 +51,16 @@ const DEFAULT_PORTAL_CONFIG = {
 // Throttle time in milliseconds (10 seconds)
 const FETCH_THROTTLE_MS = 10000;
 
+export interface PaginationInfo {
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
+
 export const useAppState = () => {
   const [applications, setApplications] = useState<Application[]>([]);
+  const [pagination, setPagination] = useState<PaginationInfo | null>(null);
   const [sessions, setSessions] = useState<ResidencySession[]>([]);
   const [rooms, setRooms] = useState<Room[]>([]);
   const [faqs, setFaqs] = useState<FAQItem[]>([]);
@@ -73,20 +81,24 @@ export const useAppState = () => {
     localStorage.setItem(key, JSON.stringify(data));
   };
 
-  const fetchInquiriesFromApi = useCallback(async (force = false) => {
+  const fetchInquiriesFromApi = useCallback(async (page = 1, limit = 5, force = false) => {
     const now = Date.now();
     if (isFetchingInquiries.current) return;
-    if (!force && (now - lastInquiryFetch.current < FETCH_THROTTLE_MS)) return;
+    // Only throttle if we are fetching the same page with the same limit and it's not forced
+    if (!force && (now - lastInquiryFetch.current < FETCH_THROTTLE_MS) && pagination?.page === page) return;
     
     isFetchingInquiries.current = true;
     lastInquiryFetch.current = now;
     
     try {
-      const response = await fetch('http://localhost:8000/api/inquiries');
+      const response = await fetch(`http://localhost:8000/api/inquiries?page=${page}&limit=${limit}`);
       const result = await response.json();
       
-      if (result.success && Array.isArray(result.data)) {
-        const mappedInquiries: Application[] = result.data.map((apiInquiry: any) => ({
+      if (result.success && result.data) {
+        const inquiriesData = result.data.inquiries || [];
+        const paginationData = result.data.pagination || null;
+
+        const mappedInquiries: Application[] = inquiriesData.map((apiInquiry: any) => ({
           id: apiInquiry.refId || apiInquiry._id,
           sessionId: apiInquiry.sessionId || '', 
           guestName: apiInquiry.fullName,
@@ -105,15 +117,20 @@ export const useAppState = () => {
           timestamp: new Date(apiInquiry.createdAt).getTime(),
           healthNotes: apiInquiry.backgroundDescription
         }));
+        
         setApplications(mappedInquiries);
-        saveToStorage('aj_apps', mappedInquiries);
+        setPagination(paginationData);
+        // Only save to storage if it's the first page to maintain a consistent "latest" view offline
+        if (page === 1) {
+          saveToStorage('aj_apps', mappedInquiries);
+        }
       }
     } catch (error) {
       console.warn("Inquiries API unavailable:", error);
     } finally {
       isFetchingInquiries.current = false;
     }
-  }, []);
+  }, [pagination]);
 
   const fetchRoomsFromApi = useCallback(async (force = false) => {
     const now = Date.now();
@@ -242,6 +259,7 @@ export const useAppState = () => {
 
   return {
     applications, setApplications,
+    pagination, setPagination,
     sessions, setSessions,
     rooms, setRooms,
     faqs, setFaqs,
