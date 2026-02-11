@@ -1,6 +1,6 @@
 
 import React, { useState, useRef, useEffect } from 'react';
-import { LogOut, Plus, Trash2, Copy, Image as ImageIcon, CheckCircle2, XCircle, Clock, Upload, Film, MessageSquare, MapPin, Package, ShieldCheck, RefreshCw, Calendar, Home, Quote, ChevronLeft, ChevronRight } from 'lucide-react';
+import { LogOut, Plus, Trash2, Copy, Image as ImageIcon, CheckCircle2, XCircle, Clock, Upload, Film, MessageSquare, MapPin, Package, ShieldCheck, RefreshCw, Calendar, Home, Quote, ChevronLeft, ChevronRight, Save } from 'lucide-react';
 import { AdminSectionHeader, Logo } from '../components/Shared';
 import { ApplicationStatus, Room, Application } from '../types';
 import { PaginationInfo } from '../hooks/useAppState';
@@ -308,7 +308,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                       <p className="text-[9px] font-black text-aqua-primary uppercase tracking-widest">Sanctuary ID: {room.id.toUpperCase()}</p>
                       <input value={room.name} onChange={e => {
                         const next = [...rooms]; next[idx].name = e.target.value;
-                        setRooms(next); updateStorage('aj_rooms', next);
+                        setRooms(next);
                       }} className="text-3xl font-black uppercase tracking-tight text-stone w-full bg-transparent outline-none focus:text-aqua-primary" />
                     </div>
                     <div className="flex items-center gap-6">
@@ -316,13 +316,24 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                         <label className="block text-[8px] font-black text-stone/20 uppercase tracking-widest mb-1">Base Price (USD)</label>
                         <input type="number" value={room.basePrice} onChange={e => {
                           const next = [...rooms]; next[idx].basePrice = parseInt(e.target.value);
-                          setRooms(next); updateStorage('aj_rooms', next);
+                          setRooms(next);
                         }} className="bg-[#faf9f6] px-4 py-2 rounded-xl text-xl font-black text-stone outline-none border border-stone/5 w-32 text-center" />
                       </div>
-                      <button onClick={() => {
-                        const next = rooms.filter(r => r.id !== room.id);
-                        setRooms(next); updateStorage('aj_rooms', next);
-                      }} className="p-2 text-stone/10 hover:text-red-500 transition-colors mt-4"><Trash2 size={24}/></button>
+                      <div className="flex flex-col gap-2 mt-4">
+                        <button 
+                          onClick={() => {
+                            updateStorage('aj_rooms', rooms);
+                            alert(`Sanctuary "${room.name}" configuration persisted.`);
+                          }}
+                          className="px-4 py-2 bg-[#111] text-white rounded-xl text-[8px] font-black uppercase tracking-widest hover:bg-stone-light transition-all shadow-sm flex items-center justify-center gap-2"
+                        >
+                          <CheckCircle2 size={12} /> Save
+                        </button>
+                        <button onClick={() => {
+                          const next = rooms.filter(r => r.id !== room.id);
+                          setRooms(next); updateStorage('aj_rooms', next);
+                        }} className="p-2 text-stone/10 hover:text-red-500 transition-colors flex justify-center"><Trash2 size={18}/></button>
+                      </div>
                     </div>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
@@ -330,7 +341,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                       <label className="text-[8px] font-black text-stone/20 uppercase tracking-widest">Description</label>
                       <textarea value={room.description} onChange={e => {
                         const next = [...rooms]; next[idx].description = e.target.value;
-                        setRooms(next); updateStorage('aj_rooms', next);
+                        setRooms(next);
                       }} className="w-full bg-[#faf9f6] p-6 rounded-[1.5rem] border border-stone/5 text-[13px] font-serif italic text-stone/40 outline-none resize-none min-h-[180px]" />
                     </div>
                     <div className="space-y-4">
@@ -339,7 +350,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                         <div className="flex gap-2">
                           <input value={room.image || ''} onChange={e => {
                             const next = [...rooms]; next[idx].image = e.target.value;
-                            setRooms(next); updateStorage('aj_rooms', next);
+                            setRooms(next);
                           }} className="flex-1 bg-[#faf9f6] px-4 py-3 rounded-xl text-[10px] border border-stone/5 outline-none font-serif italic text-stone/40" placeholder="Image URL" />
                           <input type="file" accept="image/*" className="hidden" ref={el => { fileInputRefs.current[room.id] = el; }} onChange={e => handleRoomImageUpload(room.id, e)} />
                           <button onClick={() => fileInputRefs.current[room.id]?.click()} className="bg-stone text-white px-5 py-3 rounded-xl text-[9px] font-black uppercase tracking-widest flex items-center gap-2 hover:bg-stone-light transition-all">
@@ -374,44 +385,44 @@ export const AdminPage: React.FC<AdminPageProps> = ({
             <div className="grid gap-6">
               {sessions.map((s, idx) => (
                 <div key={s.id} className="bg-white p-8 rounded-[2rem] border border-stone/5 shadow-lg flex items-center gap-8">
-                  <div className="flex-1 grid grid-cols-2 md:grid-cols-4 gap-6">
+                  <div className="flex-1 grid grid-cols-2 md:grid-cols-3 gap-6">
                     <div className="space-y-2">
                       <label className="text-[8px] font-black text-stone/20 uppercase tracking-widest">Start Date</label>
                       <input type="date" value={s.startDate} onChange={e => {
                         const next = [...sessions]; next[idx].startDate = e.target.value;
-                        setSessions(next); updateStorage('aj_sessions', next);
+                        setSessions(next);
                       }} className="w-full bg-[#faf9f6] p-4 rounded-xl border border-stone/5 text-xs outline-none" />
                     </div>
                     <div className="space-y-2">
                       <label className="text-[8px] font-black text-stone/20 uppercase tracking-widest">End Date</label>
                       <input type="date" value={s.endDate} onChange={e => {
                         const next = [...sessions]; next[idx].endDate = e.target.value;
-                        setSessions(next); updateStorage('aj_sessions', next);
+                        setSessions(next);
                       }} className="w-full bg-[#faf9f6] p-4 rounded-xl border border-stone/5 text-xs outline-none" />
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-[8px] font-black text-stone/20 uppercase tracking-widest">Availability</label>
-                      <select value={s.status} onChange={e => {
-                        const next = [...sessions]; next[idx].status = e.target.value as any;
-                        setSessions(next); updateStorage('aj_sessions', next);
-                      }} className="w-full bg-[#faf9f6] p-4 rounded-xl border border-stone/5 text-xs outline-none appearance-none">
-                        <option>Open</option>
-                        <option>Limited</option>
-                        <option>Full</option>
-                      </select>
                     </div>
                     <div className="space-y-2">
                       <label className="text-[8px] font-black text-stone/20 uppercase tracking-widest">Capacity</label>
                       <input type="number" value={s.maxGuests} onChange={e => {
                         const next = [...sessions]; next[idx].maxGuests = parseInt(e.target.value);
-                        setSessions(next); updateStorage('aj_sessions', next);
+                        setSessions(next);
                       }} className="w-full bg-[#faf9f6] p-4 rounded-xl border border-stone/5 text-xs outline-none text-center" />
                     </div>
                   </div>
-                  <button onClick={() => {
-                    const next = sessions.filter(item => item.id !== s.id);
-                    setSessions(next); updateStorage('aj_sessions', next);
-                  }} className="p-4 text-stone/10 hover:text-red-500 transition-all"><Trash2 size={20}/></button>
+                  <div className="flex items-center gap-4">
+                    <button 
+                      onClick={() => {
+                        updateStorage('aj_sessions', sessions);
+                        alert('Residency window data persisted to local registry.');
+                      }} 
+                      className="px-6 py-3 bg-[#111] text-white rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-stone-light transition-all shadow-md flex items-center gap-2"
+                    >
+                      <CheckCircle2 size={14} /> SAVE
+                    </button>
+                    <button onClick={() => {
+                      const next = sessions.filter(item => item.id !== s.id);
+                      setSessions(next); updateStorage('aj_sessions', next);
+                    }} className="p-4 text-stone/10 hover:text-red-500 transition-all"><Trash2 size={20}/></button>
+                  </div>
                 </div>
               ))}
             </div>
@@ -420,7 +431,17 @@ export const AdminPage: React.FC<AdminPageProps> = ({
 
         {tab === 'itinerary' && (
            <div className="space-y-8 animate-fade-in">
-             <AdminSectionHeader title="Technical Pathway" />
+             <AdminSectionHeader title="Technical Pathway">
+               <button 
+                  onClick={() => {
+                    updateStorage('aj_itinerary', itinerary);
+                    alert('Full itinerary narrative saved successfully.');
+                  }}
+                  className="px-6 py-2.5 bg-aqua-primary text-stone rounded-full text-[10px] font-black uppercase tracking-widest hover:scale-105 transition-all shadow-xl flex items-center gap-2"
+                >
+                  <Save size={14} /> Save Pathway
+                </button>
+             </AdminSectionHeader>
              <div className="space-y-6">
                {itinerary.map((day, idx) => (
                  <div key={day.day} className="bg-white p-10 rounded-[2.5rem] border border-stone/5 shadow-xl flex flex-col md:flex-row gap-8 items-start">
@@ -433,14 +454,14 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                        <label className="text-[8px] font-black text-stone/20 uppercase tracking-widest">Focus Title</label>
                        <input value={day.title} onChange={e => {
                          const next = [...itinerary]; next[idx].title = e.target.value;
-                         setItinerary(next); updateStorage('aj_itinerary', next);
+                         setItinerary(next);
                        }} className="text-2xl font-black uppercase text-stone w-full bg-transparent outline-none focus:text-aqua-primary" />
                      </div>
                      <div className="space-y-2">
                        <label className="text-[8px] font-black text-stone/20 uppercase tracking-widest">Narrative Description</label>
                        <textarea value={day.desc} onChange={e => {
                          const next = [...itinerary]; next[idx].desc = e.target.value;
-                         setItinerary(next); updateStorage('aj_itinerary', next);
+                         setItinerary(next);
                        }} className="w-full bg-[#faf9f6] p-6 rounded-2xl text-[14px] font-serif italic text-stone/60 outline-none resize-none min-h-[100px]" />
                      </div>
                    </div>
@@ -464,19 +485,30 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                       <label className="text-[8px] font-black uppercase tracking-widest text-stone/20">Guest Inquiry</label>
                       <input value={faq.q} onChange={e => {
                         const next = [...faqs]; next[idx].q = e.target.value;
-                        setFaqs(next); updateStorage('aj_faqs', next);
+                        setFaqs(next);
                       }} className="text-[15px] font-black uppercase text-stone w-full bg-transparent outline-none border-b border-stone/5 pb-3 focus:border-aqua-primary" />
                     </div>
-                    <button onClick={() => {
-                      const next = faqs.filter(f => f.id !== faq.id);
-                      setFaqs(next); updateStorage('aj_faqs', next);
-                    }} className="text-stone/10 group-hover:text-red-500 transition-colors pt-6"><Trash2 size={18}/></button>
+                    <div className="flex flex-col gap-2 pt-6">
+                      <button 
+                        onClick={() => {
+                          updateStorage('aj_faqs', faqs);
+                          alert('Intelligence entry updated.');
+                        }}
+                        className="p-2 bg-[#111] text-white rounded-lg hover:bg-stone-light transition-colors flex items-center justify-center"
+                      >
+                        <Save size={14} />
+                      </button>
+                      <button onClick={() => {
+                        const next = faqs.filter(f => f.id !== faq.id);
+                        setFaqs(next); updateStorage('aj_faqs', next);
+                      }} className="text-stone/10 group-hover:text-red-500 transition-colors flex items-center justify-center"><Trash2 size={18}/></button>
+                    </div>
                   </div>
                   <div className="space-y-2">
                     <label className="text-[8px] font-black uppercase tracking-widest text-stone/20">Official Response</label>
                     <textarea value={faq.a} onChange={e => {
                       const next = [...faqs]; next[idx].a = e.target.value;
-                      setFaqs(next); updateStorage('aj_faqs', next);
+                      setFaqs(next);
                     }} className="w-full bg-[#faf9f6] p-6 rounded-2xl text-[14px] font-serif italic text-stone/50 outline-none min-h-[80px] resize-none" />
                   </div>
                 </div>
@@ -487,7 +519,18 @@ export const AdminPage: React.FC<AdminPageProps> = ({
 
         {tab === 'portal' && (
           <div className="space-y-16 animate-fade-in pb-20">
-            <h3 className="text-2xl font-black uppercase tracking-tight text-stone">Portal Settings</h3>
+            <div className="flex items-center justify-between">
+              <h3 className="text-2xl font-black uppercase tracking-tight text-stone">Portal Settings</h3>
+              <button 
+                onClick={() => {
+                  updateStorage('aj_portal_config', portalConfig);
+                  alert('Global portal configuration has been synchronized.');
+                }}
+                className="px-10 py-3 bg-[#111] text-white rounded-full text-[11px] font-black uppercase tracking-[0.2em] hover:bg-aqua-primary hover:text-stone transition-all shadow-2xl flex items-center gap-3"
+              >
+                <Save size={16} /> Synchronize All Portal Settings
+              </button>
+            </div>
 
             {/* Estate Narrative Video */}
             <div className="bg-white p-10 rounded-[2.5rem] border border-stone/5 shadow-2xl shadow-stone/5 space-y-8">
@@ -506,7 +549,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                       value={portalConfig.promoVideoUrl} 
                       onChange={e => {
                         const next = { ...portalConfig, promoVideoUrl: e.target.value };
-                        setPortalConfig(next); updateStorage('aj_portal_config', next);
+                        setPortalConfig(next);
                       }}
                       className="w-full bg-[#faf9f6] px-6 py-4 rounded-xl border border-stone/5 text-xs font-serif italic text-stone/60 outline-none" 
                     />
@@ -550,7 +593,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                 value={portalConfig.welcomeParagraph}
                 onChange={e => {
                   const next = { ...portalConfig, welcomeParagraph: e.target.value };
-                  setPortalConfig(next); updateStorage('aj_portal_config', next);
+                  setPortalConfig(next);
                 }}
                 className="w-full bg-[#faf9f6] p-8 rounded-[1.5rem] border border-stone/5 text-[13px] font-serif italic text-stone/60 outline-none min-h-[120px] resize-none"
               />
@@ -571,7 +614,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                     value={portalConfig.logistics.address} 
                     onChange={e => {
                       const next = { ...portalConfig, logistics: { ...portalConfig.logistics, address: e.target.value } };
-                      setPortalConfig(next); updateStorage('aj_portal_config', next);
+                      setPortalConfig(next);
                     }}
                     className="w-full bg-[#faf9f6] px-6 py-4 rounded-xl border border-stone/5 text-xs text-stone outline-none" 
                   />
@@ -582,7 +625,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                     value={portalConfig.logistics.checkInWindow} 
                     onChange={e => {
                       const next = { ...portalConfig, logistics: { ...portalConfig.logistics, checkInWindow: e.target.value } };
-                      setPortalConfig(next); updateStorage('aj_portal_config', next);
+                      setPortalConfig(next);
                     }}
                     className="w-full bg-[#faf9f6] px-6 py-4 rounded-xl border border-stone/5 text-xs text-stone outline-none" 
                   />
@@ -594,7 +637,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                   value={portalConfig.logistics.gateInstructions}
                   onChange={e => {
                     const next = { ...portalConfig, logistics: { ...portalConfig.logistics, gateInstructions: e.target.value } };
-                    setPortalConfig(next); updateStorage('aj_portal_config', next);
+                    setPortalConfig(next);
                   }}
                   className="w-full bg-[#faf9f6] p-8 rounded-[1.5rem] border border-stone/5 text-[13px] font-serif italic text-stone/60 outline-none min-h-[100px] resize-none"
                 />
@@ -613,7 +656,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                 <button 
                   onClick={() => {
                     const next = { ...portalConfig, packingList: [...portalConfig.packingList, "NEW ITEM"] };
-                    setPortalConfig(next); updateStorage('aj_portal_config', next);
+                    setPortalConfig(next);
                   }}
                   className="bg-[#111] text-white px-4 py-2 rounded-full text-[8px] font-black uppercase tracking-widest flex items-center gap-2 hover:bg-stone-light transition-all"
                 >
@@ -629,7 +672,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                         const nextList = [...portalConfig.packingList];
                         nextList[idx] = e.target.value;
                         const next = { ...portalConfig, packingList: nextList };
-                        setPortalConfig(next); updateStorage('aj_portal_config', next);
+                        setPortalConfig(next);
                       }}
                       className="flex-1 bg-[#faf9f6] px-6 py-3 rounded-xl border border-stone/5 text-[11px] font-black uppercase tracking-widest text-stone outline-none focus:border-aqua-primary transition-all"
                     />
@@ -637,7 +680,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                       onClick={() => {
                         const nextList = portalConfig.packingList.filter((_: any, i: number) => i !== idx);
                         const next = { ...portalConfig, packingList: nextList };
-                        setPortalConfig(next); updateStorage('aj_portal_config', next);
+                        setPortalConfig(next);
                       }}
                       className="p-2 text-stone/5 group-hover:text-red-500 transition-colors"
                     >
@@ -660,7 +703,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                 <button 
                   onClick={() => {
                     const next = { ...portalConfig, houseGuidelines: [...portalConfig.houseGuidelines, { title: "NEW GUIDELINE", desc: "Description here." }] };
-                    setPortalConfig(next); updateStorage('aj_portal_config', next);
+                    setPortalConfig(next);
                   }}
                   className="bg-[#111] text-white px-4 py-2 rounded-full text-[8px] font-black uppercase tracking-widest flex items-center gap-2 hover:bg-stone-light transition-all"
                 >
@@ -674,7 +717,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                       onClick={() => {
                         const nextList = portalConfig.houseGuidelines.filter((_: any, i: number) => i !== idx);
                         const next = { ...portalConfig, houseGuidelines: nextList };
-                        setPortalConfig(next); updateStorage('aj_portal_config', next);
+                        setPortalConfig(next);
                       }}
                       className="absolute top-8 right-8 text-stone/5 group-hover:text-red-500 transition-colors"
                     >
@@ -686,7 +729,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                         const nextList = [...portalConfig.houseGuidelines];
                         nextList[idx].title = e.target.value;
                         const next = { ...portalConfig, houseGuidelines: nextList };
-                        setPortalConfig(next); updateStorage('aj_portal_config', next);
+                        setPortalConfig(next);
                       }}
                       className="bg-transparent text-[13px] font-black uppercase tracking-[0.1em] text-stone outline-none w-[80%] focus:text-aqua-primary transition-all"
                     />
@@ -696,7 +739,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                         const nextList = [...portalConfig.houseGuidelines];
                         nextList[idx].desc = e.target.value;
                         const next = { ...portalConfig, houseGuidelines: nextList };
-                        setPortalConfig(next); updateStorage('aj_portal_config', next);
+                        setPortalConfig(next);
                       }}
                       className="w-full bg-white p-4 rounded-xl border border-stone/5 text-[12px] font-serif italic text-stone/50 outline-none min-h-[60px] resize-none"
                     />
