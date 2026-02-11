@@ -8,7 +8,7 @@ interface AdminPageProps {
   onExit: () => void;
   applications: Application[];
   setApplications: any;
-  fetchInquiriesFromApi: () => Promise<void>;
+  fetchInquiriesFromApi: (force?: boolean) => Promise<void>;
   rooms: Room[];
   setRooms: any;
   sessions: any[];
@@ -36,9 +36,9 @@ export const AdminPage: React.FC<AdminPageProps> = ({
   // Trigger inquiry fetch only when the applications tab is opened
   useEffect(() => {
     if (tab === 'applications') {
-      fetchInquiriesFromApi();
+      fetchInquiriesFromApi(false); // Throttle-safe fetch
     }
-  }, [tab]);
+  }, [tab, fetchInquiriesFromApi]);
 
   const updateStorage = (key: string, val: any) => localStorage.setItem(key, JSON.stringify(val));
 
@@ -50,7 +50,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({
 
   const handleRefresh = async () => {
     setIsRefreshing(true);
-    await fetchInquiriesFromApi();
+    await fetchInquiriesFromApi(true); // Forced fetch
     setIsRefreshing(false);
   };
 

@@ -1,6 +1,6 @@
 
-import React from 'react';
-import { Check, ChevronDown, Plus } from 'lucide-react';
+import React, { useEffect } from 'react';
+import { Check, ChevronDown, Plus, X, AlertCircle, CheckCircle2 } from 'lucide-react';
 
 export const Logo = ({ className = "w-8 h-8", light = false }: { className?: string; light?: boolean }) => (
   <div className={`relative ${className} flex items-center justify-center border ${light ? 'border-white/20' : 'border-stone/10'} rounded-full ${light ? 'bg-transparent' : 'bg-white'} shadow-sm`}>
@@ -41,3 +41,42 @@ export const PortalSection = ({ title, subtitle, children, icon: Icon }: { title
     </div>
   </section>
 );
+
+interface ToastProps {
+  message: string;
+  type: 'success' | 'error' | 'info';
+  onClose: () => void;
+  duration?: number;
+}
+
+export const Toast = ({ message, type, onClose, duration = 4000 }: ToastProps) => {
+  useEffect(() => {
+    const timer = setTimeout(onClose, duration);
+    return () => clearTimeout(timer);
+  }, [onClose, duration]);
+
+  const icons = {
+    success: <CheckCircle2 className="text-aqua-primary" size={18} />,
+    error: <AlertCircle className="text-red-500" size={18} />,
+    info: <Logo className="w-5 h-5" />
+  };
+
+  return (
+    <div className="fixed bottom-10 left-1/2 -translate-x-1/2 z-[2000] animate-reveal">
+      <div className="bg-white/90 backdrop-blur-xl border border-stone/5 shadow-2xl rounded-full px-6 py-4 flex items-center gap-4 min-w-[320px]">
+        <div className="flex-shrink-0">
+          {icons[type]}
+        </div>
+        <p className="flex-1 text-[11px] font-black uppercase tracking-widest text-stone leading-none">
+          {message}
+        </p>
+        <button 
+          onClick={onClose}
+          className="p-1 hover:bg-stone/5 rounded-full transition-colors text-stone/20 hover:text-stone"
+        >
+          <X size={14} />
+        </button>
+      </div>
+    </div>
+  );
+};

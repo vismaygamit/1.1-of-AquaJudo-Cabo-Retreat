@@ -12,7 +12,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({ onLogin, onClose }) => {
   const [input, setInput] = useState("");
   return (
     <div className="fixed inset-0 z-[1000] bg-[#111]/98 backdrop-blur-2xl flex items-center justify-center p-6 animate-fade-in">
-      <div className="bg-white w-full max-w-sm p-12 rounded-[3rem] space-y-8 text-center relative shadow-3xl">
+      <div className="bg-white w-full max-sm p-12 rounded-[3rem] space-y-8 text-center relative shadow-3xl">
         <button onClick={onClose} className="absolute top-8 right-8 text-stone/20 hover:text-stone transition-all"><X size={20}/></button>
         <h4 className="text-[12px] font-black uppercase tracking-[0.5em] text-stone/30">ESTATE CURATOR</h4>
         <input type="password" placeholder="••••" value={input} onChange={e => setInput(e.target.value)} onKeyDown={e => e.key === 'Enter' && onLogin(input)} className="w-full bg-[#faf9f6] rounded-[2rem] px-6 py-5 text-center text-2xl font-display tracking-[0.4em] outline-none border border-stone/10" autoFocus />
@@ -28,9 +28,10 @@ interface ApplyModalProps {
   initialSessionId: string;
   onSubmit: (form: BookingState) => Promise<any>;
   onClose: () => void;
+  showToast: (message: string, type: 'success' | 'error' | 'info') => void;
 }
 
-export const ApplyModal: React.FC<ApplyModalProps> = ({ sessions, rooms, initialSessionId, onSubmit, onClose }) => {
+export const ApplyModal: React.FC<ApplyModalProps> = ({ sessions, rooms, initialSessionId, onSubmit, onClose, showToast }) => {
   const [step, setStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submittedId, setSubmittedId] = useState('');
@@ -73,10 +74,11 @@ export const ApplyModal: React.FC<ApplyModalProps> = ({ sessions, rooms, initial
       setIsSubmitting(true);
       try {
         const result = await onSubmit(form);
-        setSubmittedId(result.refId);
+        setSubmittedId(result.refId || result.id);
+        showToast("INQUIRY TRANSMITTED SUCCESSFULLY", "success");
         setStep(5);
       } catch (e) {
-        alert("Transmission failed. The estate registry is currently unreachable. Please try again later.");
+        showToast("TRANSMISSION FAILED: REGISTRY UNREACHABLE", "error");
       } finally {
         setIsSubmitting(false);
       }
@@ -315,7 +317,7 @@ export const ApplyModal: React.FC<ApplyModalProps> = ({ sessions, rooms, initial
             </div>
           )}
 
-          {/* SUCCESS VIEW: PHASE 5 (Matches screenshot exactly) */}
+          {/* SUCCESS VIEW: PHASE 5 */}
           {step === 5 && (
             <div className="space-y-12 animate-fade-in relative pb-4">
               <button onClick={onClose} className="absolute -top-6 -right-6 text-stone/10 hover:text-stone transition-all">

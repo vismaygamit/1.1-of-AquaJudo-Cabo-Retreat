@@ -2,7 +2,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { 
   VILLA_ROOMS as DEFAULT_ROOMS, 
-  RESIDENCY_SESSIONS as DEFAULT_SESSIONS,
+  RESIDENCY_SESSIONS as DEFAULT_SESSIONS, 
   FAQS as DEFAULT_FAQS,
   ITINERARY_DAYS as DEFAULT_ITINERARY
 } from '../constants';
@@ -48,6 +48,9 @@ const DEFAULT_PORTAL_CONFIG = {
   promoVideoUrl: INITIAL_PROMO_VIDEO_URL
 };
 
+// Throttle time in milliseconds (10 seconds)
+const FETCH_THROTTLE_MS = 10000;
+
 export const useAppState = () => {
   const [applications, setApplications] = useState<Application[]>([]);
   const [sessions, setSessions] = useState<ResidencySession[]>([]);
@@ -57,18 +60,26 @@ export const useAppState = () => {
   const [portalConfig, setPortalConfig] = useState(DEFAULT_PORTAL_CONFIG);
   const [activePortalGuest, setActivePortalGuest] = useState<Application | null>(null);
 
-  // Guards to prevent duplicate concurrent calls
+  // Guards and Timestamps to prevent duplicate calls
   const isFetchingInquiries = useRef(false);
   const isFetchingRooms = useRef(false);
   const isFetchingSessions = useRef(false);
+  
+  const lastInquiryFetch = useRef(0);
+  const lastRoomFetch = useRef(0);
+  const lastSessionFetch = useRef(0);
 
   const saveToStorage = (key: string, data: any) => {
     localStorage.setItem(key, JSON.stringify(data));
   };
 
-  const fetchInquiriesFromApi = useCallback(async () => {
+  const fetchInquiriesFromApi = useCallback(async (force = false) => {
+    const now = Date.now();
     if (isFetchingInquiries.current) return;
+    if (!force && (now - lastInquiryFetch.current < FETCH_THROTTLE_MS)) return;
+    
     isFetchingInquiries.current = true;
+    lastInquiryFetch.current = now;
     
     try {
       const response = await fetch('http://localhost:8000/api/inquiries');
@@ -104,9 +115,13 @@ export const useAppState = () => {
     }
   }, []);
 
-  const fetchRoomsFromApi = useCallback(async () => {
+  const fetchRoomsFromApi = useCallback(async (force = false) => {
+    const now = Date.now();
     if (isFetchingRooms.current) return;
+    if (!force && (now - lastRoomFetch.current < FETCH_THROTTLE_MS)) return;
+
     isFetchingRooms.current = true;
+    lastRoomFetch.current = now;
     
     try {
       const response = await fetch('http://localhost:8000/api/getAllRooms');
@@ -134,9 +149,13 @@ export const useAppState = () => {
     }
   }, []);
 
-  const fetchSessionsFromApi = useCallback(async () => {
+  const fetchSessionsFromApi = useCallback(async (force = false) => {
+    const now = Date.now();
     if (isFetchingSessions.current) return;
+    if (!force && (now - lastSessionFetch.current < FETCH_THROTTLE_MS)) return;
+
     isFetchingSessions.current = true;
+    lastSessionFetch.current = now;
     
     try {
       const response = await fetch('http://localhost:8000/api/session/getAllSessions');
@@ -147,7 +166,7 @@ export const useAppState = () => {
           id: apiSession._id,
           startDate: apiSession.startDate,
           endDate: apiSession.endDate,
-          status: 'Open', // Default to Open as API doesn't provide status
+          status: 'Open', 
           maxGuests: apiSession.maxGuests
         }));
         setSessions(mappedSessions);
