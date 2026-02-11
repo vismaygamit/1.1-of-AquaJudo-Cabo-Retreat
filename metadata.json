@@ -1,0 +1,7 @@
+{
+  "name": "Copy 1.1 of AquaJudo Cabo Retreat - Judo & Adventure",
+  "description": "A luxury boutique retreat in Cabo San Lucas combining world-class Judo training with ocean adventures. Build your own personalized experience at our exclusive villa.",
+  "requestFramePermissions": [
+    "geolocation"
+  ]
+}

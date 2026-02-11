@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    
+    <!-- Primary Meta Tags -->
+    <title>AquaJudo Cabo | Quiet Luxury Judo Residency & Coastal Adventure</title>
+    <meta name="title" content="AquaJudo Cabo | Quiet Luxury Judo Residency & Coastal Adventure" />
+    <meta name="description" content="A luxury boutique residency in Cabo San Lucas combining restorative Judo practice with coastal immersion. Curated small-group experiences in an exclusive, alcohol-free villa." />
+    <meta name="keywords" content="AquaJudo, Cabo San Lucas, Judo retreat, luxury residency, wellness adventure, restorative judo, mindful movement, Cabo luxury villa, alcohol-free retreat, coastal bouldering, Mexico wellness" />
+    <meta name="author" content="AquaJudo Estate Management" />
+    <meta name="robots" content="index, follow" />
+    <link rel="canonical" href="https://aquajudo-cabo.com" />
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://aquajudo-cabo.com/" />
+    <meta property="og:title" content="AquaJudo Cabo | Quiet Luxury Judo Residency" />
+    <meta property="og:description" content="Experience restorative balance and coastal immersion in a curated 7-day small-group residency at our exclusive Cabo villa." />
+    <meta property="og:image" content="https://images.unsplash.com/photo-1613490493576-7fde63acd811?auto=format&fit=crop&q=80&w=1200" />
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image" />
+    <meta property="twitter:url" content="https://aquajudo-cabo.com/" />
+    <meta property="twitter:title" content="AquaJudo Cabo | Quiet Luxury Judo Residency" />
+    <meta property="twitter:description" content="Experience restorative balance and coastal immersion in a curated 7-day small-group residency at our exclusive Cabo villa." />
+    <meta property="twitter:image" content="https://images.unsplash.com/photo-1613490493576-7fde63acd811?auto=format&fit=crop&q=80&w=1200" />
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              'parchment': '#faf9f6',
+              'stone': '#1a1a1a',
+              'stone-light': '#4a4a4a',
+              'gold-primary': '#c5a059',
+              'gold-muted': '#e5d1a8',
+              'accent-blue': '#0a2540',
+              'aqua-primary': '#4fd1c5',
+              'aqua-deep': '#2c7a7b',
+            },
+            fontFamily: {
+              sans: ['Inter', 'sans-serif'],
+              display: ['Outfit', 'sans-serif'],
+              serif: ['Playfair Display', 'serif'],
+            },
+            letterSpacing: {
+              'extreme': '1.2em',
+              'luxury': '0.6em',
+            },
+            animation: {
+              'fade-in': 'fadeIn 0.6s ease-out forwards',
+              'reveal': 'reveal 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+              'pulse-soft': 'pulseSoft 3s ease-in-out infinite',
+              'shake': 'shake 0.5s cubic-bezier(.36,.07,.19,.97) both',
+            },
+            keyframes: {
+              fadeIn: {
+                '0%': { opacity: '0', transform: 'translateY(10px)' },
+                '100%': { opacity: '1', transform: 'translateY(0)' },
+              },
+              reveal: {
+                '0%': { opacity: '0', transform: 'translateY(30px)' },
+                '100%': { opacity: '1', transform: 'translateY(0)' },
+              },
+              pulseSoft: {
+                '0%, 100%': { opacity: '0.3' },
+                '50%': { opacity: '0.1' },
+              },
+              shake: {
+                '10%, 90%': { transform: 'translate3d(-1px, 0, 0)' },
+                '20%, 80%': { transform: 'translate3d(2px, 0, 0)' },
+                '30%, 50%, 70%': { transform: 'translate3d(-4px, 0, 0)' },
+                '40%, 60%': { transform: 'translate3d(4px, 0, 0)' },
+              }
+            }
+          }
+        }
+      }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Outfit:wght@100;300;600&family=Playfair+Display:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
+    <style>
+      body {
+        background-color: #faf9f6;
+        color: #1a1a1a;
+        -webkit-font-smoothing: antialiased;
+        overflow-x: hidden;
+      }
+      
+      .text-reveal {
+        animation: reveal 1.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      }
+
+      .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+      .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+      .custom-scrollbar::-webkit-scrollbar-thumb { background: #4fd1c5; border-radius: 10px; }
+
+      input::-webkit-outer-spin-button,
+      input::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+      }
+
+      .bg-grid {
+        background-size: 30px 30px;
+        background-image: radial-gradient(circle, #4fd1c5 1px, transparent 1px);
+        opacity: 0.05;
+      }
+
+      .no-scrollbar::-webkit-scrollbar { display: none; }
+      .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+  <script type="importmap">
+{
+  "imports": {
+    "react-dom/": "https://esm.sh/react-dom@^19.2.4/",
+    "@google/genai": "https://esm.sh/@google/genai@^1.39.0",
+    "lucide-react": "https://esm.sh/lucide-react@^0.563.0",
+    "react": "https://esm.sh/react@^19.2.4",
+    "react/": "https://esm.sh/react@^19.2.4/"
+  }
+}
+</script>
+</head>
+  <body>
+    <div id="root"></div>
+  </body>
+</html>
