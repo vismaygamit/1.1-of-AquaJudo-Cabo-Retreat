@@ -10,18 +10,21 @@ export const Logo = ({ className = "w-8 h-8", light = false }: { className?: str
   </div>
 );
 
-export const AdminSectionHeader = ({ title, onAdd }: { title: string; onAdd?: () => void }) => (
+export const AdminSectionHeader = ({ title, onAdd, children }: { title: string; onAdd?: () => void; children?: React.ReactNode }) => (
   <div className="flex items-center justify-between mb-12">
     <h3 className="text-2xl font-black uppercase tracking-tight text-stone">{title}</h3>
-    {onAdd && (
-      <button 
-        type="button"
-        onClick={onAdd} 
-        className="flex items-center gap-2 px-6 py-2.5 bg-[#111] text-white rounded-full text-[10px] font-black uppercase tracking-widest hover:bg-stone-light transition-all cursor-pointer active:scale-95 shadow-lg"
-      >
-        <Plus size={14} /> Add New
-      </button>
-    )}
+    <div className="flex items-center gap-4">
+      {onAdd && (
+        <button 
+          type="button"
+          onClick={onAdd} 
+          className="flex items-center gap-2 px-6 py-2.5 bg-[#111] text-white rounded-full text-[10px] font-black uppercase tracking-widest hover:bg-stone-light transition-all cursor-pointer active:scale-95 shadow-lg whitespace-nowrap"
+        >
+          <Plus size={14} /> Add New
+        </button>
+      )}
+      {children}
+    </div>
   </div>
 );
 

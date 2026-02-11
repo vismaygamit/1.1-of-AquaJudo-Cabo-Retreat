@@ -286,28 +286,20 @@ export const AdminPage: React.FC<AdminPageProps> = ({
           </div>
         )}
 
-        {tab === 'portal' && (
-          <div className="space-y-16 animate-fade-in pb-20">
-            <h3 className="text-2xl font-black uppercase tracking-tight text-stone">Portal Settings</h3>
-            {/* ... rest of portal tab ... */}
-          </div>
-        )}
-
         {tab === 'rooms' && (
           <div className="space-y-8 animate-fade-in">
-            <div className="flex items-center justify-between mb-8">
-              <AdminSectionHeader title="Sanctuary Management" onAdd={() => {
-                const newId = `room-${Math.random().toString(36).substr(2, 5).toUpperCase()}`;
-                const next = [...rooms, { id: newId, name: "NEW SANCTUARY", basePrice: 5000, description: "", image: "", location: "Main Floor", bedType: "King Bed", maxOccupancy: 2, bathType: 'private' }];
-                setRooms(next); updateStorage('aj_rooms', next);
-              }} />
+            <AdminSectionHeader title="Sanctuary Management" onAdd={() => {
+              const newId = `room-${Math.random().toString(36).substr(2, 5).toUpperCase()}`;
+              const next = [...rooms, { id: newId, name: "NEW SANCTUARY", basePrice: 5000, description: "", image: "", location: "Main Floor", bedType: "King Bed", maxOccupancy: 2, bathType: 'private' }];
+              setRooms(next); updateStorage('aj_rooms', next);
+            }}>
               <button 
                 onClick={handleRefresh}
                 className={`p-3 rounded-full text-stone/40 hover:text-aqua-primary transition-all ${isRefreshing ? 'animate-spin' : ''}`}
               >
                 <RefreshCw size={18} />
               </button>
-            </div>
+            </AdminSectionHeader>
             <div className="space-y-10">
               {rooms.map((room, idx) => (
                 <div key={room.id} className="bg-white p-10 rounded-[2.5rem] border border-stone/5 shadow-2xl shadow-stone/5 space-y-8">
@@ -368,18 +360,17 @@ export const AdminPage: React.FC<AdminPageProps> = ({
 
         {tab === 'sessions' && (
           <div className="space-y-8 animate-fade-in">
-            <div className="flex items-center justify-between mb-8">
-              <AdminSectionHeader title="Residency Windows" onAdd={() => {
-                const next = [...sessions, { id: Date.now().toString(), startDate: '2026-07-01', endDate: '2026-07-08', status: 'Open', maxGuests: 4 }];
-                setSessions(next); updateStorage('aj_sessions', next);
-              }} />
+            <AdminSectionHeader title="Residency Windows" onAdd={() => {
+              const next = [...sessions, { id: Date.now().toString(), startDate: '2026-07-01', endDate: '2026-07-08', status: 'Open', maxGuests: 4 }];
+              setSessions(next); updateStorage('aj_sessions', next);
+            }}>
               <button 
                 onClick={handleRefresh}
                 className={`p-3 rounded-full text-stone/40 hover:text-aqua-primary transition-all ${isRefreshing ? 'animate-spin' : ''}`}
               >
                 <RefreshCw size={18} />
               </button>
-            </div>
+            </AdminSectionHeader>
             <div className="grid gap-6">
               {sessions.map((s, idx) => (
                 <div key={s.id} className="bg-white p-8 rounded-[2rem] border border-stone/5 shadow-lg flex items-center gap-8">
@@ -423,6 +414,295 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                   }} className="p-4 text-stone/10 hover:text-red-500 transition-all"><Trash2 size={20}/></button>
                 </div>
               ))}
+            </div>
+          </div>
+        )}
+
+        {tab === 'itinerary' && (
+           <div className="space-y-8 animate-fade-in">
+             <AdminSectionHeader title="Technical Pathway" />
+             <div className="space-y-6">
+               {itinerary.map((day, idx) => (
+                 <div key={day.day} className="bg-white p-10 rounded-[2.5rem] border border-stone/5 shadow-xl flex flex-col md:flex-row gap-8 items-start">
+                   <div className="w-24 pt-3 flex flex-col items-center">
+                     <span className="text-[12px] font-black text-aqua-primary uppercase tracking-[0.4em]">Day</span>
+                     <span className="text-4xl font-black text-stone opacity-10 leading-none">0{day.day}</span>
+                   </div>
+                   <div className="flex-1 space-y-6">
+                     <div className="space-y-2">
+                       <label className="text-[8px] font-black text-stone/20 uppercase tracking-widest">Focus Title</label>
+                       <input value={day.title} onChange={e => {
+                         const next = [...itinerary]; next[idx].title = e.target.value;
+                         setItinerary(next); updateStorage('aj_itinerary', next);
+                       }} className="text-2xl font-black uppercase text-stone w-full bg-transparent outline-none focus:text-aqua-primary" />
+                     </div>
+                     <div className="space-y-2">
+                       <label className="text-[8px] font-black text-stone/20 uppercase tracking-widest">Narrative Description</label>
+                       <textarea value={day.desc} onChange={e => {
+                         const next = [...itinerary]; next[idx].desc = e.target.value;
+                         setItinerary(next); updateStorage('aj_itinerary', next);
+                       }} className="w-full bg-[#faf9f6] p-6 rounded-2xl text-[14px] font-serif italic text-stone/60 outline-none resize-none min-h-[100px]" />
+                     </div>
+                   </div>
+                 </div>
+               ))}
+             </div>
+           </div>
+        )}
+
+        {tab === 'faqs' && (
+          <div className="space-y-8 animate-fade-in">
+            <AdminSectionHeader title="Estate Intelligence" onAdd={() => {
+              const next = [...faqs, { id: Date.now().toString(), q: "New Question?", a: "New Answer." }];
+              setFaqs(next); updateStorage('aj_faqs', next);
+            }} />
+            <div className="grid gap-6">
+              {faqs.map((faq, idx) => (
+                <div key={faq.id} className="bg-white p-10 rounded-[2.5rem] border border-stone/5 shadow-lg space-y-6 group">
+                  <div className="flex justify-between items-start gap-4">
+                    <div className="flex-1 space-y-2">
+                      <label className="text-[8px] font-black uppercase tracking-widest text-stone/20">Guest Inquiry</label>
+                      <input value={faq.q} onChange={e => {
+                        const next = [...faqs]; next[idx].q = e.target.value;
+                        setFaqs(next); updateStorage('aj_faqs', next);
+                      }} className="text-[15px] font-black uppercase text-stone w-full bg-transparent outline-none border-b border-stone/5 pb-3 focus:border-aqua-primary" />
+                    </div>
+                    <button onClick={() => {
+                      const next = faqs.filter(f => f.id !== faq.id);
+                      setFaqs(next); updateStorage('aj_faqs', next);
+                    }} className="text-stone/10 group-hover:text-red-500 transition-colors pt-6"><Trash2 size={18}/></button>
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-[8px] font-black uppercase tracking-widest text-stone/20">Official Response</label>
+                    <textarea value={faq.a} onChange={e => {
+                      const next = [...faqs]; next[idx].a = e.target.value;
+                      setFaqs(next); updateStorage('aj_faqs', next);
+                    }} className="w-full bg-[#faf9f6] p-6 rounded-2xl text-[14px] font-serif italic text-stone/50 outline-none min-h-[80px] resize-none" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {tab === 'portal' && (
+          <div className="space-y-16 animate-fade-in pb-20">
+            <h3 className="text-2xl font-black uppercase tracking-tight text-stone">Portal Settings</h3>
+
+            {/* Estate Narrative Video */}
+            <div className="bg-white p-10 rounded-[2.5rem] border border-stone/5 shadow-2xl shadow-stone/5 space-y-8">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-full bg-aqua-primary/5 flex items-center justify-center text-aqua-primary">
+                  <Film size={14} />
+                </div>
+                <h4 className="text-[9px] font-black uppercase tracking-[0.3em] text-stone/40">Estate Narrative Video</h4>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+                <div className="space-y-6">
+                  <div className="space-y-2">
+                    <label className="text-[8px] font-black text-stone/20 uppercase tracking-widest">Video Source URL</label>
+                    <input 
+                      value={portalConfig.promoVideoUrl} 
+                      onChange={e => {
+                        const next = { ...portalConfig, promoVideoUrl: e.target.value };
+                        setPortalConfig(next); updateStorage('aj_portal_config', next);
+                      }}
+                      className="w-full bg-[#faf9f6] px-6 py-4 rounded-xl border border-stone/5 text-xs font-serif italic text-stone/60 outline-none" 
+                    />
+                  </div>
+                  <div className="space-y-4">
+                    <label className="text-[8px] font-black text-stone/20 uppercase tracking-widest block">Upload Local Video</label>
+                    <input type="file" accept="video/*" className="hidden" ref={videoInputRef} onChange={handleVideoUpload} />
+                    <button 
+                      onClick={() => videoInputRef.current?.click()}
+                      className="w-full bg-[#111] text-white py-4 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-3 hover:bg-stone-light transition-all"
+                    >
+                      <Upload size={14} /> SELECT VIDEO FILE
+                    </button>
+                    <p className="text-[7px] text-stone/20 font-bold uppercase tracking-widest text-center italic">Storage limit: 2MB for local files. Use URLs for larger professional videos.</p>
+                  </div>
+                </div>
+                <div className="space-y-4">
+                  <label className="text-[8px] font-black text-stone/20 uppercase tracking-widest">Preview</label>
+                  <div className="aspect-video bg-[#faf9f6] rounded-[1.5rem] border border-stone/5 overflow-hidden flex items-center justify-center shadow-inner">
+                    {portalConfig.promoVideoUrl ? (
+                      <video key={portalConfig.promoVideoUrl} autoPlay loop muted playsInline className="w-full h-full object-cover">
+                        <source src={portalConfig.promoVideoUrl} />
+                      </video>
+                    ) : (
+                      <Film size={24} className="text-stone/5" />
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Welcome Message */}
+            <div className="bg-white p-10 rounded-[2.5rem] border border-stone/5 shadow-2xl shadow-stone/5 space-y-6">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-full bg-aqua-primary/5 flex items-center justify-center text-aqua-primary">
+                  <MessageSquare size={14} />
+                </div>
+                <h4 className="text-[9px] font-black uppercase tracking-[0.3em] text-stone/40">Welcome Message</h4>
+              </div>
+              <textarea 
+                value={portalConfig.welcomeParagraph}
+                onChange={e => {
+                  const next = { ...portalConfig, welcomeParagraph: e.target.value };
+                  setPortalConfig(next); updateStorage('aj_portal_config', next);
+                }}
+                className="w-full bg-[#faf9f6] p-8 rounded-[1.5rem] border border-stone/5 text-[13px] font-serif italic text-stone/60 outline-none min-h-[120px] resize-none"
+              />
+            </div>
+
+            {/* Arrival Logistics */}
+            <div className="bg-white p-10 rounded-[2.5rem] border border-stone/5 shadow-2xl shadow-stone/5 space-y-8">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-full bg-aqua-primary/5 flex items-center justify-center text-aqua-primary">
+                  <MapPin size={14} />
+                </div>
+                <h4 className="text-[9px] font-black uppercase tracking-[0.3em] text-stone/40">Arrival Logistics</h4>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <label className="text-[8px] font-black text-stone/20 uppercase tracking-widest">Estate Address</label>
+                  <input 
+                    value={portalConfig.logistics.address} 
+                    onChange={e => {
+                      const next = { ...portalConfig, logistics: { ...portalConfig.logistics, address: e.target.value } };
+                      setPortalConfig(next); updateStorage('aj_portal_config', next);
+                    }}
+                    className="w-full bg-[#faf9f6] px-6 py-4 rounded-xl border border-stone/5 text-xs text-stone outline-none" 
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-[8px] font-black text-stone/20 uppercase tracking-widest">Check-In Window</label>
+                  <input 
+                    value={portalConfig.logistics.checkInWindow} 
+                    onChange={e => {
+                      const next = { ...portalConfig, logistics: { ...portalConfig.logistics, checkInWindow: e.target.value } };
+                      setPortalConfig(next); updateStorage('aj_portal_config', next);
+                    }}
+                    className="w-full bg-[#faf9f6] px-6 py-4 rounded-xl border border-stone/5 text-xs text-stone outline-none" 
+                  />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <label className="text-[8px] font-black text-stone/20 uppercase tracking-widest">Gated Access Instructions</label>
+                <textarea 
+                  value={portalConfig.logistics.gateInstructions}
+                  onChange={e => {
+                    const next = { ...portalConfig, logistics: { ...portalConfig.logistics, gateInstructions: e.target.value } };
+                    setPortalConfig(next); updateStorage('aj_portal_config', next);
+                  }}
+                  className="w-full bg-[#faf9f6] p-8 rounded-[1.5rem] border border-stone/5 text-[13px] font-serif italic text-stone/60 outline-none min-h-[100px] resize-none"
+                />
+              </div>
+            </div>
+
+            {/* Packing Inventory */}
+            <div className="bg-white p-10 rounded-[2.5rem] border border-stone/5 shadow-2xl shadow-stone/5 space-y-8">
+              <div className="flex justify-between items-center">
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-full bg-aqua-primary/5 flex items-center justify-center text-aqua-primary">
+                    <Package size={14} />
+                  </div>
+                  <h4 className="text-[9px] font-black uppercase tracking-[0.3em] text-stone/40">Packing Inventory</h4>
+                </div>
+                <button 
+                  onClick={() => {
+                    const next = { ...portalConfig, packingList: [...portalConfig.packingList, "NEW ITEM"] };
+                    setPortalConfig(next); updateStorage('aj_portal_config', next);
+                  }}
+                  className="bg-[#111] text-white px-4 py-2 rounded-full text-[8px] font-black uppercase tracking-widest flex items-center gap-2 hover:bg-stone-light transition-all"
+                >
+                  <Plus size={10} /> Add Item
+                </button>
+              </div>
+              <div className="space-y-3">
+                {portalConfig.packingList.map((item: string, idx: number) => (
+                  <div key={idx} className="flex gap-4 items-center group">
+                    <input 
+                      value={item} 
+                      onChange={e => {
+                        const nextList = [...portalConfig.packingList];
+                        nextList[idx] = e.target.value;
+                        const next = { ...portalConfig, packingList: nextList };
+                        setPortalConfig(next); updateStorage('aj_portal_config', next);
+                      }}
+                      className="flex-1 bg-[#faf9f6] px-6 py-3 rounded-xl border border-stone/5 text-[11px] font-black uppercase tracking-widest text-stone outline-none focus:border-aqua-primary transition-all"
+                    />
+                    <button 
+                      onClick={() => {
+                        const nextList = portalConfig.packingList.filter((_: any, i: number) => i !== idx);
+                        const next = { ...portalConfig, packingList: nextList };
+                        setPortalConfig(next); updateStorage('aj_portal_config', next);
+                      }}
+                      className="p-2 text-stone/5 group-hover:text-red-500 transition-colors"
+                    >
+                      <Trash2 size={14} />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Registry Guidelines */}
+            <div className="bg-white p-10 rounded-[2.5rem] border border-stone/5 shadow-2xl shadow-stone/5 space-y-8">
+              <div className="flex justify-between items-center">
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-full bg-aqua-primary/5 flex items-center justify-center text-aqua-primary">
+                    <ShieldCheck size={14} />
+                  </div>
+                  <h4 className="text-[9px] font-black uppercase tracking-[0.3em] text-stone/40">Registry Guidelines</h4>
+                </div>
+                <button 
+                  onClick={() => {
+                    const next = { ...portalConfig, houseGuidelines: [...portalConfig.houseGuidelines, { title: "NEW GUIDELINE", desc: "Description here." }] };
+                    setPortalConfig(next); updateStorage('aj_portal_config', next);
+                  }}
+                  className="bg-[#111] text-white px-4 py-2 rounded-full text-[8px] font-black uppercase tracking-widest flex items-center gap-2 hover:bg-stone-light transition-all"
+                >
+                  <Plus size={10} /> Add Guideline
+                </button>
+              </div>
+              <div className="space-y-6">
+                {portalConfig.houseGuidelines.map((guideline: any, idx: number) => (
+                  <div key={idx} className="bg-[#faf9f6] p-8 rounded-[1.5rem] border border-stone/5 relative group space-y-3">
+                    <button 
+                      onClick={() => {
+                        const nextList = portalConfig.houseGuidelines.filter((_: any, i: number) => i !== idx);
+                        const next = { ...portalConfig, houseGuidelines: nextList };
+                        setPortalConfig(next); updateStorage('aj_portal_config', next);
+                      }}
+                      className="absolute top-8 right-8 text-stone/5 group-hover:text-red-500 transition-colors"
+                    >
+                      <Trash2 size={16} />
+                    </button>
+                    <input 
+                      value={guideline.title} 
+                      onChange={e => {
+                        const nextList = [...portalConfig.houseGuidelines];
+                        nextList[idx].title = e.target.value;
+                        const next = { ...portalConfig, houseGuidelines: nextList };
+                        setPortalConfig(next); updateStorage('aj_portal_config', next);
+                      }}
+                      className="bg-transparent text-[13px] font-black uppercase tracking-[0.1em] text-stone outline-none w-[80%] focus:text-aqua-primary transition-all"
+                    />
+                    <textarea 
+                      value={guideline.desc} 
+                      onChange={e => {
+                        const nextList = [...portalConfig.houseGuidelines];
+                        nextList[idx].desc = e.target.value;
+                        const next = { ...portalConfig, houseGuidelines: nextList };
+                        setPortalConfig(next); updateStorage('aj_portal_config', next);
+                      }}
+                      className="w-full bg-white p-4 rounded-xl border border-stone/5 text-[12px] font-serif italic text-stone/50 outline-none min-h-[60px] resize-none"
+                    />
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         )}
