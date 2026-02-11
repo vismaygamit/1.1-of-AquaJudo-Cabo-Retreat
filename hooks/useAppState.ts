@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { 
   VILLA_ROOMS as DEFAULT_ROOMS, 
   RESIDENCY_SESSIONS as DEFAULT_SESSIONS,
@@ -57,7 +57,19 @@ export const useAppState = () => {
   const [portalConfig, setPortalConfig] = useState(DEFAULT_PORTAL_CONFIG);
   const [activePortalGuest, setActivePortalGuest] = useState<Application | null>(null);
 
-  const fetchInquiriesFromApi = async () => {
+  // Guards to prevent duplicate concurrent calls
+  const isFetchingInquiries = useRef(false);
+  const isFetchingRooms = useRef(false);
+  const isFetchingSessions = useRef(false);
+
+  const saveToStorage = (key: string, data: any) => {
+    localStorage.setItem(key, JSON.stringify(data));
+  };
+
+  const fetchInquiriesFromApi = useCallback(async () => {
+    if (isFetchingInquiries.current) return;
+    isFetchingInquiries.current = true;
+    
     try {
       const response = await fetch('http://localhost:8000/api/inquiries');
       const result = await response.json();
@@ -87,10 +99,15 @@ export const useAppState = () => {
       }
     } catch (error) {
       console.warn("Inquiries API unavailable:", error);
+    } finally {
+      isFetchingInquiries.current = false;
     }
-  };
+  }, []);
 
-  const fetchRoomsFromApi = async () => {
+  const fetchRoomsFromApi = useCallback(async () => {
+    if (isFetchingRooms.current) return;
+    isFetchingRooms.current = true;
+    
     try {
       const response = await fetch('http://localhost:8000/api/getAllRooms');
       const result = await response.json();
@@ -112,10 +129,15 @@ export const useAppState = () => {
       }
     } catch (error) {
       console.warn("Rooms API unavailable:", error);
+    } finally {
+      isFetchingRooms.current = false;
     }
-  };
+  }, []);
 
-  const fetchSessionsFromApi = async () => {
+  const fetchSessionsFromApi = useCallback(async () => {
+    if (isFetchingSessions.current) return;
+    isFetchingSessions.current = true;
+    
     try {
       const response = await fetch('http://localhost:8000/api/session/getAllSessions');
       const result = await response.json();
@@ -133,8 +155,10 @@ export const useAppState = () => {
       }
     } catch (error) {
       console.warn("Sessions API unavailable:", error);
+    } finally {
+      isFetchingSessions.current = false;
     }
-  };
+  }, []);
 
   useEffect(() => {
     const get = (key: string) => localStorage.getItem(key);
@@ -159,10 +183,6 @@ export const useAppState = () => {
       }
     }
   }, []);
-
-  const saveToStorage = (key: string, data: any) => {
-    localStorage.setItem(key, JSON.stringify(data));
-  };
 
   const submitApplication = async (form: BookingState) => {
     const selectedSession = sessions.find(s => s.id === form.sessionId);
