@@ -36,12 +36,19 @@ export const AdminPage: React.FC<AdminPageProps> = ({
   const [isRefreshing, setIsRefreshing] = useState(false);
   const fileInputRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
   const videoInputRef = useRef<HTMLInputElement>(null);
+  
+  // Ref to track if we've done the initial load for the current tab
+  const initialLoadDone = useRef<Record<string, boolean>>({});
 
-  // Trigger inquiry fetch only when the applications tab is opened
+  // Trigger inquiry fetch only when the applications tab is opened for the first time
   useEffect(() => {
-    if (tab === 'applications') {
-      fetchInquiriesFromApi(1, ITEMS_PER_PAGE, false); // Fetch first page
+    if (tab === 'applications' && !initialLoadDone.current[tab]) {
+      fetchInquiriesFromApi(1, ITEMS_PER_PAGE, false); 
+      initialLoadDone.current[tab] = true;
     }
+    
+    // Reset tracker if we switch away from the tab to allow fresh entry later if needed
+    // or keep it true to preserve session pagination. Here we keep it per session.
   }, [tab, fetchInquiriesFromApi]);
 
   const updateStorage = (key: string, val: any) => localStorage.setItem(key, JSON.stringify(val));
@@ -89,6 +96,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({
   const tabs: TabType[] = ['applications', 'sessions', 'rooms', 'itinerary', 'faqs', 'portal'];
 
   const goToPage = (page: number) => {
+    // We pass force=true here to ensure the API is called even if we were just there
     fetchInquiriesFromApi(page, ITEMS_PER_PAGE, true);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -269,11 +277,10 @@ export const AdminPage: React.FC<AdminPageProps> = ({
         {tab === 'portal' && (
           <div className="space-y-16 animate-fade-in pb-20">
             <h3 className="text-2xl font-black uppercase tracking-tight text-stone">Portal Settings</h3>
-            {/* ... rest of portal tab ... */}
+            {/* ... Rest of Tab Logic ... */}
           </div>
         )}
 
-        {/* ... rest of AdminPage ... */}
         {tab === 'rooms' && (
           <div className="space-y-8 animate-fade-in">
             <AdminSectionHeader title="Sanctuary Management" onAdd={() => {

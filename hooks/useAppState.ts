@@ -74,6 +74,7 @@ export const useAppState = () => {
   const isFetchingSessions = useRef(false);
   
   const lastInquiryFetch = useRef(0);
+  const lastInquiryPage = useRef(0);
   const lastRoomFetch = useRef(0);
   const lastSessionFetch = useRef(0);
 
@@ -84,11 +85,16 @@ export const useAppState = () => {
   const fetchInquiriesFromApi = useCallback(async (page = 1, limit = 5, force = false) => {
     const now = Date.now();
     if (isFetchingInquiries.current) return;
-    // Only throttle if we are fetching the same page with the same limit and it's not forced
-    if (!force && (now - lastInquiryFetch.current < FETCH_THROTTLE_MS) && pagination?.page === page) return;
+    
+    // Use refs instead of state for throttle check to keep the callback stable
+    const isSamePage = lastInquiryPage.current === page;
+    const isWithinThrottle = (now - lastInquiryFetch.current < FETCH_THROTTLE_MS);
+    
+    if (!force && isWithinThrottle && isSamePage) return;
     
     isFetchingInquiries.current = true;
     lastInquiryFetch.current = now;
+    lastInquiryPage.current = page;
     
     try {
       const response = await fetch(`http://localhost:8000/api/inquiries?page=${page}&limit=${limit}`);
@@ -130,7 +136,7 @@ export const useAppState = () => {
     } finally {
       isFetchingInquiries.current = false;
     }
-  }, [pagination]);
+  }, []); // Stable callback
 
   const fetchRoomsFromApi = useCallback(async (force = false) => {
     const now = Date.now();
