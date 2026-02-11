@@ -67,7 +67,7 @@ export const useAppState = () => {
           id: apiRoom._id,
           name: apiRoom.name,
           description: apiRoom.description,
-          location: "Estate Wing", // Defaulting as not provided by API
+          location: "Estate Wing", 
           bedType: apiRoom.bedType,
           basePrice: apiRoom.price,
           image: apiRoom.imgPath.startsWith('http') ? apiRoom.imgPath : `http://localhost:8000${apiRoom.imgPath}`,
@@ -92,7 +92,7 @@ export const useAppState = () => {
           id: apiSession._id,
           startDate: apiSession.startDate,
           endDate: apiSession.endDate,
-          status: 'Open', // Defaulting since API doesn't provide status
+          status: 'Open',
           maxGuests: apiSession.maxGuests
         }));
         setSessions(mappedSessions);
@@ -107,12 +107,10 @@ export const useAppState = () => {
     const get = (key: string) => localStorage.getItem(key);
     setApplications(JSON.parse(get('aj_apps') || '[]'));
     
-    // Load local sessions first, then try to refresh from API
     const localSessions = JSON.parse(get('aj_sessions') || JSON.stringify(DEFAULT_SESSIONS));
     setSessions(localSessions);
     fetchSessionsFromApi();
     
-    // Load local rooms first, then try to refresh from API
     const localRooms = JSON.parse(get('aj_rooms') || JSON.stringify(DEFAULT_ROOMS));
     setRooms(localRooms);
     fetchRoomsFromApi();
@@ -135,29 +133,60 @@ export const useAppState = () => {
     localStorage.setItem(key, JSON.stringify(data));
   };
 
-  const submitApplication = (form: BookingState) => {
-    const newId = `AJ-${Math.random().toString(36).substr(2, 5).toUpperCase()}`;
-    const newApp: Application = {
-      id: newId,
-      sessionId: form.sessionId,
-      guestName: form.guestName,
+  const submitApplication = async (form: BookingState) => {
+    const selectedSession = sessions.find(s => s.id === form.sessionId);
+    
+    const payload = {
+      fullName: form.guestName,
       email: form.guestEmail,
       phone: form.guestPhone,
-      gender: form.gender as any,
-      roomPreferenceId: form.roomPreferenceId,
-      bookingType: form.bookingType,
-      status: 'Pending',
-      consentBathroom: form.bathroomConsent,
-      consentAlcohol: form.alcoholConsent,
-      totalPrice: rooms.find(r => r.id === form.roomPreferenceId)?.basePrice || 0,
-      depositPaid: false,
-      timestamp: Date.now(),
-      healthNotes: form.healthNotes
+      date: selectedSession ? selectedSession.startDate.split('T')[0] : new Date().toISOString().split('T')[0],
+      roomId: form.roomPreferenceId,
+      isBathroomProtocolChecked: form.bathroomConsent,
+      isAlcoholFreeEstateChecked: form.alcoholConsent,
+      backgroundDescription: form.healthNotes
     };
-    const updated = [newApp, ...applications];
-    setApplications(updated);
-    saveToStorage('aj_apps', updated);
-    return newId;
+
+    try {
+      const response = await fetch('http://localhost:8000/api/inquiries/add', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      
+      const result = await response.json();
+      
+      if (result.success && result.data) {
+        const apiData = result.data;
+        const newApp: Application = {
+          id: apiData.refId,
+          sessionId: form.sessionId,
+          guestName: apiData.fullName,
+          email: apiData.email,
+          phone: apiData.phone,
+          gender: form.gender as any,
+          roomPreferenceId: apiData.roomId,
+          bookingType: form.bookingType,
+          status: 'Pending',
+          consentBathroom: apiData.isBathroomProtocolChecked,
+          consentAlcohol: apiData.isAlcoholFreeEstateChecked,
+          totalPrice: rooms.find(r => r.id === apiData.roomId)?.basePrice || 0,
+          depositPaid: false,
+          timestamp: Date.now(),
+          healthNotes: apiData.backgroundDescription
+        };
+        
+        const updated = [newApp, ...applications];
+        setApplications(updated);
+        saveToStorage('aj_apps', updated);
+        return apiData;
+      } else {
+        throw new Error(result.message || "Failed to transmit inquiry");
+      }
+    } catch (error) {
+      console.error("Transmission Error:", error);
+      throw error;
+    }
   };
 
   const updateAppStatus = (id: string, status: ApplicationStatus) => {

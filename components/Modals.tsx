@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { X, Check, Info, Copy, ChevronLeft, AlertCircle } from 'lucide-react';
+import { X, Check, Info, Copy, ChevronLeft, AlertCircle, Loader2 } from 'lucide-react';
 import { BookingState, Room, ResidencySession } from '../types';
 
 interface LoginModalProps {
@@ -26,12 +26,13 @@ interface ApplyModalProps {
   sessions: ResidencySession[];
   rooms: Room[];
   initialSessionId: string;
-  onSubmit: (form: BookingState) => string;
+  onSubmit: (form: BookingState) => Promise<any>;
   onClose: () => void;
 }
 
 export const ApplyModal: React.FC<ApplyModalProps> = ({ sessions, rooms, initialSessionId, onSubmit, onClose }) => {
   const [step, setStep] = useState(1);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [submittedId, setSubmittedId] = useState('');
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [form, setForm] = useState<BookingState>({
@@ -65,12 +66,20 @@ export const ApplyModal: React.FC<ApplyModalProps> = ({ sessions, rooms, initial
     }
   };
 
-  const handleStepSubmit = () => {
-    if (step < 4) setStep(step + 1);
-    else {
-      const id = onSubmit(form);
-      setSubmittedId(id);
-      setStep(5);
+  const handleStepSubmit = async () => {
+    if (step < 4) {
+      setStep(step + 1);
+    } else {
+      setIsSubmitting(true);
+      try {
+        const result = await onSubmit(form);
+        setSubmittedId(result.refId);
+        setStep(5);
+      } catch (e) {
+        alert("Transmission failed. The estate registry is currently unreachable. Please try again later.");
+      } finally {
+        setIsSubmitting(false);
+      }
     }
   };
 
@@ -88,9 +97,11 @@ export const ApplyModal: React.FC<ApplyModalProps> = ({ sessions, rooms, initial
                 <h2 className="text-4xl font-display font-light uppercase tracking-tight text-stone">Inquiry</h2>
                 <p className="text-[11px] font-black uppercase tracking-widest text-aqua-primary">Registry Phase {step} of 4</p>
               </div>
-              <button onClick={onClose} className="w-12 h-12 bg-stone/5 rounded-full flex items-center justify-center text-stone hover:bg-stone hover:text-white transition-all">
-                <X size={20}/>
-              </button>
+              {!isSubmitting && (
+                <button onClick={onClose} className="w-12 h-12 bg-stone/5 rounded-full flex items-center justify-center text-stone hover:bg-stone hover:text-white transition-all">
+                  <X size={20}/>
+                </button>
+              )}
             </header>
           )}
 
@@ -272,23 +283,33 @@ export const ApplyModal: React.FC<ApplyModalProps> = ({ sessions, rooms, initial
                 <textarea 
                   placeholder="Movement background, goals, or health notes..." 
                   value={form.healthNotes} 
+                  disabled={isSubmitting}
                   onChange={e => setForm({...form, healthNotes: e.target.value})} 
-                  className="w-full bg-white rounded-[2rem] p-8 border border-stone/10 text-[14px] font-serif italic min-h-[160px] outline-none focus:border-stone/20 shadow-sm" 
+                  className="w-full bg-white rounded-[2rem] p-8 border border-stone/10 text-[14px] font-serif italic min-h-[160px] outline-none focus:border-stone/20 shadow-sm disabled:opacity-50" 
                 />
               </div>
               
               <div className="flex gap-4">
                 <button 
                   onClick={() => setStep(3)} 
-                  className="flex-1 bg-[#faf9f6] text-stone py-6 rounded-full text-[12px] font-black uppercase tracking-[0.2em] shadow-sm hover:bg-stone/5 transition-all flex items-center justify-center gap-2"
+                  disabled={isSubmitting}
+                  className="flex-1 bg-[#faf9f6] text-stone py-6 rounded-full text-[12px] font-black uppercase tracking-[0.2em] shadow-sm hover:bg-stone/5 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
                 >
                   <ChevronLeft size={16} /> Back
                 </button>
                 <button 
                   onClick={handleStepSubmit} 
-                  className="flex-[2] bg-aqua-primary text-stone py-6 rounded-full text-[13px] font-black uppercase tracking-[0.3em] shadow-2xl active:scale-95 transition-all"
+                  disabled={isSubmitting}
+                  className="flex-[2] bg-aqua-primary text-stone py-6 rounded-full text-[13px] font-black uppercase tracking-[0.3em] shadow-2xl active:scale-95 transition-all flex items-center justify-center gap-3 disabled:bg-aqua-primary/50"
                 >
-                  Transmit Inquiry
+                  {isSubmitting ? (
+                    <>
+                      <Loader2 className="animate-spin" size={18} />
+                      Transmitting...
+                    </>
+                  ) : (
+                    'Transmit Inquiry'
+                  )}
                 </button>
               </div>
             </div>
