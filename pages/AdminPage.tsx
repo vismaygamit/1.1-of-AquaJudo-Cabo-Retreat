@@ -47,20 +47,31 @@ export const AdminPage: React.FC<AdminPageProps> = ({
   
   const initialLoadDone = useRef<Record<string, boolean>>({});
 
+  // Handle Tab Navigation and Immediate Data Fetching
+  const handleTabClick = (t: TabType) => {
+    setTab(t);
+    
+    if (t === 'applications') {
+      fetchInquiriesFromApi(1, ITEMS_PER_PAGE, true);
+      initialLoadDone.current[t] = true;
+    } else if (t === 'sessions') {
+      fetchSessionsFromApi(true);
+      initialLoadDone.current[t] = true;
+    } else if (t === 'rooms' && !initialLoadDone.current[t]) {
+      fetchRoomsFromApi(false);
+      initialLoadDone.current[t] = true;
+    } else if (!initialLoadDone.current[t]) {
+      // For tabs without specific API refresh requirements, just mark as loaded
+      initialLoadDone.current[t] = true;
+    }
+  };
+
+  // Initial Load on mount for the default tab
   useEffect(() => {
     if (!initialLoadDone.current[tab]) {
-      if (tab === 'applications') {
-        fetchInquiriesFromApi(1, ITEMS_PER_PAGE, false);
-        initialLoadDone.current[tab] = true;
-      } else if (tab === 'sessions') {
-        fetchSessionsFromApi(false);
-        initialLoadDone.current[tab] = true;
-      } else if (tab === 'rooms') {
-        fetchRoomsFromApi(false);
-        initialLoadDone.current[tab] = true;
-      }
+      handleTabClick(tab);
     }
-  }, [tab, fetchInquiriesFromApi, fetchSessionsFromApi, fetchRoomsFromApi]);
+  }, []);
 
   const updateStorage = (key: string, val: any) => localStorage.setItem(key, JSON.stringify(val));
 
@@ -167,7 +178,11 @@ export const AdminPage: React.FC<AdminPageProps> = ({
       <main className="flex-1 p-8 md:p-16 max-w-6xl mx-auto w-full space-y-12 animate-reveal">
         <div className="flex justify-center gap-8 border-b border-stone/5 pb-8 overflow-x-auto no-scrollbar">
            {tabs.map(t => (
-             <button key={t} onClick={() => setTab(t)} className={`text-[9px] font-black uppercase tracking-[0.2em] transition-all flex items-center gap-2 px-4 py-2 whitespace-nowrap ${tab === t ? 'text-aqua-primary bg-white rounded-full border border-aqua-primary/20 shadow-sm' : 'text-stone/30 hover:text-stone/50'}`}>
+             <button 
+               key={t} 
+               onClick={() => handleTabClick(t)} 
+               className={`text-[9px] font-black uppercase tracking-[0.2em] transition-all flex items-center gap-2 px-4 py-2 whitespace-nowrap ${tab === t ? 'text-aqua-primary bg-white rounded-full border border-aqua-primary/20 shadow-sm' : 'text-stone/30 hover:text-stone/50'}`}
+             >
                {tab === t && <div className="w-1.5 h-1.5 rounded-full bg-aqua-primary" />}
                {t === 'portal' ? 'Portal Settings' : t}
              </button>
@@ -186,34 +201,40 @@ export const AdminPage: React.FC<AdminPageProps> = ({
               </button>
             </div>
             <div className="grid gap-8">
-              {applications.map(app => (
-                <div key={app.id} className="bg-white p-10 md:p-14 rounded-[3.5rem] border border-stone/5 flex flex-col gap-10 shadow-sm hover:shadow-xl transition-all">
-                  <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-10">
-                    <div className="space-y-4">
-                      <div className="flex items-center gap-5">
-                        <p className="text-3xl font-black uppercase text-stone leading-none tracking-tight">{app.guestName}</p>
-                        <span className={`px-5 py-2 rounded-full text-[10px] font-black uppercase tracking-[0.2em] ${app.status === 'Approved' ? 'bg-[#e6f9f7] text-[#4fd1c5]' : 'bg-stone/5 text-stone/30'}`}>{app.status}</span>
+              {applications.length === 0 ? (
+                <div className="p-20 text-center bg-white rounded-[3rem] border border-stone/5 border-dashed">
+                  <p className="text-stone/20 font-black uppercase tracking-widest text-[10px]">No active inquiries found</p>
+                </div>
+              ) : (
+                applications.map(app => (
+                  <div key={app.id} className="bg-white p-10 md:p-14 rounded-[3.5rem] border border-stone/5 flex flex-col gap-10 shadow-sm hover:shadow-xl transition-all">
+                    <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-10">
+                      <div className="space-y-4">
+                        <div className="flex items-center gap-5">
+                          <p className="text-3xl font-black uppercase text-stone leading-none tracking-tight">{app.guestName}</p>
+                          <span className={`px-5 py-2 rounded-full text-[10px] font-black uppercase tracking-[0.2em] ${app.status === 'Approved' ? 'bg-[#e6f9f7] text-[#4fd1c5]' : 'bg-stone/5 text-stone/30'}`}>{app.status}</span>
+                        </div>
+                        <div className="flex flex-wrap gap-x-6 gap-y-2 text-[11px] text-stone/40 font-bold uppercase tracking-widest">
+                          <span className="text-aqua-primary">{app.id}</span>
+                          <span>{app.email}</span>
+                          <span>{app.phone}</span>
+                        </div>
                       </div>
-                      <div className="flex flex-wrap gap-x-6 gap-y-2 text-[11px] text-stone/40 font-bold uppercase tracking-widest">
-                        <span className="text-aqua-primary">{app.id}</span>
-                        <span>{app.email}</span>
-                        <span>{app.phone}</span>
+                      <div className="flex flex-wrap items-center gap-3">
+                        <button onClick={() => handleStatusChange(app.id, 'Approved')} className="px-6 py-4 bg-[#f9f9f9] text-stone rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-[#111] hover:text-white transition-all">APPROVE</button>
+                        <button onClick={() => handleStatusChange(app.id, 'Declined')} className="px-6 py-4 bg-[#f9f9f9] text-stone rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-red-500 hover:text-white transition-all">DECLINE</button>
+                        <button onClick={() => {
+                          const link = `${window.location.origin}${window.location.pathname}?portal=${app.id}`;
+                          navigator.clipboard.writeText(link);
+                          showToast('Magic link copied.', 'success');
+                        }} className="px-8 py-4 bg-aqua-primary text-stone rounded-2xl text-[10px] font-black uppercase tracking-widest flex items-center gap-3 hover:scale-105 transition-all shadow-xl">
+                          <Copy size={14} /> MAGIC LINK
+                        </button>
                       </div>
-                    </div>
-                    <div className="flex flex-wrap items-center gap-3">
-                      <button onClick={() => handleStatusChange(app.id, 'Approved')} className="px-6 py-4 bg-[#f9f9f9] text-stone rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-[#111] hover:text-white transition-all">APPROVE</button>
-                      <button onClick={() => handleStatusChange(app.id, 'Declined')} className="px-6 py-4 bg-[#f9f9f9] text-stone rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-red-500 hover:text-white transition-all">DECLINE</button>
-                      <button onClick={() => {
-                        const link = `${window.location.origin}${window.location.pathname}?portal=${app.id}`;
-                        navigator.clipboard.writeText(link);
-                        showToast('Magic link copied.', 'success');
-                      }} className="px-8 py-4 bg-aqua-primary text-stone rounded-2xl text-[10px] font-black uppercase tracking-widest flex items-center gap-3 hover:scale-105 transition-all shadow-xl">
-                        <Copy size={14} /> MAGIC LINK
-                      </button>
                     </div>
                   </div>
-                </div>
-              ))}
+                ))
+              )}
             </div>
           </div>
         )}
