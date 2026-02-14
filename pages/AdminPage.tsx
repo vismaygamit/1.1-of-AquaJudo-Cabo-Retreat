@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { LogOut, Plus, Trash2, Copy, Image as ImageIcon, CheckCircle2, XCircle, Clock, Upload, Film, MessageSquare, MapPin, Package, ShieldCheck, RefreshCw, Calendar, Home, Quote, ChevronLeft, ChevronRight, Save, AlertCircle, Loader2 } from 'lucide-react';
 import { AdminSectionHeader, Logo } from '../components/Shared';
@@ -123,11 +122,34 @@ export const AdminPage: React.FC<AdminPageProps> = ({
         setDeleteTarget(null);
       }
     } else if (type === 'rooms') {
-      const next = rooms.filter(r => r.id !== id);
-      setRooms(next);
-      // Room deletion is now conceptual until a DELETE API endpoint is integrated
-      showToast('Sanctuary removed from local view.', 'info');
-      setDeleteTarget(null);
+      const isLocalOnly = id.startsWith('room-');
+      if (isLocalOnly) {
+        const next = rooms.filter(r => r.id !== id);
+        setRooms(next);
+        showToast('Local draft discarded.', 'info');
+        setDeleteTarget(null);
+        return;
+      }
+
+      setIsSaving(prev => ({ ...prev, [id]: true }));
+      try {
+        const response = await fetch(`${API_BASE_URL}/deleteRoom/${id}`, {
+          method: 'DELETE'
+        });
+        const result = await response.json();
+        if (result.success) {
+          showToast(result.message || 'Sanctuary purged from registry.', 'success');
+          await fetchRoomsFromApi(true);
+        } else {
+          throw new Error(result.message || 'Purge failed');
+        }
+      } catch (e) {
+        console.error("Delete Room Error:", e);
+        showToast('Purge failed: Registry unreachable.', 'error');
+      } finally {
+        setIsSaving(prev => ({ ...prev, [id]: false }));
+        setDeleteTarget(null);
+      }
     } else if (type === 'faqs') {
       const next = faqs.filter(f => f.id !== id);
       setFaqs(next);
@@ -209,16 +231,19 @@ export const AdminPage: React.FC<AdminPageProps> = ({
         data.append('image', file);
       }
 
+      // API Integration: POST for creation, PUT for updates
       const url = isNew ? `${API_BASE_URL}/createRoom` : `${API_BASE_URL}/updateRoom/${room.id}`;
+      const method = isNew ? 'POST' : 'PUT';
+
       const response = await fetch(url, {
-        method: isNew ? 'POST' : 'PATCH',
+        method: method,
         body: data
       });
 
       const result = await response.json();
       
       if (result.success) {
-        showToast(isNew ? 'Sanctuary added successfully.' : 'Sanctuary updated successfully.', 'success');
+        showToast(result.message || (isNew ? 'Sanctuary added successfully.' : 'Sanctuary updated successfully.'), 'success');
         const nextFiles = { ...roomFiles };
         delete nextFiles[room.id];
         setRoomFiles(nextFiles);
