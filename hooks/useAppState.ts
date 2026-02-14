@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { 
   FAQS as DEFAULT_FAQS,
@@ -147,6 +146,8 @@ export const useAppState = () => {
       const result = await response.json();
       
       if (result.success && Array.isArray(result.data)) {
+        // Cache buster to ensure latest image is always visible after an update
+        const t = Date.now();
         const mappedRooms: Room[] = result.data.map((apiRoom: any) => ({
           id: apiRoom._id,
           name: apiRoom.name,
@@ -154,7 +155,7 @@ export const useAppState = () => {
           location: "Estate Wing", 
           bedType: apiRoom.bedType || 'Restorative Sanctuary',
           basePrice: apiRoom.price,
-          image: apiRoom.imgPath.startsWith('http') ? apiRoom.imgPath : `${API_ROOT}${apiRoom.imgPath}`,
+          image: `${apiRoom.imgPath.startsWith('http') ? apiRoom.imgPath : `${API_ROOT}${apiRoom.imgPath}`}?t=${t}`,
           maxOccupancy: 2,
           bathType: apiRoom.bathRoomType?.toLowerCase().includes('shared') ? 'shared' : 'private'
         }));
@@ -199,15 +200,11 @@ export const useAppState = () => {
   useEffect(() => {
     const get = (key: string) => localStorage.getItem(key);
     
-    // Identity/Apps still use storage for magic link lookups
     const storedApps = JSON.parse(get('aj_apps') || '[]');
     setApplications(storedApps);
-    
-    // Sessions and Rooms strictly start empty, no local constants or storage
     setSessions([]);
     setRooms([]);
 
-    // Other settings still use storage as placeholders
     setFaqs(JSON.parse(get('aj_faqs') || JSON.stringify(DEFAULT_FAQS)));
     setItinerary(JSON.parse(get('aj_itinerary') || JSON.stringify(DEFAULT_ITINERARY)));
     setPortalConfig(JSON.parse(get('aj_portal_config') || JSON.stringify(DEFAULT_PORTAL_CONFIG)));

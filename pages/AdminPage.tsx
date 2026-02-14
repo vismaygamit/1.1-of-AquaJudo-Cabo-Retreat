@@ -208,6 +208,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({
       newErrors[`${room.id}-basePrice`] = false;
     }
 
+    // Validation for image presence
     if (!room.image && !roomFiles[room.id]) {
       if (!hasError) showToast('A VISUAL ASSET (IMAGE) IS REQUIRED.', 'error');
       newErrors[`${room.id}-image`] = true;
@@ -244,9 +245,13 @@ export const AdminPage: React.FC<AdminPageProps> = ({
       
       if (result.success) {
         showToast(result.message || (isNew ? 'Sanctuary added successfully.' : 'Sanctuary updated successfully.'), 'success');
+        
+        // Clear the staged file locally after successful upload
         const nextFiles = { ...roomFiles };
         delete nextFiles[room.id];
         setRoomFiles(nextFiles);
+        
+        // Force a re-fetch of rooms to ensure UI matches database (including latest image URL)
         await fetchRoomsFromApi(true);
       } else {
         throw new Error(result.message || 'Operation failed');
@@ -273,8 +278,10 @@ export const AdminPage: React.FC<AdminPageProps> = ({
       return;
     }
 
+    // Store the file object for later upload
     setRoomFiles(prev => ({ ...prev, [roomId]: file }));
 
+    // Generate local base64 for immediate visual preview
     const reader = new FileReader();
     reader.onloadend = () => {
       const base64String = reader.result as string;
