@@ -1,8 +1,6 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { 
-  VILLA_ROOMS as DEFAULT_ROOMS, 
-  RESIDENCY_SESSIONS as DEFAULT_SESSIONS, 
   FAQS as DEFAULT_FAQS,
   ITINERARY_DAYS as DEFAULT_ITINERARY,
   API_BASE_URL,
@@ -50,7 +48,6 @@ const DEFAULT_PORTAL_CONFIG = {
   promoVideoUrl: INITIAL_PROMO_VIDEO_URL
 };
 
-// Throttle time in milliseconds (10000 ms = 10 seconds)
 const FETCH_THROTTLE_MS = 10000;
 
 export interface PaginationInfo {
@@ -70,7 +67,6 @@ export const useAppState = () => {
   const [portalConfig, setPortalConfig] = useState(DEFAULT_PORTAL_CONFIG);
   const [activePortalGuest, setActivePortalGuest] = useState<Application | null>(null);
 
-  // Guards and Timestamps to prevent duplicate calls
   const isFetchingInquiries = useRef(false);
   const isFetchingRooms = useRef(false);
   const isFetchingSessions = useRef(false);
@@ -156,14 +152,13 @@ export const useAppState = () => {
           name: apiRoom.name,
           description: apiRoom.description,
           location: "Estate Wing", 
-          bedType: apiRoom.bedType,
+          bedType: apiRoom.bedType || 'Restorative Sanctuary',
           basePrice: apiRoom.price,
           image: apiRoom.imgPath.startsWith('http') ? apiRoom.imgPath : `${API_ROOT}${apiRoom.imgPath}`,
           maxOccupancy: 2,
-          bathType: apiRoom.bathRoomType.toLowerCase().includes('shared') ? 'shared' : 'private'
+          bathType: apiRoom.bathRoomType?.toLowerCase().includes('shared') ? 'shared' : 'private'
         }));
         setRooms(mappedRooms);
-        saveToStorage('aj_rooms', mappedRooms);
       }
     } catch (error) {
       console.warn("Rooms API unavailable:", error);
@@ -193,7 +188,6 @@ export const useAppState = () => {
           maxGuests: apiSession.maxGuests
         }));
         setSessions(mappedSessions);
-        saveToStorage('aj_sessions', mappedSessions);
       }
     } catch (error) {
       console.warn("Sessions API unavailable:", error);
@@ -204,15 +198,16 @@ export const useAppState = () => {
 
   useEffect(() => {
     const get = (key: string) => localStorage.getItem(key);
+    
+    // Identity/Apps still use storage for magic link lookups
     const storedApps = JSON.parse(get('aj_apps') || '[]');
     setApplications(storedApps);
     
-    const localSessions = JSON.parse(get('aj_sessions') || JSON.stringify(DEFAULT_SESSIONS));
-    setSessions(localSessions);
-    
-    const localRooms = JSON.parse(get('aj_rooms') || JSON.stringify(DEFAULT_ROOMS));
-    setRooms(localRooms);
+    // Sessions and Rooms strictly start empty, no local constants or storage
+    setSessions([]);
+    setRooms([]);
 
+    // Other settings still use storage as placeholders
     setFaqs(JSON.parse(get('aj_faqs') || JSON.stringify(DEFAULT_FAQS)));
     setItinerary(JSON.parse(get('aj_itinerary') || JSON.stringify(DEFAULT_ITINERARY)));
     setPortalConfig(JSON.parse(get('aj_portal_config') || JSON.stringify(DEFAULT_PORTAL_CONFIG)));
@@ -258,7 +253,6 @@ export const useAppState = () => {
   };
 
   const saveSessionToApi = async (session: any) => {
-    // Determine if it's a new session (local draft) or an existing one
     const isNew = !session.id || (session.id.length < 15 && !isNaN(Number(session.id)));
     const url = isNew 
       ? `${API_BASE_URL}/session/add` 
@@ -291,7 +285,6 @@ export const useAppState = () => {
           : sessions.map(s => s.id === result.data._id ? updatedSession : s);
         
         setSessions(next);
-        saveToStorage('aj_sessions', next);
         return result.data;
       } else {
         throw new Error(result.message || "Failed to synchronize residency window");
@@ -311,7 +304,6 @@ export const useAppState = () => {
       if (result.success) {
         const next = sessions.filter(s => s.id !== id);
         setSessions(next);
-        saveToStorage('aj_sessions', next);
         return true;
       } else {
         throw new Error(result.message || "Failed to delete residency window");

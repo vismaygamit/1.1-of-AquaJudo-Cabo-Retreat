@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useEffect } from 'react';
 import { LogOut, Plus, Trash2, Copy, Image as ImageIcon, CheckCircle2, XCircle, Clock, Upload, Film, MessageSquare, MapPin, Package, ShieldCheck, RefreshCw, Calendar, Home, Quote, ChevronLeft, ChevronRight, Save, AlertCircle, Loader2 } from 'lucide-react';
 import { AdminSectionHeader, Logo } from '../components/Shared';
@@ -106,7 +107,6 @@ export const AdminPage: React.FC<AdminPageProps> = ({
       if (isLocalOnly) {
         const next = sessions.filter(s => s.id !== id);
         setSessions(next);
-        updateStorage('aj_sessions', next);
         showToast('Local draft discarded.', 'info');
         setDeleteTarget(null);
         return;
@@ -125,8 +125,8 @@ export const AdminPage: React.FC<AdminPageProps> = ({
     } else if (type === 'rooms') {
       const next = rooms.filter(r => r.id !== id);
       setRooms(next);
-      updateStorage('aj_rooms', next);
-      showToast('Sanctuary removed.', 'info');
+      // Room deletion is now conceptual until a DELETE API endpoint is integrated
+      showToast('Sanctuary removed from local view.', 'info');
       setDeleteTarget(null);
     } else if (type === 'faqs') {
       const next = faqs.filter(f => f.id !== id);
@@ -209,7 +209,6 @@ export const AdminPage: React.FC<AdminPageProps> = ({
         data.append('image', file);
       }
 
-      // If existing, we conceptually update, but the prompt focused on createRoom API
       const url = isNew ? `${API_BASE_URL}/createRoom` : `${API_BASE_URL}/updateRoom/${room.id}`;
       const response = await fetch(url, {
         method: isNew ? 'POST' : 'PATCH',
@@ -365,7 +364,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                     </div>
                     <div className="space-y-1">
                       <label className="text-[8px] font-black uppercase tracking-widest text-stone/20 px-1 text-center block">Max Guests</label>
-                      <input type="number" min="1" value={s.maxGuests} onChange={e => { const next = [...sessions]; next[idx].maxGuests = parseInt(e.target.value); setSessions(next); }} className="w-full bg-[#faf9f6] p-4 rounded-xl border border-stone/5 text-xs outline-none text-center" />
+                      <input type="number" min="1" value={s.maxGuests} onChange={e => { const next = [...sessions]; next[idx].maxGuests = parseInt(e.target.value) || 0; setSessions(next); }} className="w-full bg-[#faf9f6] p-4 rounded-xl border border-stone/5 text-xs outline-none text-center" />
                     </div>
                   </div>
                   <div className="flex items-center gap-4 pt-4 md:pt-0">
