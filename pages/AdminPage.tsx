@@ -14,6 +14,7 @@ interface AdminPageProps {
   fetchSessionsFromApi: (force?: boolean) => Promise<void>;
   fetchRoomsFromApi: (force?: boolean) => Promise<void>;
   saveSessionToApi: (session: any) => Promise<any>;
+  deleteSessionFromApi: (id: string) => Promise<any>;
   rooms: Room[];
   setRooms: any;
   sessions: any[];
@@ -32,7 +33,7 @@ type TabType = 'applications' | 'sessions' | 'rooms' | 'itinerary' | 'faqs' | 'p
 const ITEMS_PER_PAGE = 5;
 
 export const AdminPage: React.FC<AdminPageProps> = ({ 
-  onExit, applications, pagination, setApplications, fetchInquiriesFromApi, fetchSessionsFromApi, fetchRoomsFromApi, saveSessionToApi, rooms, setRooms, 
+  onExit, applications, pagination, setApplications, fetchInquiriesFromApi, fetchSessionsFromApi, fetchRoomsFromApi, saveSessionToApi, deleteSessionFromApi, rooms, setRooms, 
   sessions, setSessions, itinerary, setItinerary, 
   faqs, setFaqs, portalConfig, setPortalConfig, showToast
 }) => {
@@ -145,6 +146,35 @@ export const AdminPage: React.FC<AdminPageProps> = ({
       showToast('Synchronization failed. Backend service error.', 'error');
     } finally {
       setIsSaving(prev => ({ ...prev, [s.id]: false }));
+    }
+  };
+
+  const handleDeleteSession = async (id: string) => {
+    // Only proceed with API call if the ID doesn't look like a temporary local one
+    // New sessions created via "Add New" have a numeric timestamp ID as string.
+    // Backend IDs are MongoDB ObjectIDs (hex strings).
+    const isLocalOnly = id.length < 15 && !isNaN(Number(id));
+
+    if (!confirm('Are you sure you want to permanently remove this residency window from the registry?')) return;
+
+    if (isLocalOnly) {
+      // Just filter locally if it was never synced
+      const next = sessions.filter(s => s.id !== id);
+      setSessions(next);
+      updateStorage('aj_sessions', next);
+      showToast('Local draft discarded.', 'info');
+      return;
+    }
+
+    setIsSaving(prev => ({ ...prev, [id]: true }));
+    try {
+      await deleteSessionFromApi(id);
+      showToast('Residency window purged from registry.', 'success');
+    } catch (e) {
+      console.error(e);
+      showToast('Purge failed. Registry entry may already be removed.', 'error');
+    } finally {
+      setIsSaving(prev => ({ ...prev, [id]: false }));
     }
   };
 
@@ -487,11 +517,13 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                         {isLoading ? <Loader2 size={14} className="animate-spin" /> : <CheckCircle2 size={14} />}
                         SAVE
                       </button>
-                      <button onClick={() => {
-                        const next = sessions.filter(item => item.id !== s.id);
-                        setSessions(next); updateStorage('aj_sessions', next);
-                        showToast('Residency window entry removed.', 'info');
-                      }} className="p-4 text-stone/10 hover:text-red-500 transition-all"><Trash2 size={20}/></button>
+                      <button 
+                        onClick={() => handleDeleteSession(s.id)} 
+                        disabled={isLoading}
+                        className="p-4 text-stone/10 hover:text-red-500 transition-all disabled:opacity-30"
+                      >
+                        {isLoading ? <Loader2 size={20} className="animate-spin" /> : <Trash2 size={20} />}
+                      </button>
                     </div>
                   </div>
                 );

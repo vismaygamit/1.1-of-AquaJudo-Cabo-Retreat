@@ -50,7 +50,7 @@ const DEFAULT_PORTAL_CONFIG = {
   promoVideoUrl: INITIAL_PROMO_VIDEO_URL
 };
 
-// Throttle time in milliseconds (10 seconds)
+// Throttle time in milliseconds (10000 ms = 10 seconds)
 const FETCH_THROTTLE_MS = 10000;
 
 export interface PaginationInfo {
@@ -187,7 +187,6 @@ export const useAppState = () => {
       if (result.success && Array.isArray(result.data)) {
         const mappedSessions: ResidencySession[] = result.data.map((apiSession: any) => ({
           id: apiSession._id,
-          // Split at 'T' to get only YYYY-MM-DD for the HTML date inputs
           startDate: apiSession.startDate.split('T')[0],
           endDate: apiSession.endDate.split('T')[0],
           status: 'Open', 
@@ -235,7 +234,6 @@ export const useAppState = () => {
       phone: form.guestPhone,
       date: selectedSession ? selectedSession.startDate.split('T')[0] : new Date().toISOString().split('T')[0],
       roomId: form.roomPreferenceId,
-      // Fix: Property names updated to match BookingState interface from types.ts
       isBathroomProtocolChecked: form.bathroomConsent,
       isAlcoholFreeEstateChecked: form.alcoholConsent,
       backgroundDescription: form.healthNotes
@@ -273,7 +271,6 @@ export const useAppState = () => {
       });
       const result = await response.json();
       if (result.success && result.data) {
-        // Update local session state with the new backend ID to prevent duplicates if user keeps clicking save
         const updatedSession: ResidencySession = {
           id: result.data._id,
           startDate: result.data.startDate.split('T')[0],
@@ -290,6 +287,26 @@ export const useAppState = () => {
       }
     } catch (error) {
       console.error("Save Session Error:", error);
+      throw error;
+    }
+  };
+
+  const deleteSessionFromApi = async (id: string) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/session/delete/${id}`, {
+        method: 'DELETE'
+      });
+      const result = await response.json();
+      if (result.success) {
+        const next = sessions.filter(s => s.id !== id);
+        setSessions(next);
+        saveToStorage('aj_sessions', next);
+        return true;
+      } else {
+        throw new Error(result.message || "Failed to delete residency window");
+      }
+    } catch (error) {
+      console.error("Delete Session Error:", error);
       throw error;
     }
   };
@@ -311,6 +328,7 @@ export const useAppState = () => {
     activePortalGuest, setActivePortalGuest,
     submitApplication,
     saveSessionToApi,
+    deleteSessionFromApi,
     updateAppStatus,
     saveToStorage,
     fetchInquiriesFromApi,
