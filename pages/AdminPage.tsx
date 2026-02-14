@@ -4,6 +4,7 @@ import { AdminSectionHeader, Logo } from '../components/Shared';
 import { DeleteConfirmModal } from '../components/Modals';
 import { ApplicationStatus, Room, Application } from '../types';
 import { PaginationInfo } from '../hooks/useAppState';
+import { API_BASE_URL } from '../constants';
 
 interface AdminPageProps {
   onExit: () => void;
@@ -42,6 +43,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({
   const [isSaving, setIsSaving] = useState<Record<string, boolean>>({});
   const [deleteTarget, setDeleteTarget] = useState<{ id: string, type: TabType, label: string } | null>(null);
   const [roomErrors, setRoomErrors] = useState<Record<string, boolean>>({});
+  const [roomFiles, setRoomFiles] = useState<Record<string, File>>({});
   const fileInputRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
   
   const initialLoadDone = useRef<Record<string, boolean>>({});
@@ -154,7 +156,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({
     }
   };
 
-  const handleSaveRoom = (idx: number) => {
+  const handleSaveRoom = async (idx: number) => {
     const room = rooms[idx];
     const isNew = room.id.startsWith('room-');
     const newErrors: Record<string, boolean> = { ...roomErrors };
@@ -184,7 +186,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({
       newErrors[`${room.id}-basePrice`] = false;
     }
 
-    if (!room.image) {
+    if (!room.image && !roomFiles[room.id]) {
       if (!hasError) showToast('A VISUAL ASSET (IMAGE) IS REQUIRED.', 'error');
       newErrors[`${room.id}-image`] = true;
       hasError = true;
@@ -195,8 +197,42 @@ export const AdminPage: React.FC<AdminPageProps> = ({
     setRoomErrors(newErrors);
     if (hasError) return;
 
-    updateStorage('aj_rooms', rooms);
-    showToast(isNew ? 'Sanctuary added to registry.' : 'Sanctuary updated.', 'success');
+    setIsSaving(prev => ({ ...prev, [room.id]: true }));
+    try {
+      const data = new FormData();
+      data.append('name', room.name);
+      data.append('price', room.basePrice.toString());
+      data.append('description', room.description);
+      
+      const file = roomFiles[room.id];
+      if (file) {
+        data.append('image', file);
+      }
+
+      const response = await fetch(`${API_BASE_URL}/createRoom`, {
+        method: 'POST',
+        body: data
+      });
+
+      const result = await response.json();
+      
+      if (result.success) {
+        showToast('Sanctuary synchronized successfully.', 'success');
+        // Clear the file from temp storage
+        const nextFiles = { ...roomFiles };
+        delete nextFiles[room.id];
+        setRoomFiles(nextFiles);
+        // Refresh registry from server to get official ID
+        await fetchRoomsFromApi(true);
+      } else {
+        throw new Error(result.message || 'Operation failed');
+      }
+    } catch (e) {
+      console.error("Save Room Error:", e);
+      showToast('Network error: Sanctuary could not be synchronized.', 'error');
+    } finally {
+      setIsSaving(prev => ({ ...prev, [room.id]: false }));
+    }
   };
 
   const handleImageUpload = (roomId: string, file: File) => {
@@ -212,6 +248,9 @@ export const AdminPage: React.FC<AdminPageProps> = ({
       showToast('FILE TOO LARGE. MAXIMUM SIZE IS 2MB.', 'error');
       return;
     }
+
+    // Store the actual file for FormData upload
+    setRoomFiles(prev => ({ ...prev, [roomId]: file }));
 
     const reader = new FileReader();
     reader.onloadend = () => {
@@ -358,6 +397,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                 const hasDescError = roomErrors[`${room.id}-description`];
                 const hasPriceError = roomErrors[`${room.id}-basePrice`];
                 const hasImageError = roomErrors[`${room.id}-image`];
+                const isRoomSaving = isSaving[room.id];
 
                 return (
                   <div key={room.id} className="bg-white p-10 md:p-14 rounded-[3.5rem] border border-stone/5 shadow-2xl space-y-12 group transition-all hover:shadow-aqua-primary/5">
@@ -366,6 +406,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                         <div className="flex items-center gap-4">
                           <input 
                             value={room.name} 
+                            disabled={isRoomSaving}
                             onChange={e => { 
                               const next = [...rooms]; 
                               next[idx].name = e.target.value; 
@@ -377,14 +418,16 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                             required
                           />
                           <button 
+                            disabled={isRoomSaving}
                             onClick={() => setDeleteTarget({ id: room.id, type: 'rooms', label: room.name })} 
-                            className="p-3 text-stone/10 hover:text-red-500 hover:bg-red-50 rounded-full transition-all"
+                            className="p-3 text-stone/10 hover:text-red-500 hover:bg-red-50 rounded-full transition-all disabled:opacity-30"
                           >
                             <Trash2 size={22}/>
                           </button>
                         </div>
                         <textarea 
                           value={room.description} 
+                          disabled={isRoomSaving}
                           onChange={e => { 
                             const next = [...rooms]; 
                             next[idx].description = e.target.value; 
@@ -408,6 +451,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                           )}
                           <input 
                             type="file" 
+                            disabled={isRoomSaving}
                             ref={el => { fileInputRefs.current[room.id] = el; }}
                             className="hidden" 
                             accept=".jpg,.jpeg,.png"
@@ -417,8 +461,9 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                             }}
                           />
                           <button 
+                            disabled={isRoomSaving}
                             onClick={() => fileInputRefs.current[room.id]?.click()}
-                            className="absolute inset-0 bg-stone/20 opacity-0 group-hover/img:opacity-100 transition-all flex items-center justify-center"
+                            className="absolute inset-0 bg-stone/20 opacity-0 group-hover/img:opacity-100 transition-all flex items-center justify-center disabled:hidden"
                           >
                              <div className="p-4 bg-white rounded-full shadow-xl">
                                 <Upload size={20} className="text-stone" />
@@ -435,6 +480,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                           <span className="absolute left-4 top-1/2 -translate-y-1/2 text-stone/30 font-black">$</span>
                           <input 
                             type="number" 
+                            disabled={isRoomSaving}
                             value={room.basePrice} 
                             onChange={e => { 
                               const next = [...rooms]; next[idx].basePrice = parseInt(e.target.value); setRooms(next); 
@@ -449,10 +495,20 @@ export const AdminPage: React.FC<AdminPageProps> = ({
 
                     <div className="pt-6 flex justify-end">
                       <button 
+                        disabled={isRoomSaving}
                         onClick={() => handleSaveRoom(idx)} 
-                        className={`px-12 py-5 rounded-2xl text-[11px] font-black uppercase tracking-[0.3em] shadow-xl transition-all flex items-center gap-3 active:scale-[0.98] ${isNew ? 'bg-aqua-primary text-stone hover:bg-aqua-deep hover:text-white' : 'bg-[#111] text-white hover:bg-aqua-primary hover:text-stone'}`}
+                        className={`px-12 py-5 rounded-2xl text-[11px] font-black uppercase tracking-[0.3em] shadow-xl transition-all flex items-center gap-3 active:scale-[0.98] ${isNew ? 'bg-aqua-primary text-stone hover:bg-aqua-deep hover:text-white' : 'bg-[#111] text-white hover:bg-aqua-primary hover:text-stone'} disabled:opacity-50`}
                       >
-                        <Save size={16} /> {isNew ? 'Add Sanctuary' : 'Update Sanctuary'}
+                        {isRoomSaving ? (
+                          <>
+                            <Loader2 size={16} className="animate-spin" />
+                            Synchronizing...
+                          </>
+                        ) : (
+                          <>
+                            <Save size={16} /> {isNew ? 'Add Sanctuary' : 'Update Sanctuary'}
+                          </>
+                        )}
                       </button>
                     </div>
                   </div>
