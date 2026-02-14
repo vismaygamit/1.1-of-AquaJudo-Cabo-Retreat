@@ -68,16 +68,22 @@ export const AdminPage: React.FC<AdminPageProps> = ({
     const next = applications.map(a => a.id === id ? { ...a, status: newStatus } : a);
     setApplications(next);
     updateStorage('aj_apps', next);
+    showToast(`Inquiry status updated to ${newStatus.toUpperCase()}.`, 'success');
   };
 
   const handleRefresh = async () => {
     setIsRefreshing(true);
-    if (tab === 'applications') {
-      await fetchInquiriesFromApi(pagination?.page || 1, ITEMS_PER_PAGE, true);
-    } else if (tab === 'sessions') {
-      await fetchSessionsFromApi(true);
-    } else if (tab === 'rooms') {
-      await fetchRoomsFromApi(true);
+    try {
+      if (tab === 'applications') {
+        await fetchInquiriesFromApi(pagination?.page || 1, ITEMS_PER_PAGE, true);
+      } else if (tab === 'sessions') {
+        await fetchSessionsFromApi(true);
+      } else if (tab === 'rooms') {
+        await fetchRoomsFromApi(true);
+      }
+      showToast('Registry data synchronized with backend.', 'success');
+    } catch (e) {
+      showToast('Synchronization failed.', 'error');
     }
     setIsRefreshing(false);
   };
@@ -91,6 +97,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({
         const next = { ...portalConfig, promoVideoUrl: base64String };
         setPortalConfig(next);
         updateStorage('aj_portal_config', next);
+        showToast('Portal promo video updated locally.', 'success');
       };
       reader.readAsDataURL(file);
     }
@@ -105,6 +112,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({
         const next = rooms.map(r => r.id === roomId ? { ...r, image: base64String } : r);
         setRooms(next);
         updateStorage('aj_rooms', next);
+        showToast('Sanctuary visual updated locally.', 'success');
       };
       reader.readAsDataURL(file);
     }
@@ -150,15 +158,11 @@ export const AdminPage: React.FC<AdminPageProps> = ({
   };
 
   const handleDeleteSession = async (id: string) => {
-    // Only proceed with API call if the ID doesn't look like a temporary local one
-    // New sessions created via "Add New" have a numeric timestamp ID as string.
-    // Backend IDs are MongoDB ObjectIDs (hex strings).
     const isLocalOnly = id.length < 15 && !isNaN(Number(id));
 
     if (!confirm('Are you sure you want to permanently remove this residency window from the registry?')) return;
 
     if (isLocalOnly) {
-      // Just filter locally if it was never synced
       const next = sessions.filter(s => s.id !== id);
       setSessions(next);
       updateStorage('aj_sessions', next);
@@ -357,6 +361,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({
               const newId = `room-${Math.random().toString(36).substr(2, 5).toUpperCase()}`;
               const next = [...rooms, { id: newId, name: "NEW SANCTUARY", basePrice: 5000, description: "", image: "", location: "Main Floor", bedType: "King Bed", maxOccupancy: 2, bathType: 'private' }];
               setRooms(next); updateStorage('aj_rooms', next);
+              showToast('New sanctuary draft added.', 'info');
             }}>
               <button 
                 onClick={handleRefresh}
@@ -440,6 +445,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({
             <AdminSectionHeader title="Residency Windows" onAdd={() => {
               const next = [...sessions, { id: Date.now().toString(), startDate: '2026-07-01', endDate: '2026-07-08', status: 'Open', maxGuests: 4 }];
               setSessions(next); updateStorage('aj_sessions', next);
+              showToast('New residency window draft added.', 'info');
             }}>
               <button 
                 onClick={handleRefresh}
@@ -579,6 +585,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({
             <AdminSectionHeader title="Estate Intelligence" onAdd={() => {
               const next = [...faqs, { id: Date.now().toString(), q: "New Question?", a: "New Answer." }];
               setFaqs(next); updateStorage('aj_faqs', next);
+              showToast('New intelligence entry added.', 'info');
             }} />
             <div className="grid gap-6">
               {faqs.map((faq, idx) => (
