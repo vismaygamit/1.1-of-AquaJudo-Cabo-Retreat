@@ -57,11 +57,12 @@ export const AdminPage: React.FC<AdminPageProps> = ({
     } else if (t === 'sessions') {
       fetchSessionsFromApi(true);
       initialLoadDone.current[t] = true;
-    } else if (t === 'rooms' && !initialLoadDone.current[t]) {
-      fetchRoomsFromApi(false);
+    } else if (t === 'rooms') {
+      // Fetch rooms every time the tab is clicked to ensure fresh data
+      fetchRoomsFromApi(true);
       initialLoadDone.current[t] = true;
     } else if (!initialLoadDone.current[t]) {
-      // For tabs without specific API refresh requirements, just mark as loaded
+      // For other tabs, just mark as initially loaded
       initialLoadDone.current[t] = true;
     }
   };
@@ -159,6 +160,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({
   };
 
   const tabs: TabType[] = ['applications', 'sessions', 'rooms', 'itinerary', 'faqs', 'portal'];
+  const today = new Date().toISOString().split('T')[0];
 
   return (
     <div className="min-h-screen bg-[#faf9f6] flex flex-col font-sans text-stone">
@@ -242,7 +244,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({
         {tab === 'sessions' && (
           <div className="space-y-8 animate-fade-in">
             <AdminSectionHeader title="Residency Windows" onAdd={() => {
-              const next = [...sessions, { id: Date.now().toString(), startDate: '2026-07-01', endDate: '2026-07-08', status: 'Open', maxGuests: 4 }];
+              const next = [...sessions, { id: Date.now().toString(), startDate: today, endDate: '', status: 'Open', maxGuests: 4 }];
               setSessions(next);
               showToast('Draft window added.', 'info');
             }} />
@@ -250,12 +252,21 @@ export const AdminPage: React.FC<AdminPageProps> = ({
               {sessions.map((s, idx) => (
                 <div key={s.id} className="bg-white p-8 rounded-[2rem] border border-stone/5 shadow-lg flex flex-col md:flex-row items-center gap-8 group">
                   <div className="flex-1 grid grid-cols-2 md:grid-cols-3 gap-6 w-full">
-                    <input type="date" value={s.startDate} onChange={e => { const next = [...sessions]; next[idx].startDate = e.target.value; setSessions(next); }} className="w-full bg-[#faf9f6] p-4 rounded-xl border border-stone/5 text-xs outline-none" />
-                    <input type="date" value={s.endDate} onChange={e => { const next = [...sessions]; next[idx].endDate = e.target.value; setSessions(next); }} className="w-full bg-[#faf9f6] p-4 rounded-xl border border-stone/5 text-xs outline-none" />
-                    <input type="number" value={s.maxGuests} onChange={e => { const next = [...sessions]; next[idx].maxGuests = parseInt(e.target.value); setSessions(next); }} className="w-full bg-[#faf9f6] p-4 rounded-xl border border-stone/5 text-xs outline-none text-center" />
+                    <div className="space-y-1">
+                      <label className="text-[8px] font-black uppercase tracking-widest text-stone/20 px-1">Start Date</label>
+                      <input type="date" min={today} value={s.startDate} onChange={e => { const next = [...sessions]; next[idx].startDate = e.target.value; setSessions(next); }} className="w-full bg-[#faf9f6] p-4 rounded-xl border border-stone/5 text-xs outline-none" />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-[8px] font-black uppercase tracking-widest text-stone/20 px-1">End Date</label>
+                      <input type="date" min={s.startDate || today} value={s.endDate} onChange={e => { const next = [...sessions]; next[idx].endDate = e.target.value; setSessions(next); }} className="w-full bg-[#faf9f6] p-4 rounded-xl border border-stone/5 text-xs outline-none" />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-[8px] font-black uppercase tracking-widest text-stone/20 px-1 text-center block">Max Guests</label>
+                      <input type="number" min="1" value={s.maxGuests} onChange={e => { const next = [...sessions]; next[idx].maxGuests = parseInt(e.target.value); setSessions(next); }} className="w-full bg-[#faf9f6] p-4 rounded-xl border border-stone/5 text-xs outline-none text-center" />
+                    </div>
                   </div>
-                  <div className="flex items-center gap-4">
-                    <button onClick={() => handleSaveSession(s)} disabled={isSaving[s.id]} className="px-6 py-3 bg-[#111] text-white rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-stone-light transition-all shadow-md">
+                  <div className="flex items-center gap-4 pt-4 md:pt-0">
+                    <button onClick={() => handleSaveSession(s)} disabled={isSaving[s.id]} className="px-6 py-3 bg-[#111] text-white rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-stone-light transition-all shadow-md min-w-[80px] flex items-center justify-center">
                       {isSaving[s.id] ? <Loader2 size={14} className="animate-spin" /> : 'SAVE'}
                     </button>
                     <button onClick={() => setDeleteTarget({ id: s.id, type: 'sessions', label: `Residency starting ${s.startDate}` })} className="p-4 text-stone/10 hover:text-red-500 transition-all">

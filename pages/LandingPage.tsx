@@ -16,6 +16,9 @@ interface LandingPageProps {
 export const LandingPage: React.FC<LandingPageProps> = ({ sessions, rooms, itinerary, faqs, promoVideoUrl, onApplyClick }) => {
   const [openFaqId, setOpenFaqId] = useState<string | null>(null);
 
+  const today = new Date().toISOString().split('T')[0];
+  const activeSessions = sessions.filter(s => s.startDate >= today);
+
   return (
     <main>
       {/* HERO */}
@@ -109,25 +112,31 @@ export const LandingPage: React.FC<LandingPageProps> = ({ sessions, rooms, itine
             <h2 className="text-3xl md:text-5xl font-display font-light uppercase tracking-tighter">Residency Windows</h2>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {sessions.map((s) => (
-              <div key={s.id} className="bg-white p-10 rounded-[3rem] border border-stone/5 space-y-8 shadow-sm flex flex-col justify-between">
-                <div className="space-y-4">
-                  <div className="flex justify-between items-start">
-                    <p className="text-[10px] font-black uppercase tracking-[0.3em] text-aqua-primary">{new Date(s.startDate).getFullYear()}</p>
-                    <span className="px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest bg-stone/5">{s.status}</span>
-                  </div>
-                  <h4 className="text-3xl font-black uppercase tracking-tighter text-stone">{new Date(s.startDate).toLocaleDateString('en-US', { month: 'long' })}</h4>
-                  <p className="text-sm font-serif italic text-stone/40">{new Date(s.startDate).toLocaleDateString()} — {new Date(s.endDate).toLocaleDateString()}</p>
-                </div>
-                <button 
-                  onClick={() => onApplyClick(s.id)}
-                  disabled={s.status === 'Full'}
-                  className={`w-full py-5 rounded-full text-[11px] font-black uppercase tracking-[0.2em] shadow-lg transition-all ${s.status === 'Full' ? 'bg-stone/5 text-stone/20 cursor-not-allowed' : 'bg-stone text-white hover:bg-aqua-primary hover:text-stone'}`}
-                >
-                  {s.status === 'Full' ? 'WAITLIST ONLY' : 'REQUEST ENTRY'}
-                </button>
+            {activeSessions.length === 0 ? (
+              <div className="col-span-full py-20 text-center bg-white rounded-[3rem] border border-stone/5 border-dashed">
+                <p className="text-stone/20 font-black uppercase tracking-widest text-[11px]">No upcoming residency windows scheduled</p>
               </div>
-            ))}
+            ) : (
+              activeSessions.map((s) => (
+                <div key={s.id} className="bg-white p-10 rounded-[3rem] border border-stone/5 space-y-8 shadow-sm flex flex-col justify-between">
+                  <div className="space-y-4">
+                    <div className="flex justify-between items-start">
+                      <p className="text-[10px] font-black uppercase tracking-[0.3em] text-aqua-primary">{new Date(s.startDate).getFullYear()}</p>
+                      <span className="px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest bg-stone/5">{s.status}</span>
+                    </div>
+                    <h4 className="text-3xl font-black uppercase tracking-tighter text-stone">{new Date(s.startDate).toLocaleDateString('en-US', { month: 'long' })}</h4>
+                    <p className="text-sm font-serif italic text-stone/40">{new Date(s.startDate).toLocaleDateString()} — {new Date(s.endDate).toLocaleDateString()}</p>
+                  </div>
+                  <button 
+                    onClick={() => onApplyClick(s.id)}
+                    disabled={s.status === 'Full'}
+                    className={`w-full py-5 rounded-full text-[11px] font-black uppercase tracking-[0.2em] shadow-lg transition-all ${s.status === 'Full' ? 'bg-stone/5 text-stone/20 cursor-not-allowed' : 'bg-stone text-white hover:bg-aqua-primary hover:text-stone'}`}
+                  >
+                    {s.status === 'Full' ? 'WAITLIST ONLY' : 'REQUEST ENTRY'}
+                  </button>
+                </div>
+              ))
+            )}
           </div>
         </div>
       </section>

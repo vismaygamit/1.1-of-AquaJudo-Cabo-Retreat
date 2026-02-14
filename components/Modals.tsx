@@ -128,6 +128,8 @@ export const ApplyModal: React.FC<ApplyModalProps> = ({ sessions, rooms, initial
     }
   };
 
+  const today = new Date().toISOString().split('T')[0];
+  const availableSessions = sessions.filter(s => s.startDate >= today);
   const selectedSession = sessions.find(s => s.id === form.sessionId);
   const selectedRoom = rooms.find(r => r.id === form.roomPreferenceId);
 
@@ -212,30 +214,36 @@ export const ApplyModal: React.FC<ApplyModalProps> = ({ sessions, rooms, initial
               <div className="space-y-6">
                 <p className="text-[10px] font-black uppercase tracking-[0.2em] text-stone/30 text-center">Choose your residency window</p>
                 <div className="space-y-4">
-                  {sessions.map(s => {
-                    const startDate = new Date(s.startDate);
-                    const endDate = new Date(s.endDate);
-                    const isSelected = form.sessionId === s.id;
-                    return (
-                      <button 
-                        key={s.id} 
-                        onClick={() => setForm({...form, sessionId: s.id})}
-                        className={`w-full p-8 rounded-[2rem] border transition-all text-left flex justify-between items-center group ${isSelected ? 'bg-aqua-primary/5 border-aqua-primary' : 'bg-white border-stone/10 hover:border-stone/20'}`}
-                      >
-                        <div className="space-y-1">
-                          <p className="text-[14px] font-black uppercase tracking-tight text-stone">
-                            {startDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
-                          </p>
-                          <p className="text-[11px] font-serif italic text-stone/30">
-                            {startDate.toLocaleDateString('en-US', { month: 'numeric', day: 'numeric', year: 'numeric' })} — {endDate.toLocaleDateString('en-US', { month: 'numeric', day: 'numeric', year: 'numeric' })}
-                          </p>
-                        </div>
-                        <span className={`px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest ${s.status === 'Full' ? 'bg-stone/5 text-stone/20' : 'bg-green-50 text-green-500'}`}>
-                          {s.status}
-                        </span>
-                      </button>
-                    );
-                  })}
+                  {availableSessions.length === 0 ? (
+                    <div className="p-10 text-center bg-stone/5 rounded-[2rem] border border-stone/10 border-dashed">
+                      <p className="text-[11px] font-black uppercase tracking-widest text-stone/30 leading-relaxed">No future windows are currently available for registry.</p>
+                    </div>
+                  ) : (
+                    availableSessions.map(s => {
+                      const startDate = new Date(s.startDate);
+                      const endDate = new Date(s.endDate);
+                      const isSelected = form.sessionId === s.id;
+                      return (
+                        <button 
+                          key={s.id} 
+                          onClick={() => setForm({...form, sessionId: s.id})}
+                          className={`w-full p-8 rounded-[2rem] border transition-all text-left flex justify-between items-center group ${isSelected ? 'bg-aqua-primary/5 border-aqua-primary' : 'bg-white border-stone/10 hover:border-stone/20'}`}
+                        >
+                          <div className="space-y-1">
+                            <p className="text-[14px] font-black uppercase tracking-tight text-stone">
+                              {startDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
+                            </p>
+                            <p className="text-[11px] font-serif italic text-stone/30">
+                              {startDate.toLocaleDateString('en-US', { month: 'numeric', day: 'numeric', year: 'numeric' })} — {endDate.toLocaleDateString('en-US', { month: 'numeric', day: 'numeric', year: 'numeric' })}
+                            </p>
+                          </div>
+                          <span className={`px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest ${s.status === 'Full' ? 'bg-stone/5 text-stone/20' : 'bg-green-50 text-green-500'}`}>
+                            {s.status}
+                          </span>
+                        </button>
+                      );
+                    })
+                  )}
                 </div>
               </div>
               
