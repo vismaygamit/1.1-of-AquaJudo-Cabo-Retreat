@@ -73,6 +73,7 @@ const App: React.FC = () => {
           setFaqs={state.setFaqs} 
           portalConfig={state.portalConfig} 
           setPortalConfig={state.setPortalConfig} 
+          showToast={showToast}
         />
         {toast && <Toast {...toast} onClose={() => setToast(null)} />}
       </div>

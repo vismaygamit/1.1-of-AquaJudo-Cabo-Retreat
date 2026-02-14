@@ -24,6 +24,7 @@ interface AdminPageProps {
   setFaqs: any;
   portalConfig: any;
   setPortalConfig: any;
+  showToast: (message: string, type: 'success' | 'error' | 'info') => void;
 }
 
 type TabType = 'applications' | 'sessions' | 'rooms' | 'itinerary' | 'faqs' | 'portal';
@@ -33,7 +34,7 @@ const ITEMS_PER_PAGE = 5;
 export const AdminPage: React.FC<AdminPageProps> = ({ 
   onExit, applications, pagination, setApplications, fetchInquiriesFromApi, fetchSessionsFromApi, fetchRoomsFromApi, saveSessionToApi, rooms, setRooms, 
   sessions, setSessions, itinerary, setItinerary, 
-  faqs, setFaqs, portalConfig, setPortalConfig 
+  faqs, setFaqs, portalConfig, setPortalConfig, showToast
 }) => {
   const [tab, setTab] = useState<TabType>('applications');
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -131,17 +132,17 @@ export const AdminPage: React.FC<AdminPageProps> = ({
   const handleSaveSession = async (s: any) => {
     const errors = getSessionErrors(s);
     if (Object.keys(errors).length > 0) {
-      alert('Please correct the validation errors before saving.');
+      showToast('Validation errors must be corrected.', 'error');
       return;
     }
 
     setIsSaving(prev => ({ ...prev, [s.id]: true }));
     try {
       await saveSessionToApi(s);
-      alert('Residency window synchronized with backend registry.');
+      showToast('Residency window synchronized successfully.', 'success');
     } catch (e) {
       console.error(e);
-      alert('Sync failed. Backend service may be unreachable.');
+      showToast('Synchronization failed. Backend service error.', 'error');
     } finally {
       setIsSaving(prev => ({ ...prev, [s.id]: false }));
     }
@@ -237,7 +238,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                               onClick={() => {
                                 const link = `${window.location.origin}${window.location.pathname}?portal=${app.id}`;
                                 navigator.clipboard.writeText(link);
-                                alert('Portal magic link copied.');
+                                showToast('Portal magic link copied to clipboard.', 'success');
                               }} 
                               className="px-8 py-4 bg-aqua-primary text-stone rounded-2xl text-[10px] font-black uppercase tracking-widest flex items-center gap-3 hover:scale-105 transition-all shadow-xl"
                             >
@@ -357,7 +358,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                         <button 
                           onClick={() => {
                             updateStorage('aj_rooms', rooms);
-                            alert(`Sanctuary "${room.name}" configuration persisted.`);
+                            showToast(`Sanctuary "${room.name}" configuration updated.`, 'success');
                           }}
                           className="px-4 py-2 bg-[#111] text-white rounded-xl text-[8px] font-black uppercase tracking-widest hover:bg-stone-light transition-all shadow-sm flex items-center justify-center gap-2"
                         >
@@ -366,6 +367,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                         <button onClick={() => {
                           const next = rooms.filter(r => r.id !== room.id);
                           setRooms(next); updateStorage('aj_rooms', next);
+                          showToast('Sanctuary entry removed.', 'info');
                         }} className="p-2 text-stone/10 hover:text-red-500 transition-colors flex justify-center"><Trash2 size={18}/></button>
                       </div>
                     </div>
@@ -488,6 +490,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                       <button onClick={() => {
                         const next = sessions.filter(item => item.id !== s.id);
                         setSessions(next); updateStorage('aj_sessions', next);
+                        showToast('Residency window entry removed.', 'info');
                       }} className="p-4 text-stone/10 hover:text-red-500 transition-all"><Trash2 size={20}/></button>
                     </div>
                   </div>
@@ -503,7 +506,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                <button 
                   onClick={() => {
                     updateStorage('aj_itinerary', itinerary);
-                    alert('Full itinerary narrative saved successfully.');
+                    showToast('Technical Pathway narrative updated.', 'success');
                   }}
                   className="px-6 py-2.5 bg-aqua-primary text-stone rounded-full text-[10px] font-black uppercase tracking-widest hover:scale-105 transition-all shadow-xl flex items-center gap-2"
                 >
@@ -560,7 +563,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                       <button 
                         onClick={() => {
                           updateStorage('aj_faqs', faqs);
-                          alert('Intelligence entry updated.');
+                          showToast('Intelligence entry synchronized.', 'success');
                         }}
                         className="p-2 bg-[#111] text-white rounded-lg hover:bg-stone-light transition-colors flex items-center justify-center"
                       >
@@ -569,6 +572,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                       <button onClick={() => {
                         const next = faqs.filter(f => f.id !== faq.id);
                         setFaqs(next); updateStorage('aj_faqs', next);
+                        showToast('Intelligence entry removed.', 'info');
                       }} className="text-stone/10 group-hover:text-red-500 transition-colors flex items-center justify-center"><Trash2 size={18}/></button>
                     </div>
                   </div>
@@ -592,7 +596,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({
               <button 
                 onClick={() => {
                   updateStorage('aj_portal_config', portalConfig);
-                  alert('Global portal configuration has been synchronized.');
+                  showToast('Global portal settings synchronized.', 'success');
                 }}
                 className="px-10 py-3 bg-[#111] text-white rounded-full text-[11px] font-black uppercase tracking-[0.2em] hover:bg-aqua-primary hover:text-stone transition-all shadow-2xl flex items-center gap-3"
               >
