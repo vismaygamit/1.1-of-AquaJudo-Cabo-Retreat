@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { X, Check, Info, Copy, ChevronLeft, AlertCircle, Loader2 } from 'lucide-react';
+import { X, Check, Info, Copy, ChevronLeft, AlertCircle, Loader2, Trash2 } from 'lucide-react';
 import { BookingState, Room, ResidencySession } from '../types';
 
 interface LoginModalProps {
@@ -17,6 +17,49 @@ export const LoginModal: React.FC<LoginModalProps> = ({ onLogin, onClose }) => {
         <h4 className="text-[12px] font-black uppercase tracking-[0.5em] text-stone/30">ESTATE CURATOR</h4>
         <input type="password" placeholder="••••" value={input} onChange={e => setInput(e.target.value)} onKeyDown={e => e.key === 'Enter' && onLogin(input)} className="w-full bg-[#faf9f6] rounded-[2rem] px-6 py-5 text-center text-2xl font-display tracking-[0.4em] outline-none border border-stone/10" autoFocus />
         <button onClick={() => onLogin(input)} className="w-full py-5 bg-[#111] text-white rounded-2xl text-[11px] font-black uppercase tracking-[0.3em] hover:bg-aqua-primary transition-all">ACCESS CONSOLE</button>
+      </div>
+    </div>
+  );
+};
+
+export const DeleteConfirmModal: React.FC<{
+  isOpen: boolean;
+  title: string;
+  description: string;
+  onConfirm: () => void;
+  onCancel: () => void;
+  isLoading?: boolean;
+}> = ({ isOpen, title, description, onConfirm, onCancel, isLoading }) => {
+  if (!isOpen) return null;
+  return (
+    <div className="fixed inset-0 z-[1100] bg-stone/20 backdrop-blur-md flex items-center justify-center p-6 animate-fade-in">
+      <div className="bg-white w-full max-w-sm p-10 rounded-[3rem] space-y-8 text-center shadow-3xl border border-white">
+        <div className="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mx-auto text-red-500">
+          <AlertCircle size={32} />
+        </div>
+        <div className="space-y-2">
+          <h4 className="text-xl font-black uppercase tracking-tight text-stone">{title}</h4>
+          <p className="text-[13px] font-serif italic text-stone/40 leading-relaxed px-4">
+            {description}
+          </p>
+        </div>
+        <div className="flex gap-3">
+          <button 
+            onClick={onCancel} 
+            disabled={isLoading}
+            className="flex-1 py-4 bg-[#faf9f6] text-stone rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-stone/5 transition-all disabled:opacity-50"
+          >
+            Cancel
+          </button>
+          <button 
+            onClick={onConfirm} 
+            disabled={isLoading}
+            className="flex-1 py-4 bg-red-500 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-red-600 transition-all shadow-lg shadow-red-500/20 flex items-center justify-center gap-2 disabled:opacity-50"
+          >
+            {isLoading ? <Loader2 size={14} className="animate-spin" /> : <Trash2 size={14} />}
+            Delete
+          </button>
+        </div>
       </div>
     </div>
   );
