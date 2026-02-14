@@ -258,14 +258,22 @@ export const useAppState = () => {
   };
 
   const saveSessionToApi = async (session: any) => {
+    // Determine if it's a new session (local draft) or an existing one
+    const isNew = !session.id || (session.id.length < 15 && !isNaN(Number(session.id)));
+    const url = isNew 
+      ? `${API_BASE_URL}/session/add` 
+      : `${API_BASE_URL}/session/update/${session.id}`;
+    const method = isNew ? 'POST' : 'PATCH';
+
     const payload = {
       startDate: session.startDate,
       endDate: session.endDate,
       maxGuests: session.maxGuests
     };
+
     try {
-      const response = await fetch(`${API_BASE_URL}/session/add`, {
-        method: 'POST',
+      const response = await fetch(url, {
+        method,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
       });
@@ -278,12 +286,15 @@ export const useAppState = () => {
           status: 'Open',
           maxGuests: result.data.maxGuests
         };
-        const next = sessions.map(s => s.id === session.id ? updatedSession : s);
+        const next = isNew 
+          ? sessions.map(s => s.id === session.id ? updatedSession : s)
+          : sessions.map(s => s.id === result.data._id ? updatedSession : s);
+        
         setSessions(next);
         saveToStorage('aj_sessions', next);
         return result.data;
       } else {
-        throw new Error(result.message || "Failed to save residency window");
+        throw new Error(result.message || "Failed to synchronize residency window");
       }
     } catch (error) {
       console.error("Save Session Error:", error);
