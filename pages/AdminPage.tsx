@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { LogOut, Plus, Trash2, Copy, Image as ImageIcon, CheckCircle2, XCircle, Clock, Upload, Film, MessageSquare, MapPin, Package, ShieldCheck, RefreshCw, Calendar, Home, Quote, ChevronLeft, ChevronRight, Save, AlertCircle, Loader2 } from 'lucide-react';
 import { AdminSectionHeader, Logo } from '../components/Shared';
@@ -42,12 +41,11 @@ export const AdminPage: React.FC<AdminPageProps> = ({
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [isSaving, setIsSaving] = useState<Record<string, boolean>>({});
   const [deleteTarget, setDeleteTarget] = useState<{ id: string, type: TabType, label: string } | null>(null);
+  const [roomErrors, setRoomErrors] = useState<Record<string, boolean>>({});
   const fileInputRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
-  const videoInputRef = useRef<HTMLInputElement>(null);
   
   const initialLoadDone = useRef<Record<string, boolean>>({});
 
-  // Handle Tab Navigation and Immediate Data Fetching
   const handleTabClick = (t: TabType) => {
     setTab(t);
     
@@ -58,16 +56,13 @@ export const AdminPage: React.FC<AdminPageProps> = ({
       fetchSessionsFromApi(true);
       initialLoadDone.current[t] = true;
     } else if (t === 'rooms') {
-      // Fetch rooms every time the tab is clicked to ensure fresh data
       fetchRoomsFromApi(true);
       initialLoadDone.current[t] = true;
     } else if (!initialLoadDone.current[t]) {
-      // For other tabs, just mark as initially loaded
       initialLoadDone.current[t] = true;
     }
   };
 
-  // Initial Load on mount for the default tab
   useEffect(() => {
     if (!initialLoadDone.current[tab]) {
       handleTabClick(tab);
@@ -157,6 +152,76 @@ export const AdminPage: React.FC<AdminPageProps> = ({
     } finally {
       setIsSaving(prev => ({ ...prev, [s.id]: false }));
     }
+  };
+
+  const handleSaveRoom = (idx: number) => {
+    const room = rooms[idx];
+    const isNew = room.id.startsWith('room-');
+    const newErrors: Record<string, boolean> = { ...roomErrors };
+    let hasError = false;
+
+    if (!room.name || !room.name.trim()) {
+      showToast('SANCTUARY NAME IS REQUIRED.', 'error');
+      newErrors[`${room.id}-name`] = true;
+      hasError = true;
+    } else {
+      newErrors[`${room.id}-name`] = false;
+    }
+
+    if (!room.description || !room.description.trim()) {
+      if (!hasError) showToast('TECHNICAL DESCRIPTION IS REQUIRED.', 'error');
+      newErrors[`${room.id}-description`] = true;
+      hasError = true;
+    } else {
+      newErrors[`${room.id}-description`] = false;
+    }
+
+    if (!room.basePrice || room.basePrice <= 0) {
+      if (!hasError) showToast('A VALID BASE PRICE IS REQUIRED.', 'error');
+      newErrors[`${room.id}-basePrice`] = true;
+      hasError = true;
+    } else {
+      newErrors[`${room.id}-basePrice`] = false;
+    }
+
+    if (!room.image) {
+      if (!hasError) showToast('A VISUAL ASSET (IMAGE) IS REQUIRED.', 'error');
+      newErrors[`${room.id}-image`] = true;
+      hasError = true;
+    } else {
+      newErrors[`${room.id}-image`] = false;
+    }
+
+    setRoomErrors(newErrors);
+    if (hasError) return;
+
+    updateStorage('aj_rooms', rooms);
+    showToast(isNew ? 'Sanctuary added to registry.' : 'Sanctuary updated.', 'success');
+  };
+
+  const handleImageUpload = (roomId: string, file: File) => {
+    const validTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+    const maxSize = 2 * 1024 * 1024; // 2MB
+
+    if (!validTypes.includes(file.type)) {
+      showToast('INVALID FORMAT. ONLY JPG, JPEG, AND PNG ARE PERMITTED.', 'error');
+      return;
+    }
+
+    if (file.size > maxSize) {
+      showToast('FILE TOO LARGE. MAXIMUM SIZE IS 2MB.', 'error');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      const base64String = reader.result as string;
+      const next = rooms.map(r => r.id === roomId ? { ...r, image: base64String } : r);
+      setRooms(next);
+      setRoomErrors(prev => ({ ...prev, [`${roomId}-image`]: false }));
+      showToast('Asset staged for sync.', 'info');
+    };
+    reader.readAsDataURL(file);
   };
 
   const tabs: TabType[] = ['applications', 'sessions', 'rooms', 'itinerary', 'faqs', 'portal'];
@@ -280,28 +345,119 @@ export const AdminPage: React.FC<AdminPageProps> = ({
         )}
 
         {tab === 'rooms' && (
-          <div className="space-y-8 animate-fade-in">
+          <div className="space-y-10 animate-fade-in">
             <AdminSectionHeader title="Sanctuaries" onAdd={() => {
-              const next = [...rooms, { id: `room-${Date.now()}`, name: "NEW SANCTUARY", basePrice: 5000, description: "", location: "Main Floor", bedType: "King Bed", maxOccupancy: 2, bathType: 'private' }];
+              const next = [...rooms, { id: `room-${Date.now()}`, name: "NEW SANCTUARY", basePrice: 5000, description: "", location: "Main Level", bedType: "King Bed", maxOccupancy: 2, bathType: 'private' }];
               setRooms(next);
               showToast('Draft sanctuary added.', 'info');
             }} />
-            <div className="space-y-10">
-              {rooms.map((room, idx) => (
-                <div key={room.id} className="bg-white p-10 rounded-[2.5rem] border border-stone/5 shadow-xl space-y-8">
-                  <div className="flex justify-between items-start">
-                    <input value={room.name} onChange={e => { const next = [...rooms]; next[idx].name = e.target.value; setRooms(next); }} className="text-3xl font-black uppercase tracking-tight text-stone w-full bg-transparent outline-none focus:text-aqua-primary" />
-                    <button onClick={() => setDeleteTarget({ id: room.id, type: 'rooms', label: room.name })} className="p-2 text-stone/10 hover:text-red-500 transition-colors"><Trash2 size={20}/></button>
-                  </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-                    <textarea value={room.description} onChange={e => { const next = [...rooms]; next[idx].description = e.target.value; setRooms(next); }} className="w-full bg-[#faf9f6] p-6 rounded-[1.5rem] border border-stone/5 text-[13px] font-serif italic text-stone/40 outline-none resize-none min-h-[120px]" />
-                    <div className="space-y-4">
-                      <input type="number" value={room.basePrice} onChange={e => { const next = [...rooms]; next[idx].basePrice = parseInt(e.target.value); setRooms(next); }} className="bg-[#faf9f6] px-4 py-2 rounded-xl text-xl font-black text-stone outline-none border border-stone/5 w-full" />
-                      <button onClick={() => { updateStorage('aj_rooms', rooms); showToast('Sanctuary updated locally.', 'success'); }} className="w-full py-4 bg-[#111] text-white rounded-xl text-[10px] font-black uppercase tracking-widest">SAVE CHANGES</button>
+            <div className="space-y-12">
+              {rooms.map((room, idx) => {
+                const isNew = room.id.startsWith('room-');
+                const hasNameError = roomErrors[`${room.id}-name`];
+                const hasDescError = roomErrors[`${room.id}-description`];
+                const hasPriceError = roomErrors[`${room.id}-basePrice`];
+                const hasImageError = roomErrors[`${room.id}-image`];
+
+                return (
+                  <div key={room.id} className="bg-white p-10 md:p-14 rounded-[3.5rem] border border-stone/5 shadow-2xl space-y-12 group transition-all hover:shadow-aqua-primary/5">
+                    <div className="flex flex-col md:flex-row justify-between items-start gap-8">
+                      <div className="flex-1 space-y-4">
+                        <div className="flex items-center gap-4">
+                          <input 
+                            value={room.name} 
+                            onChange={e => { 
+                              const next = [...rooms]; 
+                              next[idx].name = e.target.value; 
+                              setRooms(next);
+                              if (e.target.value.trim()) setRoomErrors(prev => ({ ...prev, [`${room.id}-name`]: false }));
+                            }} 
+                            className={`text-3xl md:text-4xl font-black uppercase tracking-tight text-stone w-full bg-transparent border-b-2 outline-none focus:text-aqua-primary transition-colors ${hasNameError ? 'border-red-400 text-red-500' : 'border-transparent'}`} 
+                            placeholder="Sanctuary Name *"
+                            required
+                          />
+                          <button 
+                            onClick={() => setDeleteTarget({ id: room.id, type: 'rooms', label: room.name })} 
+                            className="p-3 text-stone/10 hover:text-red-500 hover:bg-red-50 rounded-full transition-all"
+                          >
+                            <Trash2 size={22}/>
+                          </button>
+                        </div>
+                        <textarea 
+                          value={room.description} 
+                          onChange={e => { 
+                            const next = [...rooms]; 
+                            next[idx].description = e.target.value; 
+                            setRooms(next);
+                            if (e.target.value.trim()) setRoomErrors(prev => ({ ...prev, [`${room.id}-description`]: false }));
+                          }} 
+                          className={`w-full bg-[#faf9f6] p-8 rounded-[2rem] border text-[15px] font-serif italic text-stone/60 outline-none resize-none min-h-[140px] leading-relaxed ${hasDescError ? 'border-red-400 bg-red-50/10' : 'border-stone/5'}`} 
+                          placeholder="Provide a technical description of this sanctuary space... *"
+                          required
+                        />
+                      </div>
+                      <div className="w-full md:w-80 space-y-6">
+                        <div className={`aspect-[4/3] rounded-[2.5rem] bg-[#faf9f6] overflow-hidden border relative group/img shadow-inner transition-all ${hasImageError ? 'border-red-400 ring-4 ring-red-400/10' : 'border-stone/5'}`}>
+                          {room.image ? (
+                            <img src={room.image} className="w-full h-full object-cover opacity-90" alt={room.name} />
+                          ) : (
+                            <div className={`w-full h-full flex flex-col items-center justify-center gap-2 ${hasImageError ? 'text-red-400' : 'text-stone/10'}`}>
+                              <ImageIcon size={40} />
+                              <span className="text-[10px] font-black uppercase tracking-widest">Visual Asset Req.</span>
+                            </div>
+                          )}
+                          <input 
+                            type="file" 
+                            ref={el => { fileInputRefs.current[room.id] = el; }}
+                            className="hidden" 
+                            accept=".jpg,.jpeg,.png"
+                            onChange={e => {
+                              const file = e.target.files?.[0];
+                              if (file) handleImageUpload(room.id, file);
+                            }}
+                          />
+                          <button 
+                            onClick={() => fileInputRefs.current[room.id]?.click()}
+                            className="absolute inset-0 bg-stone/20 opacity-0 group-hover/img:opacity-100 transition-all flex items-center justify-center"
+                          >
+                             <div className="p-4 bg-white rounded-full shadow-xl">
+                                <Upload size={20} className="text-stone" />
+                             </div>
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div className="space-y-2 max-w-xs">
+                        <label className="text-[9px] font-black uppercase tracking-[0.3em] text-stone/20 px-1">Base Price (USD) <span className="text-red-500">*</span></label>
+                        <div className="relative">
+                          <span className="absolute left-4 top-1/2 -translate-y-1/2 text-stone/30 font-black">$</span>
+                          <input 
+                            type="number" 
+                            value={room.basePrice} 
+                            onChange={e => { 
+                              const next = [...rooms]; next[idx].basePrice = parseInt(e.target.value); setRooms(next); 
+                              if (parseInt(e.target.value) > 0) setRoomErrors(prev => ({ ...prev, [`${room.id}-basePrice`]: false }));
+                            }} 
+                            className={`w-full bg-[#faf9f6] pl-8 pr-4 py-4 rounded-2xl border text-lg font-black text-stone outline-none focus:border-aqua-primary/40 transition-all shadow-sm ${hasPriceError ? 'border-red-400 bg-red-50/10' : 'border-stone/5'}`} 
+                            required
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="pt-6 flex justify-end">
+                      <button 
+                        onClick={() => handleSaveRoom(idx)} 
+                        className={`px-12 py-5 rounded-2xl text-[11px] font-black uppercase tracking-[0.3em] shadow-xl transition-all flex items-center gap-3 active:scale-[0.98] ${isNew ? 'bg-aqua-primary text-stone hover:bg-aqua-deep hover:text-white' : 'bg-[#111] text-white hover:bg-aqua-primary hover:text-stone'}`}
+                      >
+                        <Save size={16} /> {isNew ? 'Add Sanctuary' : 'Update Sanctuary'}
+                      </button>
                     </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         )}
