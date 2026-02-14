@@ -1,6 +1,6 @@
 
 import React, { useState, useRef, useEffect } from 'react';
-import { LogOut, Plus, Trash2, Copy, Image as ImageIcon, CheckCircle2, XCircle, Clock, Upload, Film, MessageSquare, MapPin, Package, ShieldCheck, RefreshCw, Calendar, Home, Quote, ChevronLeft, ChevronRight, Save } from 'lucide-react';
+import { LogOut, Plus, Trash2, Copy, Image as ImageIcon, CheckCircle2, XCircle, Clock, Upload, Film, MessageSquare, MapPin, Package, ShieldCheck, RefreshCw, Calendar, Home, Quote, ChevronLeft, ChevronRight, Save, AlertCircle, Loader2 } from 'lucide-react';
 import { AdminSectionHeader, Logo } from '../components/Shared';
 import { ApplicationStatus, Room, Application } from '../types';
 import { PaginationInfo } from '../hooks/useAppState';
@@ -13,6 +13,7 @@ interface AdminPageProps {
   fetchInquiriesFromApi: (page?: number, limit?: number, force?: boolean) => Promise<void>;
   fetchSessionsFromApi: (force?: boolean) => Promise<void>;
   fetchRoomsFromApi: (force?: boolean) => Promise<void>;
+  saveSessionToApi: (session: any) => Promise<any>;
   rooms: Room[];
   setRooms: any;
   sessions: any[];
@@ -30,12 +31,13 @@ type TabType = 'applications' | 'sessions' | 'rooms' | 'itinerary' | 'faqs' | 'p
 const ITEMS_PER_PAGE = 5;
 
 export const AdminPage: React.FC<AdminPageProps> = ({ 
-  onExit, applications, pagination, setApplications, fetchInquiriesFromApi, fetchSessionsFromApi, fetchRoomsFromApi, rooms, setRooms, 
+  onExit, applications, pagination, setApplications, fetchInquiriesFromApi, fetchSessionsFromApi, fetchRoomsFromApi, saveSessionToApi, rooms, setRooms, 
   sessions, setSessions, itinerary, setItinerary, 
   faqs, setFaqs, portalConfig, setPortalConfig 
 }) => {
   const [tab, setTab] = useState<TabType>('applications');
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [isSaving, setIsSaving] = useState<Record<string, boolean>>({});
   const fileInputRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
   const videoInputRef = useRef<HTMLInputElement>(null);
   
@@ -111,6 +113,38 @@ export const AdminPage: React.FC<AdminPageProps> = ({
   const goToPage = (page: number) => {
     fetchInquiriesFromApi(page, ITEMS_PER_PAGE, true);
     window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const getSessionErrors = (s: any) => {
+    const errors: Record<string, string> = {};
+    if (!s.startDate) errors.startDate = "Required";
+    if (!s.endDate) errors.endDate = "Required";
+    if (s.startDate && s.endDate && new Date(s.startDate) >= new Date(s.endDate)) {
+      errors.endDate = "Must be after start date";
+    }
+    if (!s.maxGuests || s.maxGuests < 1) {
+      errors.maxGuests = "Min 1";
+    }
+    return errors;
+  };
+
+  const handleSaveSession = async (s: any) => {
+    const errors = getSessionErrors(s);
+    if (Object.keys(errors).length > 0) {
+      alert('Please correct the validation errors before saving.');
+      return;
+    }
+
+    setIsSaving(prev => ({ ...prev, [s.id]: true }));
+    try {
+      await saveSessionToApi(s);
+      alert('Residency window synchronized with backend registry.');
+    } catch (e) {
+      console.error(e);
+      alert('Sync failed. Backend service may be unreachable.');
+    } finally {
+      setIsSaving(prev => ({ ...prev, [s.id]: false }));
+    }
   };
 
   return (
@@ -383,48 +417,82 @@ export const AdminPage: React.FC<AdminPageProps> = ({
               </button>
             </AdminSectionHeader>
             <div className="grid gap-6">
-              {sessions.map((s, idx) => (
-                <div key={s.id} className="bg-white p-8 rounded-[2rem] border border-stone/5 shadow-lg flex items-center gap-8">
-                  <div className="flex-1 grid grid-cols-2 md:grid-cols-3 gap-6">
-                    <div className="space-y-2">
-                      <label className="text-[8px] font-black text-stone/20 uppercase tracking-widest">Start Date</label>
-                      <input type="date" value={s.startDate} onChange={e => {
-                        const next = [...sessions]; next[idx].startDate = e.target.value;
-                        setSessions(next);
-                      }} className="w-full bg-[#faf9f6] p-4 rounded-xl border border-stone/5 text-xs outline-none" />
+              {sessions.map((s, idx) => {
+                const sessionErrors = getSessionErrors(s);
+                const hasErrors = Object.keys(sessionErrors).length > 0;
+                const isLoading = isSaving[s.id];
+                
+                return (
+                  <div key={s.id} className={`bg-white p-8 rounded-[2rem] border ${hasErrors ? 'border-red-100' : 'border-stone/5'} shadow-lg flex flex-col md:flex-row items-center gap-8 group transition-all`}>
+                    <div className="flex-1 grid grid-cols-2 md:grid-cols-3 gap-6 w-full">
+                      <div className="space-y-2">
+                        <label className="flex items-center justify-between text-[8px] font-black text-stone/20 uppercase tracking-widest">
+                          Start Date
+                          {sessionErrors.startDate && <span className="text-red-400 normal-case">{sessionErrors.startDate}</span>}
+                        </label>
+                        <input 
+                          type="date" 
+                          value={s.startDate} 
+                          onChange={e => {
+                            const next = [...sessions]; next[idx].startDate = e.target.value;
+                            setSessions(next);
+                          }} 
+                          className={`w-full bg-[#faf9f6] p-4 rounded-xl border ${sessionErrors.startDate ? 'border-red-200 focus:border-red-400' : 'border-stone/5 focus:border-aqua-primary'} text-xs outline-none transition-colors`} 
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <label className="flex items-center justify-between text-[8px] font-black text-stone/20 uppercase tracking-widest">
+                          End Date
+                          {sessionErrors.endDate && <span className="text-red-400 normal-case">{sessionErrors.endDate}</span>}
+                        </label>
+                        <input 
+                          type="date" 
+                          value={s.endDate} 
+                          onChange={e => {
+                            const next = [...sessions]; next[idx].endDate = e.target.value;
+                            setSessions(next);
+                          }} 
+                          className={`w-full bg-[#faf9f6] p-4 rounded-xl border ${sessionErrors.endDate ? 'border-red-200 focus:border-red-400' : 'border-stone/5 focus:border-aqua-primary'} text-xs outline-none transition-colors`} 
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <label className="flex items-center justify-between text-[8px] font-black text-stone/20 uppercase tracking-widest">
+                          Capacity
+                          {sessionErrors.maxGuests && <span className="text-red-400 normal-case">{sessionErrors.maxGuests}</span>}
+                        </label>
+                        <input 
+                          type="number" 
+                          value={s.maxGuests} 
+                          min="1"
+                          onChange={e => {
+                            const next = [...sessions]; next[idx].maxGuests = parseInt(e.target.value);
+                            setSessions(next);
+                          }} 
+                          className={`w-full bg-[#faf9f6] p-4 rounded-xl border ${sessionErrors.maxGuests ? 'border-red-200 focus:border-red-400' : 'border-stone/5 focus:border-aqua-primary'} text-xs outline-none text-center transition-colors`} 
+                        />
+                      </div>
                     </div>
-                    <div className="space-y-2">
-                      <label className="text-[8px] font-black text-stone/20 uppercase tracking-widest">End Date</label>
-                      <input type="date" value={s.endDate} onChange={e => {
-                        const next = [...sessions]; next[idx].endDate = e.target.value;
-                        setSessions(next);
-                      }} className="w-full bg-[#faf9f6] p-4 rounded-xl border border-stone/5 text-xs outline-none" />
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-[8px] font-black text-stone/20 uppercase tracking-widest">Capacity</label>
-                      <input type="number" value={s.maxGuests} onChange={e => {
-                        const next = [...sessions]; next[idx].maxGuests = parseInt(e.target.value);
-                        setSessions(next);
-                      }} className="w-full bg-[#faf9f6] p-4 rounded-xl border border-stone/5 text-xs outline-none text-center" />
+                    <div className="flex items-center gap-4 w-full md:w-auto justify-end">
+                      <button 
+                        onClick={() => handleSaveSession(s)} 
+                        disabled={hasErrors || isLoading}
+                        className={`px-6 py-3 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all shadow-md flex items-center gap-2 ${
+                          hasErrors || isLoading 
+                          ? 'bg-stone/5 text-stone/20 cursor-not-allowed opacity-50' 
+                          : 'bg-[#111] text-white hover:bg-stone-light'
+                        }`}
+                      >
+                        {isLoading ? <Loader2 size={14} className="animate-spin" /> : <CheckCircle2 size={14} />}
+                        SAVE
+                      </button>
+                      <button onClick={() => {
+                        const next = sessions.filter(item => item.id !== s.id);
+                        setSessions(next); updateStorage('aj_sessions', next);
+                      }} className="p-4 text-stone/10 hover:text-red-500 transition-all"><Trash2 size={20}/></button>
                     </div>
                   </div>
-                  <div className="flex items-center gap-4">
-                    <button 
-                      onClick={() => {
-                        updateStorage('aj_sessions', sessions);
-                        alert('Residency window data persisted to local registry.');
-                      }} 
-                      className="px-6 py-3 bg-[#111] text-white rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-stone-light transition-all shadow-md flex items-center gap-2"
-                    >
-                      <CheckCircle2 size={14} /> SAVE
-                    </button>
-                    <button onClick={() => {
-                      const next = sessions.filter(item => item.id !== s.id);
-                      setSessions(next); updateStorage('aj_sessions', next);
-                    }} className="p-4 text-stone/10 hover:text-red-500 transition-all"><Trash2 size={20}/></button>
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         )}

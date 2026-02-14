@@ -259,6 +259,41 @@ export const useAppState = () => {
     }
   };
 
+  const saveSessionToApi = async (session: any) => {
+    const payload = {
+      startDate: session.startDate,
+      endDate: session.endDate,
+      maxGuests: session.maxGuests
+    };
+    try {
+      const response = await fetch(`${API_BASE_URL}/session/add`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      const result = await response.json();
+      if (result.success && result.data) {
+        // Update local session state with the new backend ID to prevent duplicates if user keeps clicking save
+        const updatedSession: ResidencySession = {
+          id: result.data._id,
+          startDate: result.data.startDate.split('T')[0],
+          endDate: result.data.endDate.split('T')[0],
+          status: 'Open',
+          maxGuests: result.data.maxGuests
+        };
+        const next = sessions.map(s => s.id === session.id ? updatedSession : s);
+        setSessions(next);
+        saveToStorage('aj_sessions', next);
+        return result.data;
+      } else {
+        throw new Error(result.message || "Failed to save residency window");
+      }
+    } catch (error) {
+      console.error("Save Session Error:", error);
+      throw error;
+    }
+  };
+
   const updateAppStatus = (id: string, status: ApplicationStatus) => {
     const updated = applications.map(a => a.id === id ? { ...a, status } : a);
     setApplications(updated);
@@ -275,6 +310,7 @@ export const useAppState = () => {
     portalConfig, setPortalConfig,
     activePortalGuest, setActivePortalGuest,
     submitApplication,
+    saveSessionToApi,
     updateAppStatus,
     saveToStorage,
     fetchInquiriesFromApi,
