@@ -209,20 +209,20 @@ export const AdminPage: React.FC<AdminPageProps> = ({
         data.append('image', file);
       }
 
-      const response = await fetch(`${API_BASE_URL}/createRoom`, {
-        method: 'POST',
+      // If existing, we conceptually update, but the prompt focused on createRoom API
+      const url = isNew ? `${API_BASE_URL}/createRoom` : `${API_BASE_URL}/updateRoom/${room.id}`;
+      const response = await fetch(url, {
+        method: isNew ? 'POST' : 'PATCH',
         body: data
       });
 
       const result = await response.json();
       
       if (result.success) {
-        showToast('Sanctuary synchronized successfully.', 'success');
-        // Clear the file from temp storage
+        showToast(isNew ? 'Sanctuary added successfully.' : 'Sanctuary updated successfully.', 'success');
         const nextFiles = { ...roomFiles };
         delete nextFiles[room.id];
         setRoomFiles(nextFiles);
-        // Refresh registry from server to get official ID
         await fetchRoomsFromApi(true);
       } else {
         throw new Error(result.message || 'Operation failed');
@@ -249,7 +249,6 @@ export const AdminPage: React.FC<AdminPageProps> = ({
       return;
     }
 
-    // Store the actual file for FormData upload
     setRoomFiles(prev => ({ ...prev, [roomId]: file }));
 
     const reader = new FileReader();
@@ -386,7 +385,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({
         {tab === 'rooms' && (
           <div className="space-y-10 animate-fade-in">
             <AdminSectionHeader title="Sanctuaries" onAdd={() => {
-              const next = [...rooms, { id: `room-${Date.now()}`, name: "NEW SANCTUARY", basePrice: 5000, description: "", location: "Main Level", bedType: "King Bed", maxOccupancy: 2, bathType: 'private' }];
+              const next = [...rooms, { id: `room-${Date.now()}`, name: "", basePrice: 0, description: "", image: "" }];
               setRooms(next);
               showToast('Draft sanctuary added.', 'info');
             }} />
@@ -419,7 +418,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                           />
                           <button 
                             disabled={isRoomSaving}
-                            onClick={() => setDeleteTarget({ id: room.id, type: 'rooms', label: room.name })} 
+                            onClick={() => setDeleteTarget({ id: room.id, type: 'rooms', label: room.name || 'Unnamed Sanctuary' })} 
                             className="p-3 text-stone/10 hover:text-red-500 hover:bg-red-50 rounded-full transition-all disabled:opacity-30"
                           >
                             <Trash2 size={22}/>
@@ -483,7 +482,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                             disabled={isRoomSaving}
                             value={room.basePrice} 
                             onChange={e => { 
-                              const next = [...rooms]; next[idx].basePrice = parseInt(e.target.value); setRooms(next); 
+                              const next = [...rooms]; next[idx].basePrice = parseInt(e.target.value) || 0; setRooms(next); 
                               if (parseInt(e.target.value) > 0) setRoomErrors(prev => ({ ...prev, [`${room.id}-basePrice`]: false }));
                             }} 
                             className={`w-full bg-[#faf9f6] pl-8 pr-4 py-4 rounded-2xl border text-lg font-black text-stone outline-none focus:border-aqua-primary/40 transition-all shadow-sm ${hasPriceError ? 'border-red-400 bg-red-50/10' : 'border-stone/5'}`} 
