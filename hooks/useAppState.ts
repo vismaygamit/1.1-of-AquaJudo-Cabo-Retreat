@@ -344,7 +344,7 @@ export const useAppState = () => {
   const saveSessionToApi = async (session: any) => {
     const isNew = session.id.length < 15 && !isNaN(Number(session.id));
     const url = isNew ? `${API_BASE_URL}/session/add` : `${API_BASE_URL}/session/update/${session.id}`;
-    const method = isNew ? 'POST' : 'PUT';
+    const method = isNew ? 'POST' : 'PATCH';
     const response = await fetch(url, {
       method,
       headers: { 'Content-Type': 'application/json' },
