@@ -43,6 +43,7 @@ export interface Room {
   bedType: string;
   basePrice: number;
   image?: string;
+  video?: string;
   maxOccupancy: number;
   bathType: 'private' | 'shared';
 }
