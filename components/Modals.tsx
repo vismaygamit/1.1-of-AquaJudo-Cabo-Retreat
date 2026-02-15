@@ -157,7 +157,8 @@ interface ApplyModalProps {
 }
 
 export const ApplyModal: React.FC<ApplyModalProps> = ({ sessions, rooms, initialSessionId, initialRoomId, onSubmit, onClose, showToast }) => {
-  const [step, setStep] = useState(initialRoomId ? 3 : 1);
+  // Fix: Guests must always start at phase 1 (Identity) to capture details correctly.
+  const [step, setStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submittedId, setSubmittedId] = useState('');
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -394,7 +395,7 @@ export const ApplyModal: React.FC<ApplyModalProps> = ({ sessions, rooms, initial
               </div>
               <div className="flex gap-4">
                 <button 
-                  onClick={() => initialRoomId ? setStep(1) : setStep(2)} 
+                  onClick={() => setStep(2)} 
                   className="flex-1 bg-[#faf9f6] text-stone py-6 rounded-full text-[12px] font-black uppercase tracking-[0.2em] shadow-sm hover:bg-stone/5 transition-all flex items-center justify-center gap-2"
                 >
                   <ChevronLeft size={16} /> Back

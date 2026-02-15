@@ -35,6 +35,7 @@ export interface Application {
   notes?: string;
 }
 
+// Added video property to support room video previews in Modals.tsx
 export interface Room {
   id: string;
   name: string;
@@ -43,6 +44,7 @@ export interface Room {
   bedType: string;
   basePrice: number;
   image?: string;
+  video?: string;
   maxOccupancy: number;
   bathType: 'private' | 'shared';
 }
