@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { 
+import {
   API_BASE_URL,
   API_ROOT
 } from '../constants';
@@ -20,21 +20,21 @@ const DEFAULT_PORTAL_CONFIG = {
     'Reusable hydration flask'
   ],
   houseGuidelines: [
-    { 
-      title: 'ALCOHOL-FREE ESTATE', 
-      desc: 'Strict commitment to a metabolic recovery environment. No alcohol permitted on grounds.' 
+    {
+      title: 'ALCOHOL-FREE ESTATE',
+      desc: 'Strict commitment to a metabolic recovery environment. No alcohol permitted on grounds.'
     },
-    { 
-      title: 'QUIET HOURS', 
-      desc: 'Restorative silence from 9:00 PM to 7:00 AM daily.' 
+    {
+      title: 'QUIET HOURS',
+      desc: 'Restorative silence from 9:00 PM to 7:00 AM daily.'
     },
-    { 
-      title: 'SHARED SPACE ETIQUETTE', 
-      desc: 'Please leave technical areas and common rooms exactly as you found them.' 
+    {
+      title: 'SHARED SPACE ETIQUETTE',
+      desc: 'Please leave technical areas and common rooms exactly as you found them.'
     },
-    { 
-      title: 'RESPECT FOR STRUCTURE', 
-      desc: 'The estate is a shared home for foundational study. Please be mindful of the physical structure.' 
+    {
+      title: 'RESPECT FOR STRUCTURE',
+      desc: 'The estate is a shared home for foundational study. Please be mindful of the physical structure.'
     }
   ],
   logistics: {
@@ -70,7 +70,7 @@ export const useAppState = () => {
   const isFetchingItinerary = useRef(false);
   const isFetchingFaqs = useRef(false);
   const isFetchingPortal = useRef(false);
-  
+
   const lastInquiryFetch = useRef(0);
   const lastInquiryPage = useRef(0);
   const lastRoomFetch = useRef(0);
@@ -99,19 +99,19 @@ export const useAppState = () => {
         const inquiriesData = result.data.inquiries || [];
         const mappedInquiries: Application[] = inquiriesData.map((apiInquiry: any) => ({
           id: apiInquiry.refId || apiInquiry._id,
-          sessionId: apiInquiry.sessionId || '', 
+          sessionId: apiInquiry.sessionId || '',
           guestName: apiInquiry.fullName,
           email: apiInquiry.email,
           phone: apiInquiry.phone,
-          gender: '', 
+          gender: '',
           roomPreferenceId: apiInquiry.roomId,
           roomName: apiInquiry.roomName,
           residencyDate: apiInquiry.date,
-          bookingType: 'solo', 
+          bookingType: 'solo',
           status: (apiInquiry.status.charAt(0).toUpperCase() + apiInquiry.status.slice(1)) as ApplicationStatus,
           consentBathroom: apiInquiry.isBathroomProtocolChecked,
           consentAlcohol: apiInquiry.isAlcoholFreeEstateChecked,
-          totalPrice: 0, 
+          totalPrice: 0,
           depositPaid: false,
           timestamp: new Date(apiInquiry.createdAt).getTime(),
           healthNotes: apiInquiry.backgroundDescription
@@ -142,7 +142,7 @@ export const useAppState = () => {
           id: apiRoom._id,
           name: apiRoom.name,
           description: apiRoom.description,
-          location: apiRoom.location || "Estate Wing", 
+          location: apiRoom.location || "Estate Wing",
           bedType: apiRoom.bedType || 'Restorative Sanctuary',
           basePrice: apiRoom.price,
           image: apiRoom.imgPath ? `${apiRoom.imgPath.startsWith('http') ? apiRoom.imgPath : `${API_ROOT}${apiRoom.imgPath}`}?t=${t}` : undefined,
@@ -166,14 +166,14 @@ export const useAppState = () => {
     isFetchingSessions.current = true;
     lastSessionFetch.current = now;
     try {
-      const response = await fetch(`${API_BASE_URL}/session/getAllSessions`);
+      const response = await fetch(`${API_BASE_URL}/session/getAllSessionsForAdmin`);
       const result = await response.json();
       if (result.success && Array.isArray(result.data)) {
         const mappedSessions: ResidencySession[] = result.data.map((apiSession: any) => ({
           id: apiSession._id,
           startDate: apiSession.startDate.split('T')[0],
           endDate: apiSession.endDate.split('T')[0],
-          status: 'Open', 
+          status: 'Open',
           maxGuests: apiSession.maxGuests
         }));
         setSessions(mappedSessions);
@@ -239,19 +239,19 @@ export const useAppState = () => {
       const response = await fetch(`${API_BASE_URL}/getPortalSettings`);
       if (!response.ok) throw new Error(`Portal GET Error ${response.status}`);
       const result = await response.json();
-      
+
       if (result.success && result.data) {
         const api = result.data;
         const mappedPortal = {
           welcomeParagraph: api.welcomeMessage || DEFAULT_PORTAL_CONFIG.welcomeParagraph,
-          packingList: (Array.isArray(api.packingInventory) && api.packingInventory.length > 0) 
-            ? api.packingInventory 
+          packingList: (Array.isArray(api.packingInventory) && api.packingInventory.length > 0)
+            ? api.packingInventory
             : DEFAULT_PORTAL_CONFIG.packingList,
-          houseGuidelines: (Array.isArray(api.registryGuidelines) && api.registryGuidelines.length > 0) 
+          houseGuidelines: (Array.isArray(api.registryGuidelines) && api.registryGuidelines.length > 0)
             ? api.registryGuidelines.map((g: any) => ({
               title: g.title,
               desc: g.description
-            })) 
+            }))
             : DEFAULT_PORTAL_CONFIG.houseGuidelines,
           logistics: {
             address: api.arrivalLogistics?.estateAddress || DEFAULT_PORTAL_CONFIG.logistics.address,
@@ -363,7 +363,7 @@ export const useAppState = () => {
   };
 
   const submitApplication = async (form: BookingState) => {
-    const response = await fetch(`${API_BASE_URL}/inquiry/createInquiry`, {
+    const response = await fetch(`${API_BASE_URL}/inquiries/add`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -386,7 +386,7 @@ export const useAppState = () => {
     const get = (key: string) => localStorage.getItem(key);
     const storedApps = JSON.parse(get('aj_apps') || '[]');
     setApplications(storedApps);
-    
+
     fetchRoomsFromApi();
     fetchSessionsFromApi();
     fetchItineraryFromApi();
