@@ -62,8 +62,8 @@ const App: React.FC = () => {
           fetchInquiriesFromApi={state.fetchInquiriesFromApi}
           fetchSessionsFromApi={state.fetchSessionsFromApi}
           fetchRoomsFromApi={state.fetchRoomsFromApi}
-          // Pass the missing fetchItineraryFromApi state method
           fetchItineraryFromApi={state.fetchItineraryFromApi}
+          saveItineraryToApi={state.saveItineraryToApi}
           saveSessionToApi={state.saveSessionToApi}
           deleteSessionFromApi={state.deleteSessionFromApi}
           rooms={state.rooms} 
