@@ -140,6 +140,45 @@ export const LandingPage: React.FC<LandingPageProps> = ({ sessions, rooms, itine
         </div>
       </section>
 
+      {/* REGISTRY PRICING */}
+      <section className="py-24 px-6 border-t border-stone/5 bg-white">
+        <div className="max-w-6xl mx-auto space-y-16">
+          <div className="text-center space-y-4">
+            <p className="text-[11px] tracking-[0.5em] text-aqua-deep font-black uppercase opacity-40">REGISTRY PRICING</p>
+            <h2 className="text-3xl md:text-5xl font-display font-light uppercase tracking-tighter">Sanctuary Selections</h2>
+          </div>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">
+            {rooms.map((room) => (
+              <div key={room.id} className="group space-y-8">
+                <div className="aspect-[16/9] rounded-[3rem] overflow-hidden shadow-2xl relative">
+                  <img src={room.image} alt={room.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-stone/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                </div>
+                <div className="space-y-6">
+                  <div className="flex justify-between items-end">
+                    <div className="space-y-1">
+                      <h4 className="text-3xl font-black uppercase tracking-tighter text-stone">{room.name}</h4>
+                      <div className="flex gap-3 text-[10px] font-black uppercase tracking-widest text-stone/30">
+                        <span>{room.bedType}</span>
+                        <span className="w-1 h-1 rounded-full bg-aqua-primary/30 mt-1.5" />
+                        <span className="capitalize">{room.bathType} Bath</span>
+                      </div>
+                    </div>
+                    <div className="text-right space-y-1">
+                      <p className="text-4xl font-black tracking-tighter text-stone">${room.basePrice.toLocaleString()}</p>
+                      <p className="text-[9px] font-black uppercase tracking-widest text-aqua-primary">7-Day All-Inclusive</p>
+                    </div>
+                  </div>
+                  <p className="text-[15px] font-serif italic text-stone/40 leading-relaxed">
+                    {room.description}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* FAQ */}
       <section className="py-24 px-6 border-t border-stone/5 bg-white">
         <div className="max-w-2xl mx-auto space-y-16">
