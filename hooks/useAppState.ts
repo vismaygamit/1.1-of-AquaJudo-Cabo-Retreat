@@ -69,11 +69,13 @@ export const useAppState = () => {
   const isFetchingInquiries = useRef(false);
   const isFetchingRooms = useRef(false);
   const isFetchingSessions = useRef(false);
+  const isFetchingItinerary = useRef(false);
   
   const lastInquiryFetch = useRef(0);
   const lastInquiryPage = useRef(0);
   const lastRoomFetch = useRef(0);
   const lastSessionFetch = useRef(0);
+  const lastItineraryFetch = useRef(0);
 
   const saveToStorage = (key: string, data: any) => {
     localStorage.setItem(key, JSON.stringify(data));
@@ -146,7 +148,6 @@ export const useAppState = () => {
       const result = await response.json();
       
       if (result.success && Array.isArray(result.data)) {
-        // Cache buster to ensure latest image is always visible after an update
         const t = Date.now();
         const mappedRooms: Room[] = result.data.map((apiRoom: any) => ({
           id: apiRoom._id,
@@ -194,6 +195,27 @@ export const useAppState = () => {
       console.warn("Sessions API unavailable:", error);
     } finally {
       isFetchingSessions.current = false;
+    }
+  }, []);
+
+  const fetchItineraryFromApi = useCallback(async (force = false) => {
+    const now = Date.now();
+    if (isFetchingItinerary.current) return;
+    if (!force && (now - lastItineraryFetch.current < FETCH_THROTTLE_MS)) return;
+
+    isFetchingItinerary.current = true;
+    lastItineraryFetch.current = now;
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/itinerary`);
+      const result = await response.json();
+      if (result.success && Array.isArray(result.data)) {
+        setItinerary(result.data);
+      }
+    } catch (error) {
+      console.warn("Itinerary API unavailable:", error);
+    } finally {
+      isFetchingItinerary.current = false;
     }
   }, []);
 
@@ -333,6 +355,7 @@ export const useAppState = () => {
     saveToStorage,
     fetchInquiriesFromApi,
     fetchRoomsFromApi,
-    fetchSessionsFromApi
+    fetchSessionsFromApi,
+    fetchItineraryFromApi
   };
 };

@@ -14,6 +14,7 @@ interface AdminPageProps {
   fetchInquiriesFromApi: (page?: number, limit?: number, force?: boolean) => Promise<void>;
   fetchSessionsFromApi: (force?: boolean) => Promise<void>;
   fetchRoomsFromApi: (force?: boolean) => Promise<void>;
+  fetchItineraryFromApi: (force?: boolean) => Promise<void>;
   saveSessionToApi: (session: any) => Promise<any>;
   deleteSessionFromApi: (id: string) => Promise<any>;
   rooms: Room[];
@@ -34,7 +35,7 @@ type TabType = 'applications' | 'sessions' | 'rooms' | 'itinerary' | 'faqs' | 'p
 const ITEMS_PER_PAGE = 5;
 
 export const AdminPage: React.FC<AdminPageProps> = ({ 
-  onExit, applications, pagination, setApplications, fetchInquiriesFromApi, fetchSessionsFromApi, fetchRoomsFromApi, saveSessionToApi, deleteSessionFromApi, rooms, setRooms, 
+  onExit, applications, pagination, setApplications, fetchInquiriesFromApi, fetchSessionsFromApi, fetchRoomsFromApi, fetchItineraryFromApi, saveSessionToApi, deleteSessionFromApi, rooms, setRooms, 
   sessions, setSessions, itinerary, setItinerary, 
   faqs, setFaqs, portalConfig, setPortalConfig, showToast
 }) => {
@@ -59,6 +60,9 @@ export const AdminPage: React.FC<AdminPageProps> = ({
       initialLoadDone.current[t] = true;
     } else if (t === 'rooms') {
       fetchRoomsFromApi(true);
+      initialLoadDone.current[t] = true;
+    } else if (t === 'itinerary') {
+      fetchItineraryFromApi(true);
       initialLoadDone.current[t] = true;
     } else if (!initialLoadDone.current[t]) {
       initialLoadDone.current[t] = true;
@@ -89,6 +93,8 @@ export const AdminPage: React.FC<AdminPageProps> = ({
         await fetchSessionsFromApi(true);
       } else if (tab === 'rooms') {
         await fetchRoomsFromApi(true);
+      } else if (tab === 'itinerary') {
+        await fetchItineraryFromApi(true);
       }
       showToast('Registry synchronized.', 'success');
     } catch (e) {
@@ -208,7 +214,6 @@ export const AdminPage: React.FC<AdminPageProps> = ({
       newErrors[`${room.id}-basePrice`] = false;
     }
 
-    // Validation for image presence
     if (!room.image && !roomFiles[room.id]) {
       if (!hasError) showToast('A VISUAL ASSET (IMAGE) IS REQUIRED.', 'error');
       newErrors[`${room.id}-image`] = true;
@@ -232,7 +237,6 @@ export const AdminPage: React.FC<AdminPageProps> = ({
         data.append('image', file);
       }
 
-      // API Integration: POST for creation, PUT for updates
       const url = isNew ? `${API_BASE_URL}/createRoom` : `${API_BASE_URL}/updateRoom/${room.id}`;
       const method = isNew ? 'POST' : 'PUT';
 
@@ -245,13 +249,9 @@ export const AdminPage: React.FC<AdminPageProps> = ({
       
       if (result.success) {
         showToast(result.message || (isNew ? 'Sanctuary added successfully.' : 'Sanctuary updated successfully.'), 'success');
-        
-        // Clear the staged file locally after successful upload
         const nextFiles = { ...roomFiles };
         delete nextFiles[room.id];
         setRoomFiles(nextFiles);
-        
-        // Force a re-fetch of rooms to ensure UI matches database (including latest image URL)
         await fetchRoomsFromApi(true);
       } else {
         throw new Error(result.message || 'Operation failed');
@@ -278,10 +278,8 @@ export const AdminPage: React.FC<AdminPageProps> = ({
       return;
     }
 
-    // Store the file object for later upload
     setRoomFiles(prev => ({ ...prev, [roomId]: file }));
 
-    // Generate local base64 for immediate visual preview
     const reader = new FileReader();
     reader.onloadend = () => {
       const base64String = reader.result as string;
