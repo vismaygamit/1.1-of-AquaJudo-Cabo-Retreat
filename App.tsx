@@ -64,6 +64,7 @@ const App: React.FC = () => {
           fetchItineraryFromApi={state.fetchItineraryFromApi}
           fetchFaqsFromApi={state.fetchFaqsFromApi}
           saveFaqToApi={state.saveFaqToApi}
+          deleteFaqFromApi={state.deleteFaqFromApi}
           saveItineraryToApi={state.saveItineraryToApi}
           saveSessionToApi={state.saveSessionToApi}
           deleteSessionFromApi={state.deleteSessionFromApi}

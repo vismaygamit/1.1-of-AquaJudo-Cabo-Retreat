@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { 
   API_BASE_URL,
@@ -263,7 +262,7 @@ export const useAppState = () => {
   }, []);
 
   /**
-   * Adds or updates an intelligence entry in the registry.
+   * Synchronizes an intelligence entry (FAQ) with the backend registry.
    */
   const saveFaqToApi = async (faq: { id: string, q: string, a: string }) => {
     const isNew = faq.id.length < 15 && !isNaN(Number(faq.id));
@@ -286,6 +285,23 @@ export const useAppState = () => {
       await fetchFaqsFromApi(true);
     } else {
       throw new Error(result.message || "Failed to synchronize intelligence entry");
+    }
+    return result;
+  };
+
+  /**
+   * Purges an intelligence entry from the registry.
+   */
+  const deleteFaqFromApi = async (id: string) => {
+    const response = await fetch(`${API_BASE_URL}/faq/${id}`, {
+      method: 'DELETE',
+      headers: { 'Authorization': 'Bearer YOUR_TOKEN_HERE' }
+    });
+    const result = await response.json();
+    if (result.success) {
+      await fetchFaqsFromApi(true);
+    } else {
+      throw new Error(result.message || "Purge failed");
     }
     return result;
   };
@@ -417,6 +433,7 @@ export const useAppState = () => {
     fetchItineraryFromApi,
     fetchFaqsFromApi,
     saveFaqToApi,
+    deleteFaqFromApi,
     saveItineraryToApi,
     saveSessionToApi,
     deleteSessionFromApi,

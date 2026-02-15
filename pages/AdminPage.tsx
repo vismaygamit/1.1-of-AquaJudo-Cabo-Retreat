@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { LogOut, Plus, Trash2, Copy, Image as ImageIcon, CheckCircle2, XCircle, Clock, Upload, Film, MessageSquare, MapPin, Package, ShieldCheck, RefreshCw, Calendar, Home, Quote, ChevronLeft, ChevronRight, Save, AlertCircle, Loader2 } from 'lucide-react';
 import { AdminSectionHeader, Logo } from '../components/Shared';
@@ -18,6 +17,7 @@ interface AdminPageProps {
   fetchItineraryFromApi: (force?: boolean) => Promise<void>;
   fetchFaqsFromApi: (force?: boolean) => Promise<void>;
   saveFaqToApi: (faq: { id: string, q: string, a: string }) => Promise<any>;
+  deleteFaqFromApi: (id: string) => Promise<any>;
   saveItineraryToApi: (days: any[]) => Promise<any>;
   saveSessionToApi: (session: any) => Promise<any>;
   deleteSessionFromApi: (id: string) => Promise<any>;
@@ -39,7 +39,7 @@ type TabType = 'applications' | 'sessions' | 'rooms' | 'itinerary' | 'faqs' | 'p
 const ITEMS_PER_PAGE = 5;
 
 export const AdminPage: React.FC<AdminPageProps> = ({ 
-  onExit, applications, pagination, setApplications, fetchInquiriesFromApi, fetchSessionsFromApi, fetchRoomsFromApi, fetchItineraryFromApi, fetchFaqsFromApi, saveFaqToApi, saveItineraryToApi, saveSessionToApi, deleteSessionFromApi, rooms, setRooms, 
+  onExit, applications, pagination, setApplications, fetchInquiriesFromApi, fetchSessionsFromApi, fetchRoomsFromApi, fetchItineraryFromApi, fetchFaqsFromApi, saveFaqToApi, deleteFaqFromApi, saveItineraryToApi, saveSessionToApi, deleteSessionFromApi, rooms, setRooms, 
   sessions, setSessions, itinerary, setItinerary, 
   faqs, setFaqs, portalConfig, setPortalConfig, showToast
 }) => {
@@ -177,17 +177,8 @@ export const AdminPage: React.FC<AdminPageProps> = ({
 
       setIsSaving(prev => ({ ...prev, [id]: true }));
       try {
-        const response = await fetch(`${API_BASE_URL}/faq/${id}`, {
-          method: 'DELETE',
-          headers: { 'Authorization': 'Bearer YOUR_TOKEN_HERE' }
-        });
-        const result = await response.json();
-        if (result.success) {
-          showToast('Intelligence entry purged.', 'success');
-          await fetchFaqsFromApi(true);
-        } else {
-           throw new Error(result.message || "Failed to delete");
-        }
+        await deleteFaqFromApi(id);
+        showToast('Intelligence entry purged.', 'success');
       } catch (e) {
         showToast('Purge failed.', 'error');
       } finally {
