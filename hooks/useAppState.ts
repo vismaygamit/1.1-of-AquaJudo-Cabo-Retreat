@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { 
   API_BASE_URL,
@@ -61,6 +62,7 @@ export interface PaginationInfo {
   totalPages: number;
 }
 
+// Custom hook to manage the global application state and synchronization with the backend API
 export const useAppState = () => {
   const [applications, setApplications] = useState<Application[]>([]);
   const [pagination, setPagination] = useState<PaginationInfo | null>(null);
@@ -224,143 +226,109 @@ export const useAppState = () => {
     }
   }, []);
 
+  // Save or update a residency window on the backend
+  const saveSessionToApi = async (session: any) => {
+    const isNew = session.id.length < 15 && !isNaN(Number(session.id));
+    const url = isNew ? `${API_BASE_URL}/session/createSession` : `${API_BASE_URL}/session/updateSession/${session.id}`;
+    const method = isNew ? 'POST' : 'PUT';
+
+    const response = await fetch(url, {
+      method,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        startDate: session.startDate,
+        endDate: session.endDate,
+        maxGuests: session.maxGuests
+      })
+    });
+    const result = await response.json();
+    if (result.success) {
+      await fetchSessionsFromApi(true);
+    }
+    return result;
+  };
+
+  // Remove a residency window from the backend registry
+  const deleteSessionFromApi = async (id: string) => {
+    const response = await fetch(`${API_BASE_URL}/session/deleteSession/${id}`, {
+      method: 'DELETE'
+    });
+    const result = await response.json();
+    if (result.success) {
+      await fetchSessionsFromApi(true);
+    }
+    return result;
+  };
+
+  // Transmit a new guest inquiry to the server
+  const submitApplication = async (form: BookingState) => {
+    const response = await fetch(`${API_BASE_URL}/inquiry/createInquiry`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        fullName: form.guestName,
+        email: form.guestEmail,
+        phone: form.guestPhone,
+        roomId: form.roomPreferenceId,
+        sessionId: form.sessionId,
+        backgroundDescription: form.healthNotes,
+        isBathroomProtocolChecked: form.bathroomConsent,
+        isAlcoholFreeEstateChecked: form.alcoholConsent
+      })
+    });
+    const result = await response.json();
+    if (!result.success) throw new Error(result.message || 'Submission failed');
+    return result.data;
+  };
+
   useEffect(() => {
     const get = (key: string) => localStorage.getItem(key);
     
     const storedApps = JSON.parse(get('aj_apps') || '[]');
     setApplications(storedApps);
-    setSessions([]);
-    setRooms([]);
+    
+    // Initial content fetch for the landing page
+    fetchRoomsFromApi();
+    fetchSessionsFromApi();
+    fetchItineraryFromApi();
 
-    setFaqs(JSON.parse(get('aj_faqs') || JSON.stringify(INITIAL_FAQS)));
-    setItinerary(JSON.parse(get('aj_itinerary') || '[]'));
-    setPortalConfig(JSON.parse(get('aj_portal_config') || JSON.stringify(DEFAULT_PORTAL_CONFIG)));
+    const storedFaqs = JSON.parse(get('aj_faqs') || 'null');
+    if (storedFaqs) setFaqs(storedFaqs);
+    else setFaqs(INITIAL_FAQS);
 
-    const portalId = new URLSearchParams(window.location.search).get('portal');
+    const storedPortal = JSON.parse(get('aj_portal_config') || 'null');
+    if (storedPortal) setPortalConfig(storedPortal);
+
+    // Resolve portal guest if magic link is detected in URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const portalId = urlParams.get('portal');
     if (portalId) {
-      const guest = storedApps.find((a: Application) => a.id === portalId);
-      if (guest && (guest.status === 'Confirmed' || guest.status === 'Approved')) {
-        setActivePortalGuest(guest);
-      }
+      const found = storedApps.find((a: Application) => a.id === portalId);
+      if (found) setActivePortalGuest(found);
     }
-  }, []);
-
-  const submitApplication = async (form: BookingState) => {
-    const selectedSession = sessions.find(s => s.id === form.sessionId);
-    const payload = {
-      fullName: form.guestName,
-      email: form.guestEmail,
-      phone: form.guestPhone,
-      date: selectedSession ? selectedSession.startDate.split('T')[0] : new Date().toISOString().split('T')[0],
-      roomId: form.roomPreferenceId,
-      isBathroomProtocolChecked: form.bathroomConsent,
-      isAlcoholFreeEstateChecked: form.alcoholConsent,
-      backgroundDescription: form.healthNotes
-    };
-
-    try {
-      const response = await fetch(`${API_BASE_URL}/inquiries/add`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
-      const result = await response.json();
-      if (result.success && result.data) {
-        return result.data;
-      } else {
-        throw new Error(result.message || "Failed to transmit inquiry");
-      }
-    } catch (error) {
-      console.error("Transmission Error:", error);
-      throw error;
-    }
-  };
-
-  const saveSessionToApi = async (session: any) => {
-    const isNew = !session.id || (session.id.length < 15 && !isNaN(Number(session.id)));
-    const url = isNew 
-      ? `${API_BASE_URL}/session/add` 
-      : `${API_BASE_URL}/session/update/${session.id}`;
-    const method = isNew ? 'POST' : 'PATCH';
-
-    const payload = {
-      startDate: session.startDate,
-      endDate: session.endDate,
-      maxGuests: session.maxGuests
-    };
-
-    try {
-      const response = await fetch(url, {
-        method,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
-      const result = await response.json();
-      if (result.success && result.data) {
-        const updatedSession: ResidencySession = {
-          id: result.data._id,
-          startDate: result.data.startDate.split('T')[0],
-          endDate: result.data.endDate.split('T')[0],
-          status: 'Open',
-          maxGuests: result.data.maxGuests
-        };
-        const next = isNew 
-          ? sessions.map(s => s.id === session.id ? updatedSession : s)
-          : sessions.map(s => s.id === result.data._id ? updatedSession : s);
-        
-        setSessions(next);
-        return result.data;
-      } else {
-        throw new Error(result.message || "Failed to synchronize residency window");
-      }
-    } catch (error) {
-      console.error("Save Session Error:", error);
-      throw error;
-    }
-  };
-
-  const deleteSessionFromApi = async (id: string) => {
-    try {
-      const response = await fetch(`${API_BASE_URL}/session/delete/${id}`, {
-        method: 'DELETE'
-      });
-      const result = await response.json();
-      if (result.success) {
-        const next = sessions.filter(s => s.id !== id);
-        setSessions(next);
-        return true;
-      } else {
-        throw new Error(result.message || "Failed to delete residency window");
-      }
-    } catch (error) {
-      console.error("Delete Session Error:", error);
-      throw error;
-    }
-  };
-
-  const updateAppStatus = (id: string, status: ApplicationStatus) => {
-    const updated = applications.map(a => a.id === id ? { ...a, status } : a);
-    setApplications(updated);
-    saveToStorage('aj_apps', updated);
-  };
+  }, [fetchRoomsFromApi, fetchSessionsFromApi, fetchItineraryFromApi]);
 
   return {
-    applications, setApplications,
-    pagination, setPagination,
-    sessions, setSessions,
-    rooms, setRooms,
-    faqs, setFaqs,
-    itinerary, setItinerary,
-    portalConfig, setPortalConfig,
-    activePortalGuest, setActivePortalGuest,
-    submitApplication,
-    saveSessionToApi,
-    deleteSessionFromApi,
-    updateAppStatus,
-    saveToStorage,
+    applications,
+    pagination,
+    setApplications,
+    sessions,
+    setSessions,
+    rooms,
+    setRooms,
+    faqs,
+    setFaqs,
+    itinerary,
+    setItinerary,
+    portalConfig,
+    setPortalConfig,
+    activePortalGuest,
     fetchInquiriesFromApi,
     fetchRoomsFromApi,
     fetchSessionsFromApi,
-    fetchItineraryFromApi
+    fetchItineraryFromApi,
+    saveSessionToApi,
+    deleteSessionFromApi,
+    submitApplication
   };
 };
