@@ -50,34 +50,41 @@ export const AdminPage: React.FC<AdminPageProps> = ({
   const [isSaving, setIsSaving] = useState<Record<string, boolean>>({});
   const [deleteTarget, setDeleteTarget] = useState<{ id: string, type: TabType, label: string } | null>(null);
   const [roomErrors, setRoomErrors] = useState<Record<string, boolean>>({});
-  const [roomImageFiles, setRoomImageFiles] = useState<Record<string, File>>({});
-  const [roomVideoFiles, setRoomVideoFiles] = useState<Record<string, File>>({});
+  const [roomFiles, setRoomFiles] = useState<Record<string, File>>({});
   const [stagedVideoFile, setStagedVideoFile] = useState<File | null>(null);
-  
-  const imageInputRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
-  const videoInputRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
+  const fileInputRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
   const videoFileInputRef = useRef<HTMLInputElement>(null);
   
   const initialLoadDone = useRef<Record<string, boolean>>({});
 
   const handleTabClick = (t: TabType) => {
     setTab(t);
+    
     if (t === 'applications') {
       fetchInquiriesFromApi(1, ITEMS_PER_PAGE, true);
+      initialLoadDone.current[t] = true;
     } else if (t === 'sessions') {
       fetchSessionsFromApi(true);
+      initialLoadDone.current[t] = true;
     } else if (t === 'rooms') {
       fetchRoomsFromApi(true);
+      initialLoadDone.current[t] = true;
     } else if (t === 'itinerary') {
       fetchItineraryFromApi(true);
+      initialLoadDone.current[t] = true;
     } else if (t === 'faqs') {
       fetchFaqsFromApi(true);
+      initialLoadDone.current[t] = true;
     } else if (t === 'portal') {
       if (typeof fetchPortalConfigFromApi === 'function') {
         fetchPortalConfigFromApi(true);
+      } else {
+        console.error("fetchPortalConfigFromApi is not provided as a function to AdminPage");
       }
+      initialLoadDone.current[t] = true;
+    } else if (!initialLoadDone.current[t]) {
+      initialLoadDone.current[t] = true;
     }
-    initialLoadDone.current[t] = true;
   };
 
   useEffect(() => {
@@ -125,10 +132,13 @@ export const AdminPage: React.FC<AdminPageProps> = ({
     if (type === 'sessions') {
       const isLocalOnly = id.length < 15 && !isNaN(Number(id));
       if (isLocalOnly) {
-        setSessions(sessions.filter(s => s.id !== id));
+        const next = sessions.filter(s => s.id !== id);
+        setSessions(next);
+        showToast('Local draft discarded.', 'info');
         setDeleteTarget(null);
         return;
       }
+
       setIsSaving(prev => ({ ...prev, [id]: true }));
       try {
         await deleteSessionFromApi(id);
@@ -142,13 +152,18 @@ export const AdminPage: React.FC<AdminPageProps> = ({
     } else if (type === 'rooms') {
       const isLocalOnly = id.startsWith('room-');
       if (isLocalOnly) {
-        setRooms(rooms.filter(r => r.id !== id));
+        const next = rooms.filter(r => r.id !== id);
+        setRooms(next);
+        showToast('Local draft discarded.', 'info');
         setDeleteTarget(null);
         return;
       }
+
       setIsSaving(prev => ({ ...prev, [id]: true }));
       try {
-        const response = await fetch(`${API_BASE_URL}/deleteRoom/${id}`, { method: 'DELETE' });
+        const response = await fetch(`${API_BASE_URL}/deleteRoom/${id}`, {
+          method: 'DELETE'
+        });
         const result = await response.json();
         if (result.success) {
           showToast(result.message || 'Sanctuary purged from registry.', 'success');
@@ -157,6 +172,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({
           throw new Error(result.message || 'Purge failed');
         }
       } catch (e) {
+        console.error("Delete Room Error:", e);
         showToast('Purge failed: Registry unreachable.', 'error');
       } finally {
         setIsSaving(prev => ({ ...prev, [id]: false }));
@@ -165,10 +181,13 @@ export const AdminPage: React.FC<AdminPageProps> = ({
     } else if (type === 'faqs') {
       const isLocalOnly = id.length < 15 && !isNaN(Number(id));
       if (isLocalOnly) {
-        setFaqs(faqs.filter(f => f.id !== id));
+        const next = faqs.filter(f => f.id !== id);
+        setFaqs(next);
+        showToast('Local draft discarded.', 'info');
         setDeleteTarget(null);
         return;
       }
+
       setIsSaving(prev => ({ ...prev, [id]: true }));
       try {
         await deleteFaqFromApi(id);
@@ -183,10 +202,13 @@ export const AdminPage: React.FC<AdminPageProps> = ({
   };
 
   const handleSaveSession = async (s: any) => {
-    if (!s.startDate || !s.endDate) {
+    const errors: any = {};
+    if (!s.startDate || !s.endDate) errors.dates = true;
+    if (Object.keys(errors).length > 0) {
       showToast('Please verify all fields.', 'error');
       return;
     }
+
     setIsSaving(prev => ({ ...prev, [s.id]: true }));
     try {
       await saveSessionToApi(s);
@@ -203,11 +225,13 @@ export const AdminPage: React.FC<AdminPageProps> = ({
       showToast('Both question and answer are required.', 'error');
       return;
     }
+
     setIsSaving(prev => ({ ...prev, [faq.id]: true }));
     try {
       await saveFaqToApi({ id: faq.id, q: faq.q, a: faq.a });
       showToast('Intelligence entry synchronized.', 'success');
     } catch (e) {
+      console.error("Save FAQ Error:", e);
       showToast('Failed to synchronize intelligence.', 'error');
     } finally {
       setIsSaving(prev => ({ ...prev, [faq.id]: false }));
@@ -224,14 +248,32 @@ export const AdminPage: React.FC<AdminPageProps> = ({
       showToast('SANCTUARY NAME IS REQUIRED.', 'error');
       newErrors[`${room.id}-name`] = true;
       hasError = true;
+    } else {
+      newErrors[`${room.id}-name`] = false;
     }
+
     if (!room.description || !room.description.trim()) {
+      if (!hasError) showToast('TECHNICAL DESCRIPTION IS REQUIRED.', 'error');
       newErrors[`${room.id}-description`] = true;
       hasError = true;
+    } else {
+      newErrors[`${room.id}-description`] = false;
     }
+
     if (!room.basePrice || room.basePrice <= 0) {
+      if (!hasError) showToast('A VALID BASE PRICE IS REQUIRED.', 'error');
       newErrors[`${room.id}-basePrice`] = true;
       hasError = true;
+    } else {
+      newErrors[`${room.id}-basePrice`] = false;
+    }
+
+    if (!room.image && !roomFiles[room.id]) {
+      if (!hasError) showToast('A VISUAL ASSET (IMAGE) IS REQUIRED.', 'error');
+      newErrors[`${room.id}-image`] = true;
+      hasError = true;
+    } else {
+      newErrors[`${room.id}-image`] = false;
     }
 
     setRoomErrors(newErrors);
@@ -243,26 +285,23 @@ export const AdminPage: React.FC<AdminPageProps> = ({
       data.append('name', room.name);
       data.append('price', room.basePrice.toString());
       data.append('description', room.description);
-      
-      const imgFile = roomImageFiles[room.id];
-      if (imgFile) data.append('image', imgFile);
-      
-      const vidFile = roomVideoFiles[room.id];
-      if (vidFile) data.append('video', vidFile);
-
+      const file = roomFiles[room.id];
+      if (file) data.append('image', file);
       const url = isNew ? `${API_BASE_URL}/createRoom` : `${API_BASE_URL}/updateRoom/${room.id}`;
       const method = isNew ? 'POST' : 'PUT';
       const response = await fetch(url, { method, body: data });
       const result = await response.json();
       if (result.success) {
-        showToast(result.message || (isNew ? 'Sanctuary added.' : 'Sanctuary updated.'), 'success');
-        setRoomImageFiles(prev => { const n = { ...prev }; delete n[room.id]; return n; });
-        setRoomVideoFiles(prev => { const n = { ...prev }; delete n[room.id]; return n; });
+        showToast(result.message || (isNew ? 'Sanctuary added successfully.' : 'Sanctuary updated successfully.'), 'success');
+        const nextFiles = { ...roomFiles };
+        delete nextFiles[room.id];
+        setRoomFiles(nextFiles);
         await fetchRoomsFromApi(true);
       } else {
         throw new Error(result.message || 'Operation failed');
       }
     } catch (e) {
+      console.error("Save Room Error:", e);
       showToast('Network error: Sanctuary could not be synchronized.', 'error');
     } finally {
       setIsSaving(prev => ({ ...prev, [room.id]: false }));
@@ -273,41 +312,36 @@ export const AdminPage: React.FC<AdminPageProps> = ({
     setIsSaving(prev => ({ ...prev, itinerary: true }));
     try {
       await saveItineraryToApi(itinerary);
-      showToast('Technical Pathway synchronized.', 'success');
+      showToast('Technical Pathway synchronized with registry.', 'success');
     } catch (e) {
+      console.error("Itinerary Sync Error:", e);
       showToast('Failed to synchronize pathway.', 'error');
     } finally {
       setIsSaving(prev => ({ ...prev, itinerary: false }));
     }
   };
 
-  const handleRoomImageUpload = (roomId: string, file: File) => {
-    const maxSize = 5 * 1024 * 1024;
-    if (file.size > maxSize) {
-      showToast('IMAGE FILE TOO LARGE. MAXIMUM SIZE IS 5MB.', 'error');
+  const handleImageUpload = (roomId: string, file: File) => {
+    const validTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+    const maxSize = 2 * 1024 * 1024; 
+    if (!validTypes.includes(file.type)) {
+      showToast('INVALID FORMAT. ONLY JPG, JPEG, AND PNG ARE PERMITTED.', 'error');
       return;
     }
-    setRoomImageFiles(prev => ({ ...prev, [roomId]: file }));
+    if (file.size > maxSize) {
+      showToast('FILE TOO LARGE. MAXIMUM SIZE IS 2MB.', 'error');
+      return;
+    }
+    setRoomFiles(prev => ({ ...prev, [roomId]: file }));
     const reader = new FileReader();
     reader.onloadend = () => {
-      const next = rooms.map(r => r.id === roomId ? { ...r, image: reader.result as string } : r);
+      const base64String = reader.result as string;
+      const next = rooms.map(r => r.id === roomId ? { ...r, image: base64String } : r);
       setRooms(next);
-      showToast('Image staged for sync.', 'info');
+      setRoomErrors(prev => ({ ...prev, [`${roomId}-image`]: false }));
+      showToast('Asset staged for sync.', 'info');
     };
     reader.readAsDataURL(file);
-  };
-
-  const handleRoomVideoUpload = (roomId: string, file: File) => {
-    const maxSize = 100 * 1024 * 1024;
-    if (file.size > maxSize) {
-      showToast('VIDEO FILE TOO LARGE. MAXIMUM SIZE IS 100MB.', 'error');
-      return;
-    }
-    setRoomVideoFiles(prev => ({ ...prev, [roomId]: file }));
-    const objectUrl = URL.createObjectURL(file);
-    const next = rooms.map(r => r.id === roomId ? { ...r, video: objectUrl } : r);
-    setRooms(next);
-    showToast('Video staged for preview.', 'info');
   };
 
   const handleVideoFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -320,6 +354,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({
       setStagedVideoFile(file);
       const objectUrl = URL.createObjectURL(file);
       setPortalConfig({ ...portalConfig, promoVideoUrl: objectUrl });
+      showToast("Local video staged for preview. Remember to synchronize.", "info");
     }
   };
 
@@ -329,9 +364,13 @@ export const AdminPage: React.FC<AdminPageProps> = ({
       if (typeof savePortalConfigToApi === 'function') {
         await savePortalConfigToApi(portalConfig, stagedVideoFile || undefined);
         setStagedVideoFile(null);
-        showToast('Portal settings synchronized.', 'success');
+        showToast('Portal settings synchronized with registry.', 'success');
+      } else {
+        throw new Error("savePortalConfigToApi is not available");
       }
     } catch (e: any) {
+      console.error("Portal Save Error:", e);
+      // SPECIFIC ERROR MESSAGE MATCHING USER PROMPT
       showToast('Failed to synchronize portal settings.', 'error');
     } finally {
       setIsSaving(prev => ({ ...prev, portal: false }));
@@ -351,26 +390,12 @@ export const AdminPage: React.FC<AdminPageProps> = ({
             <p className="text-[8px] tracking-[0.2em] font-bold text-aqua-primary uppercase opacity-70">Estate Management</p>
           </div>
         </div>
-        <div className="flex items-center gap-4">
-           {tab === 'rooms' && (
-             <button 
-              onClick={() => {
-                const next = [...rooms, { id: `room-${Date.now()}`, name: "", basePrice: 0, description: "", image: "", location: "Estate", bedType: "Foundational Sanctuary", maxOccupancy: 2, bathType: 'private' }];
-                setRooms(next);
-                showToast('Draft sanctuary added.', 'info');
-              }}
-              className="px-6 py-2 bg-aqua-primary text-stone rounded-full text-[10px] uppercase font-black tracking-widest shadow-sm flex items-center gap-2"
-             >
-               <Plus size={12} /> NEW SANCTUARY
-             </button>
-           )}
-           <button onClick={onExit} className="px-6 py-2 bg-[#111] text-white rounded-full text-[10px] uppercase font-bold tracking-widest hover:bg-stone-light transition-all flex items-center gap-2 shadow-sm">
-             <LogOut size={12} /> Exit Console
-           </button>
-        </div>
+        <button onClick={onExit} className="px-6 py-2 bg-[#111] text-white rounded-full text-[10px] uppercase font-bold tracking-widest hover:bg-stone-light transition-all flex items-center gap-2 shadow-sm">
+          <LogOut size={12} /> Exit Console
+        </button>
       </aside>
       
-      <main className="flex-1 p-8 md:p-16 max-w-7xl mx-auto w-full space-y-12 animate-reveal">
+      <main className="flex-1 p-8 md:p-16 max-w-6xl mx-auto w-full space-y-12 animate-reveal">
         <div className="flex justify-center gap-8 border-b border-stone/5 pb-8 overflow-x-auto no-scrollbar">
            {tabs.map(t => (
              <button 
@@ -434,167 +459,16 @@ export const AdminPage: React.FC<AdminPageProps> = ({
           </div>
         )}
 
-        {tab === 'rooms' && (
-          <div className="space-y-16 animate-fade-in">
-            {rooms.length === 0 && (
-              <div className="py-24 text-center bg-white rounded-[4rem] border border-stone/5 border-dashed">
-                <p className="text-stone/10 font-black uppercase tracking-[0.5em] text-[12px]">Registry contains no sanctuary records</p>
-              </div>
-            )}
-            {rooms.map((room, idx) => {
-              const isRoomSaving = isSaving[room.id];
-              const sanctuaryId = room.name.split(' ')[0].toUpperCase() || 'NEW';
-              return (
-                <div key={room.id} className="bg-white p-12 md:p-16 rounded-[4rem] border border-stone/5 shadow-2xl space-y-16 relative overflow-hidden group">
-                  <div className="flex flex-col md:flex-row justify-between items-start gap-12">
-                    {/* Header: Title & ID */}
-                    <div className="flex-1 space-y-6 w-full">
-                      <div className="space-y-1">
-                        <p className="text-[9px] font-black uppercase tracking-[0.4em] text-aqua-primary">SANCTUARY ID: {sanctuaryId}</p>
-                        <input 
-                          value={room.name} 
-                          disabled={isRoomSaving}
-                          onChange={e => { 
-                            const next = [...rooms]; 
-                            next[idx].name = e.target.value.toUpperCase(); 
-                            setRooms(next); 
-                          }} 
-                          className="text-4xl md:text-5xl font-black uppercase tracking-tighter text-stone w-full bg-transparent border-b border-stone/5 pb-4 outline-none focus:border-aqua-primary transition-all" 
-                          placeholder="SANCTUARY NAME"
-                        />
-                      </div>
-                    </div>
-
-                    {/* Registry Controls */}
-                    <div className="flex items-center gap-8">
-                       <div className="space-y-2">
-                         <p className="text-[8px] font-black uppercase tracking-[0.3em] text-stone/20 text-right">BASE REGISTRY (USD)</p>
-                         <div className="bg-[#faf9f6] px-8 py-5 rounded-[2rem] border border-stone/5 shadow-inner">
-                           <input 
-                              type="number" 
-                              value={room.basePrice} 
-                              onChange={e => { const n = [...rooms]; n[idx].basePrice = parseInt(e.target.value) || 0; setRooms(n); }}
-                              className="w-24 bg-transparent text-center text-xl font-black text-stone outline-none"
-                           />
-                         </div>
-                       </div>
-                       <button 
-                        onClick={() => setDeleteTarget({ id: room.id, type: 'rooms', label: room.name || 'Unnamed' })}
-                        className="p-4 text-stone/10 hover:text-red-500 hover:bg-red-50 rounded-full transition-all"
-                       >
-                         <Trash2 size={24} />
-                       </button>
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">
-                    {/* Description Area */}
-                    <div className="space-y-4">
-                      <p className="text-[9px] font-black uppercase tracking-[0.4em] text-stone/10 px-2">DESCRIPTION</p>
-                      <textarea 
-                        value={room.description} 
-                        onChange={e => { const n = [...rooms]; n[idx].description = e.target.value; setRooms(n); }}
-                        className="w-full h-full bg-[#faf9f6] p-10 rounded-[3rem] border border-stone/5 text-lg font-serif italic text-stone/40 leading-relaxed outline-none resize-none shadow-inner min-h-[280px]"
-                        placeholder="Provide a technical description..."
-                      />
-                    </div>
-
-                    {/* Media Management */}
-                    <div className="space-y-12">
-                      {/* Sanctuary Visual */}
-                      <div className="space-y-4">
-                        <p className="text-[9px] font-black uppercase tracking-[0.4em] text-stone/10 px-2">SANCTUARY VISUAL</p>
-                        <div className="flex items-center gap-4">
-                           <input 
-                            value={room.image || ''} 
-                            readOnly 
-                            className="flex-1 bg-[#faf9f6] px-6 py-4 rounded-2xl border border-stone/5 text-[10px] text-stone/20 font-mono truncate outline-none" 
-                            placeholder="Visual asset path..."
-                           />
-                           <input 
-                            type="file" 
-                            ref={el => imageInputRefs.current[room.id] = el}
-                            onChange={e => e.target.files?.[0] && handleRoomImageUpload(room.id, e.target.files[0])}
-                            className="hidden" 
-                            accept="image/*"
-                           />
-                           <button 
-                            onClick={() => imageInputRefs.current[room.id]?.click()}
-                            className="px-8 py-4 bg-[#111] text-white rounded-2xl text-[10px] font-black uppercase tracking-[0.3em] flex items-center gap-3 hover:bg-stone-light transition-all shadow-xl"
-                           >
-                             <Upload size={14} /> IMAGE
-                           </button>
-                        </div>
-                      </div>
-
-                      {/* Presentation Video */}
-                      <div className="space-y-4">
-                        <p className="text-[9px] font-black uppercase tracking-[0.4em] text-stone/10 px-2">PRESENTATION VIDEO</p>
-                        <div className="flex items-center gap-4">
-                           <input 
-                            value={room.video || ''} 
-                            readOnly 
-                            className="flex-1 bg-[#faf9f6] px-6 py-4 rounded-2xl border border-stone/5 text-[10px] text-stone/20 font-mono truncate outline-none" 
-                            placeholder="Technical video narrative..."
-                           />
-                           <input 
-                            type="file" 
-                            ref={el => videoInputRefs.current[room.id] = el}
-                            onChange={e => e.target.files?.[0] && handleRoomVideoUpload(room.id, e.target.files[0])}
-                            className="hidden" 
-                            accept="video/*"
-                           />
-                           <button 
-                            onClick={() => videoInputRefs.current[room.id]?.click()}
-                            className="px-8 py-4 bg-[#111] text-white rounded-2xl text-[10px] font-black uppercase tracking-[0.3em] flex items-center gap-3 hover:bg-stone-light transition-all shadow-xl"
-                           >
-                             <Film size={14} /> VIDEO
-                           </button>
-                        </div>
-                      </div>
-
-                      {/* Visual Preview Window */}
-                      <div className="aspect-[16/9] rounded-[3rem] bg-[#faf9f6] border border-stone/5 overflow-hidden shadow-2xl relative group/preview">
-                         {room.video ? (
-                           <video src={room.video} autoPlay loop muted playsInline className="w-full h-full object-cover opacity-80" />
-                         ) : room.image ? (
-                           <img src={room.image} className="w-full h-full object-cover opacity-80" alt="Preview" />
-                         ) : (
-                           <div className="w-full h-full flex flex-col items-center justify-center gap-4 text-stone/5">
-                             <ImageIcon size={48} />
-                             <span className="text-[10px] font-black uppercase tracking-widest">Preview Unavailable</span>
-                           </div>
-                         )}
-                         {/* Save Button Floating */}
-                         <div className="absolute bottom-8 right-8">
-                            <button 
-                              onClick={() => handleSaveRoom(idx)}
-                              disabled={isRoomSaving}
-                              className="bg-aqua-primary text-stone px-10 py-5 rounded-3xl text-[11px] font-black uppercase tracking-[0.4em] shadow-3xl hover:bg-aqua-deep hover:text-white transition-all flex items-center gap-4 active:scale-95"
-                            >
-                              {isRoomSaving ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />} 
-                              SYNCHRONIZE
-                            </button>
-                         </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        )}
-
-        {/* Other tabs remain largely identical but could benefit from subtle card layout improvements */}
         {tab === 'sessions' && (
           <div className="space-y-8 animate-fade-in">
             <AdminSectionHeader title="Residency Windows" onAdd={() => {
               const next = [...sessions, { id: Date.now().toString(), startDate: today, endDate: '', status: 'Open', maxGuests: 4 }];
               setSessions(next);
+              showToast('Draft window added.', 'info');
             }} />
             <div className="grid gap-6">
               {sessions.map((s, idx) => (
-                <div key={s.id} className="bg-white p-8 rounded-[2.5rem] border border-stone/5 shadow-lg flex flex-col md:flex-row items-center gap-8 group">
+                <div key={s.id} className="bg-white p-8 rounded-[2rem] border border-stone/5 shadow-lg flex flex-col md:flex-row items-center gap-8 group">
                   <div className="flex-1 grid grid-cols-2 md:grid-cols-3 gap-6 w-full">
                     <div className="space-y-1">
                       <label className="text-[8px] font-black uppercase tracking-widest text-stone/20 px-1">Start Date</label>
@@ -609,8 +483,8 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                       <input type="number" min="1" value={s.maxGuests} onChange={e => { const next = [...sessions]; next[idx].maxGuests = parseInt(e.target.value) || 0; setSessions(next); }} className="w-full bg-[#faf9f6] p-4 rounded-xl border border-stone/5 text-xs outline-none text-center" />
                     </div>
                   </div>
-                  <div className="flex items-center gap-4">
-                    <button onClick={() => handleSaveSession(s)} disabled={isSaving[s.id]} className="px-8 py-3 bg-[#111] text-white rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-stone-light transition-all shadow-md">
+                  <div className="flex items-center gap-4 pt-4 md:pt-0">
+                    <button onClick={() => handleSaveSession(s)} disabled={isSaving[s.id]} className="px-6 py-3 bg-[#111] text-white rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-stone-light transition-all shadow-md min-w-[80px] flex items-center justify-center">
                       {isSaving[s.id] ? <Loader2 size={14} className="animate-spin" /> : 'SAVE'}
                     </button>
                     <button onClick={() => setDeleteTarget({ id: s.id, type: 'sessions', label: `Residency starting ${s.startDate}` })} className="p-4 text-stone/10 hover:text-red-500 transition-all">
@@ -619,6 +493,138 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                   </div>
                 </div>
               ))}
+            </div>
+          </div>
+        )}
+
+        {tab === 'rooms' && (
+          <div className="space-y-10 animate-fade-in">
+            <AdminSectionHeader title="Sanctuaries" onAdd={() => {
+              const next = [...rooms, { id: `room-${Date.now()}`, name: "", basePrice: 0, description: "", image: "" }];
+              setRooms(next);
+              showToast('Draft sanctuary added.', 'info');
+            }} />
+            <div className="space-y-12">
+              {rooms.map((room, idx) => {
+                const isNew = room.id.startsWith('room-');
+                const hasNameError = roomErrors[`${room.id}-name`];
+                const hasDescError = roomErrors[`${room.id}-description`];
+                const hasPriceError = roomErrors[`${room.id}-basePrice`];
+                const hasImageError = roomErrors[`${room.id}-image`];
+                const isRoomSaving = isSaving[room.id];
+                return (
+                  <div key={room.id} className="bg-white p-10 md:p-14 rounded-[3.5rem] border border-stone/5 shadow-2xl space-y-12 group transition-all hover:shadow-aqua-primary/5">
+                    <div className="flex flex-col md:flex-row justify-between items-start gap-8">
+                      <div className="flex-1 space-y-4">
+                        <div className="flex items-center gap-4">
+                          <input 
+                            value={room.name} 
+                            disabled={isRoomSaving}
+                            onChange={e => { 
+                              const next = [...rooms]; 
+                              next[idx].name = e.target.value; 
+                              setRooms(next);
+                              if (e.target.value.trim()) setRoomErrors(prev => ({ ...prev, [`${room.id}-name`]: false }));
+                            }} 
+                            className={`text-3xl md:text-4xl font-black uppercase tracking-tight text-stone w-full bg-transparent border-b-2 outline-none focus:text-aqua-primary transition-colors ${hasNameError ? 'border-red-400 text-red-500' : 'border-transparent'}`} 
+                            placeholder="Sanctuary Name *"
+                            required
+                          />
+                          <button 
+                            disabled={isRoomSaving}
+                            onClick={() => setDeleteTarget({ id: room.id, type: 'rooms', label: room.name || 'Unnamed Sanctuary' })} 
+                            className="p-3 text-stone/10 hover:text-red-500 hover:bg-red-50 rounded-full transition-all disabled:opacity-30"
+                          >
+                            <Trash2 size={22}/>
+                          </button>
+                        </div>
+                        <textarea 
+                          value={room.description} 
+                          disabled={isRoomSaving}
+                          onChange={e => { 
+                            const next = [...rooms]; 
+                            next[idx].description = e.target.value; 
+                            setRooms(next);
+                            if (e.target.value.trim()) setRoomErrors(prev => ({ ...prev, [`${room.id}-description`]: false }));
+                          }} 
+                          className={`w-full bg-[#faf9f6] p-8 rounded-[2rem] border text-[15px] font-serif italic text-stone/60 outline-none resize-none min-h-[140px] leading-relaxed ${hasDescError ? 'border-red-400 bg-red-50/10' : 'border-stone/5'}`} 
+                          placeholder="Provide a technical description of this sanctuary space... *"
+                          required
+                        />
+                      </div>
+                      <div className="w-full md:w-80 space-y-6">
+                        <div className={`aspect-[4/3] rounded-[2.5rem] bg-[#faf9f6] overflow-hidden border relative group/img shadow-inner transition-all ${hasImageError ? 'border-red-400 ring-4 ring-red-400/10' : 'border-stone/5'}`}>
+                          {room.image ? (
+                            <img src={room.image} className="w-full h-full object-cover opacity-90" alt={room.name} />
+                          ) : (
+                            <div className={`w-full h-full flex flex-col items-center justify-center gap-2 ${hasImageError ? 'text-red-400' : 'text-stone/10'}`}>
+                              <ImageIcon size={40} />
+                              <span className="text-[10px] font-black uppercase tracking-widest">Visual Asset Req.</span>
+                            </div>
+                          )}
+                          <input 
+                            type="file" 
+                            disabled={isRoomSaving}
+                            ref={el => { fileInputRefs.current[room.id] = el; }}
+                            className="hidden" 
+                            accept=".jpg,.jpeg,.png"
+                            onChange={e => {
+                              const file = e.target.files?.[0];
+                              if (file) handleImageUpload(room.id, file);
+                            }}
+                          />
+                          <button 
+                            disabled={isRoomSaving}
+                            onClick={() => fileInputRefs.current[room.id]?.click()}
+                            className="absolute inset-0 bg-stone/20 opacity-0 group-hover/img:opacity-100 transition-all flex items-center justify-center disabled:hidden"
+                          >
+                             <div className="p-4 bg-white rounded-full shadow-xl">
+                                <Upload size={20} className="text-stone" />
+                             </div>
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div className="space-y-2 max-w-xs">
+                        <label className="text-[9px] font-black uppercase tracking-[0.3em] text-stone/20 px-1">Base Price (USD) <span className="text-red-500">*</span></label>
+                        <div className="relative">
+                          <span className="absolute left-4 top-1/2 -translate-y-1/2 text-stone/30 font-black">$</span>
+                          <input 
+                            type="number" 
+                            disabled={isRoomSaving}
+                            value={room.basePrice} 
+                            onChange={e => { 
+                              const next = [...rooms]; next[idx].basePrice = parseInt(e.target.value) || 0; setRooms(next); 
+                              if (parseInt(e.target.value) > 0) setRoomErrors(prev => ({ ...prev, [`${room.id}-basePrice`]: false }));
+                            }} 
+                            className={`w-full bg-[#faf9f6] pl-8 pr-4 py-4 rounded-2xl border text-lg font-black text-stone outline-none focus:border-aqua-primary/40 transition-all shadow-sm ${hasPriceError ? 'border-red-400 bg-red-50/10' : 'border-stone/5'}`} 
+                            required
+                          />
+                        </div>
+                      </div>
+                    </div>
+                    <div className="pt-6 flex justify-end">
+                      <button 
+                        disabled={isRoomSaving}
+                        onClick={() => handleSaveRoom(idx)} 
+                        className={`px-12 py-5 rounded-2xl text-[11px] font-black uppercase tracking-[0.3em] shadow-xl transition-all flex items-center gap-3 active:scale-[0.98] ${isNew ? 'bg-aqua-primary text-stone hover:bg-aqua-deep hover:text-white' : 'bg-[#111] text-white hover:bg-aqua-primary hover:text-stone'} disabled:opacity-50`}
+                      >
+                        {isRoomSaving ? (
+                          <>
+                            <Loader2 size={16} className="animate-spin" />
+                            Synchronizing...
+                          </>
+                        ) : (
+                          <>
+                            <Save size={16} /> {isNew ? 'Add Sanctuary' : 'Update Sanctuary'}
+                          </>
+                        )}
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           </div>
         )}
@@ -638,8 +644,19 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                    </div>
                  </div>
                ))}
-               <button onClick={handleSyncItinerary} disabled={isSaving.itinerary} className="w-full py-6 bg-aqua-primary text-stone rounded-full font-black uppercase tracking-widest shadow-xl flex items-center justify-center gap-3">
-                 {isSaving.itinerary ? <Loader2 size={18} className="animate-spin" /> : 'SYNCHRONIZE PATHWAY'}
+               <button 
+                onClick={handleSyncItinerary} 
+                disabled={isSaving.itinerary}
+                className="w-full py-6 bg-aqua-primary text-stone rounded-full font-black uppercase tracking-widest shadow-xl flex items-center justify-center gap-3 hover:bg-aqua-deep hover:text-white transition-all disabled:opacity-50"
+               >
+                 {isSaving.itinerary ? (
+                   <>
+                     <Loader2 size={18} className="animate-spin" />
+                     Synchronizing Pathway...
+                   </>
+                 ) : (
+                   'SYNCHRONIZE PATHWAY'
+                 )}
                </button>
              </div>
            </div>
@@ -647,22 +664,42 @@ export const AdminPage: React.FC<AdminPageProps> = ({
 
         {tab === 'faqs' && (
           <div className="space-y-8 animate-fade-in">
-            <AdminSectionHeader title="Estate Intelligence" onAdd={() => setFaqs([...faqs, { id: Date.now().toString(), q: "New Question?", a: "New Answer." }])} />
+            <AdminSectionHeader title="Estate Intelligence" onAdd={() => { const next = [...faqs, { id: Date.now().toString(), q: "Question?", a: "Answer." }]; setFaqs(next); showToast('New FAQ draft added.', 'info'); }} />
             <div className="grid gap-6">
-              {faqs.map((faq, idx) => (
-                <div key={faq.id} className="bg-white p-10 rounded-[2.5rem] border border-stone/5 shadow-lg space-y-6">
-                  <div className="flex justify-between items-start gap-4">
-                    <input value={faq.q} onChange={e => { const n = [...faqs]; n[idx].q = e.target.value; setFaqs(n); }} className="text-[15px] font-black uppercase text-stone w-full bg-transparent border-b border-stone/5 pb-3 outline-none focus:border-aqua-primary/30" />
-                    <button onClick={() => setDeleteTarget({ id: faq.id, type: 'faqs', label: faq.q })} className="p-2 text-stone/10 hover:text-red-400"><Trash2 size={18}/></button>
+              {faqs.map((faq, idx) => {
+                const isItemSaving = isSaving[faq.id];
+                const isNew = faq.id.length < 15 && !isNaN(Number(faq.id));
+                return (
+                  <div key={faq.id} className="bg-white p-10 rounded-[2.5rem] border border-stone/5 shadow-lg space-y-6 group">
+                    <div className="flex justify-between items-start gap-4">
+                      <input value={faq.q} onChange={e => { const next = [...faqs]; next[idx].q = e.target.value; setFaqs(next); }} className="text-[15px] font-black uppercase text-stone w-full bg-transparent border-b border-stone/5 pb-3 outline-none focus:border-aqua-primary/30" />
+                      <div className="flex items-center gap-2">
+                         <button onClick={() => setDeleteTarget({ id: faq.id, type: 'faqs', label: faq.q })} className="p-2 text-stone/10 hover:text-red-400 transition-colors"><Trash2 size={18}/></button>
+                      </div>
+                    </div>
+                    <textarea value={faq.a} onChange={e => { const next = [...faqs]; next[idx].a = e.target.value; setFaqs(next); }} className="w-full bg-[#faf9f6] p-6 rounded-2xl text-[14px] font-serif italic text-stone/50 outline-none min-h-[80px]" />
+                    <div className="pt-2 flex justify-end">
+                      <button 
+                        onClick={() => handleSaveFaq(faq)} 
+                        disabled={isItemSaving}
+                        className="px-8 py-3 bg-aqua-primary text-stone rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-aqua-deep hover:text-white transition-all shadow-md flex items-center gap-2 disabled:opacity-50"
+                      >
+                        {isItemSaving ? (
+                          <>
+                            <Loader2 size={14} className="animate-spin" />
+                            Syncing...
+                          </>
+                        ) : (
+                          <>
+                            <Save size={14} />
+                            {isNew ? 'Sync to Registry' : 'SAVE CHANGES'}
+                          </>
+                        )}
+                      </button>
+                    </div>
                   </div>
-                  <textarea value={faq.a} onChange={e => { const n = [...faqs]; n[idx].a = e.target.value; setFaqs(n); }} className="w-full bg-[#faf9f6] p-6 rounded-2xl text-[14px] font-serif italic text-stone/50 outline-none min-h-[80px]" />
-                  <div className="pt-2 flex justify-end">
-                    <button onClick={() => handleSaveFaq(faq)} disabled={isSaving[faq.id]} className="px-8 py-3 bg-aqua-primary text-stone rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-aqua-deep transition-all shadow-md">
-                      {isSaving[faq.id] ? <Loader2 size={14} className="animate-spin" /> : 'SAVE CHANGES'}
-                    </button>
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         )}
@@ -670,9 +707,8 @@ export const AdminPage: React.FC<AdminPageProps> = ({
         {tab === 'portal' && (
           <div className="space-y-12 animate-fade-in pb-20">
             <h3 className="text-4xl font-black uppercase tracking-tight text-stone">PORTAL SETTINGS</h3>
-            <div className="bg-white p-14 rounded-[4rem] border border-stone/5 space-y-16 shadow-xl relative overflow-hidden">
+            <div className="bg-white p-10 md:p-14 rounded-[3.5rem] border border-stone/5 space-y-16 shadow-xl relative overflow-hidden">
               <div className="absolute top-0 left-0 w-full h-1 bg-aqua-primary opacity-20"></div>
-              {/* Narrative Video */}
               <div className="space-y-8">
                 <div className="flex items-center gap-3">
                   <Video size={18} className="text-aqua-primary" />
@@ -682,41 +718,116 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                   <div className="space-y-6">
                     <div className="space-y-2">
                       <label className="text-[8px] font-black uppercase tracking-widest text-stone/10 px-1">VIDEO SOURCE URL</label>
-                      <input value={portalConfig.promoVideoUrl} onChange={e => setPortalConfig({...portalConfig, promoVideoUrl: e.target.value})} className="w-full bg-[#faf9f6] px-6 py-4 rounded-xl border border-stone/5 text-xs outline-none" />
+                      <input value={portalConfig.promoVideoUrl} onChange={e => setPortalConfig({...portalConfig, promoVideoUrl: e.target.value})} className="w-full bg-[#faf9f6] px-6 py-4 rounded-xl border border-stone/5 text-xs font-sans outline-none focus:border-aqua-primary/30 transition-all" placeholder="https://vimeo.com/..." />
                     </div>
                     <div className="space-y-4">
                       <p className="text-[8px] font-black uppercase tracking-widest text-stone/10 px-1">UPLOAD LOCAL VIDEO</p>
                       <input type="file" ref={videoFileInputRef} onChange={handleVideoFileChange} accept="video/*" className="hidden" />
-                      <button onClick={() => videoFileInputRef.current?.click()} className="w-full py-4 bg-[#111] text-white rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-3">
+                      <button onClick={() => videoFileInputRef.current?.click()} className="w-full py-4 bg-[#111] text-white rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-3 hover:bg-stone-light transition-all">
                         <Upload size={14} /> SELECT VIDEO FILE
                       </button>
+                      <p className="text-[8px] font-serif italic text-stone/20 text-center">Storage limit: 100MB for local files. Use URLs for larger professional videos.</p>
                     </div>
                   </div>
-                  <div className="aspect-video bg-[#faf9f6] rounded-[2rem] border border-stone/5 overflow-hidden">
-                    {portalConfig.promoVideoUrl && <video src={portalConfig.promoVideoUrl} className="w-full h-full object-cover" autoPlay loop muted />}
+                  <div className="space-y-2">
+                    <p className="text-[8px] font-black uppercase tracking-widest text-stone/10 px-1">PREVIEW</p>
+                    <div className="aspect-video bg-[#faf9f6] rounded-[2rem] border border-stone/5 overflow-hidden flex items-center justify-center relative">
+                      {portalConfig.promoVideoUrl ? (
+                        <video key={portalConfig.promoVideoUrl} className="w-full h-full object-cover opacity-80" muted playsInline loop autoPlay>
+                          <source src={portalConfig.promoVideoUrl} />
+                        </video>
+                      ) : (
+                        <Video size={32} className="text-stone/5" />
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>
-              
-              {/* Other settings same as before... */}
               <div className="space-y-4">
                 <div className="flex items-center gap-3">
                   <MessageSquare size={16} className="text-aqua-primary" />
                   <h5 className="text-[10px] font-black uppercase tracking-[0.4em] text-stone/20">WELCOME MESSAGE</h5>
                 </div>
-                <textarea value={portalConfig.welcomeParagraph} onChange={e => setPortalConfig({...portalConfig, welcomeParagraph: e.target.value})} className="w-full bg-[#faf9f6] p-10 rounded-[2.5rem] border border-stone/5 text-sm font-serif italic text-stone/50 outline-none min-h-[140px] leading-relaxed resize-none shadow-inner" />
+                <textarea value={portalConfig.welcomeParagraph} onChange={e => setPortalConfig({...portalConfig, welcomeParagraph: e.target.value})} className="w-full bg-[#faf9f6] p-10 rounded-[2.5rem] border border-stone/5 text-sm font-serif italic text-stone/50 outline-none min-h-[140px] leading-relaxed resize-none focus:border-aqua-primary/30 transition-all shadow-inner" />
               </div>
-
-              <div className="pt-10 flex flex-col items-center">
-                <button onClick={handleSavePortalConfig} disabled={isSaving.portal} className="w-full max-w-md py-6 bg-aqua-primary text-stone rounded-full font-black uppercase tracking-[0.3em] shadow-2xl hover:bg-aqua-deep hover:text-white transition-all">
-                  {isSaving.portal ? <Loader2 className="animate-spin" size={20} /> : 'SYNCHRONIZE SETTINGS'}
+              <div className="space-y-8">
+                <div className="flex items-center gap-3">
+                  <MapPin size={16} className="text-aqua-primary" />
+                  <h5 className="text-[10px] font-black uppercase tracking-[0.4em] text-stone/20">ARRIVAL LOGISTICS</h5>
+                </div>
+                <div className="grid md:grid-cols-2 gap-8">
+                  <div className="space-y-2">
+                    <label className="text-[8px] font-black uppercase tracking-widest text-stone/10 px-1">ESTATE ADDRESS</label>
+                    <input value={portalConfig.logistics.address} onChange={e => setPortalConfig({...portalConfig, logistics: {...portalConfig.logistics, address: e.target.value}})} className="w-full bg-[#faf9f6] px-6 py-4 rounded-xl border border-stone/5 text-xs outline-none focus:border-aqua-primary/30 transition-all" />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-[8px] font-black uppercase tracking-widest text-stone/10 px-1">CHECK-IN WINDOW</label>
+                    <input value={portalConfig.logistics.checkInWindow} onChange={e => setPortalConfig({...portalConfig, logistics: {...portalConfig.logistics, checkInWindow: e.target.value}})} className="w-full bg-[#faf9f6] px-6 py-4 rounded-xl border border-stone/5 text-xs outline-none focus:border-aqua-primary/30 transition-all" />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <label className="text-[8px] font-black uppercase tracking-widest text-stone/10 px-1">GATED ACCESS INSTRUCTIONS</label>
+                  <textarea value={portalConfig.logistics.gateInstructions} onChange={e => setPortalConfig({...portalConfig, logistics: {...portalConfig.logistics, gateInstructions: e.target.value}})} className="w-full bg-[#faf9f6] px-8 py-6 rounded-[2rem] border border-stone/5 text-xs outline-none focus:border-aqua-primary/30 transition-all min-h-[100px] resize-none" />
+                </div>
+              </div>
+              <div className="space-y-8">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <Package size={16} className="text-aqua-primary" />
+                    <h5 className="text-[10px] font-black uppercase tracking-[0.4em] text-stone/20">PACKING INVENTORY</h5>
+                  </div>
+                  <button onClick={() => setPortalConfig({...portalConfig, packingList: [...portalConfig.packingList, 'New Item']})} className="px-6 py-2 bg-[#111] text-white rounded-full text-[9px] font-black uppercase tracking-widest flex items-center gap-2 hover:scale-105 transition-all shadow-md">
+                    <Plus size={12} /> ADD ITEM
+                  </button>
+                </div>
+                <div className="space-y-3">
+                  {portalConfig.packingList.map((item: string, idx: number) => (
+                    <div key={idx} className="flex items-center gap-4 group">
+                      <div className="flex-1 bg-[#faf9f6] px-8 py-4 rounded-2xl border border-stone/5 shadow-sm transition-all group-hover:border-stone/10">
+                        <input value={item} onChange={e => { const next = [...portalConfig.packingList]; next[idx] = e.target.value; setPortalConfig({...portalConfig, packingList: next}); }} className="w-full bg-transparent text-[11px] font-black uppercase tracking-widest text-stone outline-none" />
+                      </div>
+                      <button onClick={() => { const next = portalConfig.packingList.filter((_: any, i: number) => i !== idx); setPortalConfig({...portalConfig, packingList: next}); }} className="p-3 text-stone/10 hover:text-red-400 transition-colors">
+                        <Trash2 size={16} />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div className="space-y-10">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <ShieldCheck size={16} className="text-aqua-primary" />
+                    <h5 className="text-[10px] font-black uppercase tracking-[0.4em] text-stone/20">REGISTRY GUIDELINES</h5>
+                  </div>
+                  <button onClick={() => setPortalConfig({...portalConfig, houseGuidelines: [...portalConfig.houseGuidelines, { title: 'NEW GUIDELINE', desc: '' }]})} className="px-6 py-2 bg-[#111] text-white rounded-full text-[9px] font-black uppercase tracking-widest flex items-center gap-2 hover:scale-105 transition-all shadow-md">
+                    <Plus size={12} /> ADD GUIDELINE
+                  </button>
+                </div>
+                <div className="grid gap-6">
+                  {portalConfig.houseGuidelines.map((g: any, idx: number) => (
+                    <div key={idx} className="bg-[#faf9f6] p-10 rounded-[3rem] border border-stone/5 shadow-inner space-y-8 relative group">
+                      <div className="flex justify-between items-center border-b border-stone/5 pb-6">
+                        <input value={g.title} onChange={e => { const next = [...portalConfig.houseGuidelines]; next[idx].title = e.target.value.toUpperCase(); setPortalConfig({...portalConfig, houseGuidelines: next}); }} placeholder="GUIDELINE TITLE" className="bg-transparent text-[12px] font-black uppercase tracking-widest text-stone outline-none flex-1" />
+                        <button onClick={() => { const next = portalConfig.houseGuidelines.filter((_: any, i: number) => i !== idx); setPortalConfig({...portalConfig, houseGuidelines: next}); }} className="p-2 text-stone/10 hover:text-red-500 transition-colors">
+                          <Trash2 size={18} />
+                        </button>
+                      </div>
+                      <textarea value={g.desc} onChange={e => { const next = [...portalConfig.houseGuidelines]; next[idx].desc = e.target.value; setPortalConfig({...portalConfig, houseGuidelines: next}); }} placeholder="Detailed estate protocol description..." className="w-full bg-white p-8 rounded-[2rem] border border-stone/5 text-xs outline-none focus:border-aqua-primary/20 transition-all min-h-[100px] resize-none leading-relaxed italic" />
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div className="pt-10 flex flex-col items-center gap-6">
+                <button onClick={handleSavePortalConfig} disabled={isSaving.portal} className="w-full max-w-md py-6 bg-aqua-primary text-stone rounded-full font-black uppercase tracking-[0.3em] shadow-2xl hover:bg-aqua-deep hover:text-white transition-all active:scale-[0.98] flex items-center justify-center gap-3">
+                  {isSaving.portal ? <Loader2 className="animate-spin" size={20} /> : 'SYNCHRONIZE ALL PORTAL SETTINGS'}
                 </button>
+                <p className="text-[9px] font-black uppercase tracking-[0.4em] text-stone/10">Registry Version 1.2.4 • Cabo San Lucas</p>
               </div>
             </div>
           </div>
         )}
       </main>
-      <DeleteConfirmModal isOpen={!!deleteTarget} title="Confirm Purge" description={`Are you sure you want to permanently remove "${deleteTarget?.label}"?`} isLoading={deleteTarget ? isSaving[deleteTarget.id] : false} onConfirm={handleConfirmedDelete} onCancel={() => setDeleteTarget(null)} />
+      <DeleteConfirmModal isOpen={!!deleteTarget} title="Confirm Purge" description={`Are you sure you want to permanently remove "${deleteTarget?.label}"? This action cannot be reversed within the estate registry.`} isLoading={deleteTarget ? isSaving[deleteTarget.id] : false} onConfirm={handleConfirmedDelete} onCancel={() => setDeleteTarget(null)} />
     </div>
   );
 };
