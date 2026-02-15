@@ -1,22 +1,31 @@
+
 import React, { useState } from 'react';
 import { Zap, Play, ChevronDown } from 'lucide-react';
+import { RoomDetailModal } from '../components/Modals';
+import { Room } from '../types';
 
 const HERO_VIDEO_URL = "https://player.vimeo.com/external/494294683.hd.mp4?s=d038743f38c3933c16a3f169f4935f8d29837a7b&profile_id=174";
 
 interface LandingPageProps {
   sessions: any[];
-  rooms: any[];
+  rooms: Room[];
   itinerary: any[];
   faqs: any[];
   promoVideoUrl: string;
-  onApplyClick: (sessionId?: string) => void;
+  onApplyClick: (sessionId?: string, roomId?: string) => void;
 }
 
 export const LandingPage: React.FC<LandingPageProps> = ({ sessions, rooms, itinerary, faqs, promoVideoUrl, onApplyClick }) => {
   const [openFaqId, setOpenFaqId] = useState<string | null>(null);
+  const [selectedRoomDetail, setSelectedRoomDetail] = useState<Room | null>(null);
 
   const today = new Date().toISOString().split('T')[0];
   const activeSessions = sessions.filter(s => s.startDate >= today);
+
+  const handleRequestAccessFromModal = (roomId: string) => {
+    setSelectedRoomDetail(null);
+    onApplyClick(undefined, roomId);
+  };
 
   return (
     <main>
@@ -69,13 +78,17 @@ export const LandingPage: React.FC<LandingPageProps> = ({ sessions, rooms, itine
       <section className="py-20 px-6 max-w-6xl mx-auto">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {rooms.map((room) => (
-            <div key={room.id} className="relative group rounded-[2rem] overflow-hidden aspect-[1.8/1] md:aspect-[2/1] shadow-xl">
+            <button 
+              key={room.id} 
+              onClick={() => setSelectedRoomDetail(room)}
+              className="relative group rounded-[2rem] overflow-hidden aspect-[1.8/1] md:aspect-[2/1] shadow-xl text-left"
+            >
                <img src={room.image} alt={room.name} className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000" />
                <div className="absolute inset-0 bg-gradient-to-t from-stone/80 via-transparent to-transparent"></div>
                <div className="absolute bottom-6 left-6 z-10">
                   <h4 className="text-xl md:text-2xl font-black uppercase leading-tight text-white tracking-tighter">{room.name}</h4>
                </div>
-            </div>
+            </button>
           ))}
         </div>
       </section>
@@ -149,7 +162,11 @@ export const LandingPage: React.FC<LandingPageProps> = ({ sessions, rooms, itine
           </div>
           <div className="divide-y divide-stone/10 border-t border-stone/10">
             {rooms.map((room) => (
-              <div key={room.id} className="py-12 flex flex-col md:flex-row justify-between items-baseline gap-4 group">
+              <button 
+                key={room.id} 
+                onClick={() => setSelectedRoomDetail(room)}
+                className="w-full py-12 flex flex-col md:flex-row justify-between items-baseline gap-4 group text-left hover:bg-stone/5 transition-colors px-4 rounded-xl"
+              >
                 <div className="space-y-1">
                   <h4 className="text-2xl md:text-3xl font-bold uppercase tracking-tight text-stone">{room.name}</h4>
                   <p className="text-sm md:text-base font-serif italic text-stone/30">
@@ -162,7 +179,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ sessions, rooms, itine
                     {room.basePrice.toLocaleString()}
                   </span>
                 </div>
-              </div>
+              </button>
             ))}
           </div>
           <div className="pt-8 text-center">
@@ -195,6 +212,15 @@ export const LandingPage: React.FC<LandingPageProps> = ({ sessions, rooms, itine
           </div>
         </div>
       </section>
+
+      {/* Room Detail Modal */}
+      {selectedRoomDetail && (
+        <RoomDetailModal 
+          room={selectedRoomDetail} 
+          onClose={() => setSelectedRoomDetail(null)} 
+          onRequestAccess={handleRequestAccessFromModal}
+        />
+      )}
     </main>
   );
 };

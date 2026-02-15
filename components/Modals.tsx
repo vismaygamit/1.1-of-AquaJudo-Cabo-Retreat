@@ -65,23 +65,105 @@ export const DeleteConfirmModal: React.FC<{
   );
 };
 
+export const RoomDetailModal: React.FC<{
+  room: Room;
+  onClose: () => void;
+  onRequestAccess: (roomId: string) => void;
+}> = ({ room, onClose, onRequestAccess }) => {
+  return (
+    <div className="fixed inset-0 z-[1200] bg-[#111]/95 backdrop-blur-sm flex items-center justify-center p-4 md:p-8 animate-fade-in">
+      <div className="bg-[#1a1a1a] w-full max-w-6xl h-full max-h-[85vh] md:max-h-[700px] rounded-[3rem] overflow-hidden flex flex-col md:flex-row relative shadow-[0_0_100px_rgba(0,0,0,0.5)] border border-white/5">
+        {/* Close Button */}
+        <button onClick={onClose} className="absolute top-8 right-8 z-[1300] w-12 h-12 bg-white/5 hover:bg-white/10 text-white rounded-full flex items-center justify-center transition-all">
+          <X size={24} />
+        </button>
+
+        {/* Left: Video / Image Player */}
+        <div className="w-full md:w-3/5 bg-black/40 flex items-center justify-center relative overflow-hidden h-64 md:h-auto">
+          {room.video ? (
+            <video 
+              src={room.video} 
+              className="w-full h-full object-cover opacity-80" 
+              controls 
+              autoPlay 
+              loop 
+              muted 
+              playsInline
+            />
+          ) : room.image ? (
+            <img src={room.image} className="w-full h-full object-cover opacity-80" alt={room.name} />
+          ) : (
+            <div className="text-white/10 flex flex-col items-center gap-2">
+              <Loader2 className="animate-spin" size={32} />
+              <span className="text-[10px] uppercase font-black tracking-widest">Asset Loading</span>
+            </div>
+          )}
+        </div>
+
+        {/* Right: Info Panel */}
+        <div className="w-full md:w-2/5 p-12 md:p-16 flex flex-col justify-between overflow-y-auto no-scrollbar bg-[#1a1a1a]">
+          <div className="space-y-10">
+            <div className="space-y-2">
+              <p className="text-[10px] font-black uppercase tracking-[0.4em] text-aqua-primary">SANCTUARY OVERVIEW</p>
+              <h2 className="text-4xl font-bold uppercase tracking-tighter text-white leading-none">{room.name}</h2>
+            </div>
+            
+            <p className="text-sm md:text-base font-serif italic text-white/40 leading-relaxed">
+              {room.description}
+            </p>
+
+            <ul className="space-y-4">
+              <li className="flex items-center gap-3 text-white/60">
+                <div className="w-1 h-1 rounded-full bg-aqua-primary/50" />
+                <span className="text-[10px] font-black uppercase tracking-widest">{room.bedType}</span>
+              </li>
+              <li className="flex items-center gap-3 text-white/60">
+                <div className="w-1 h-1 rounded-full bg-aqua-primary/50" />
+                <span className="text-[10px] font-black uppercase tracking-widest">{room.bathType} BATHROOM</span>
+              </li>
+              <li className="flex items-center gap-3 text-white/60">
+                <div className="w-1 h-1 rounded-full bg-aqua-primary/50" />
+                <span className="text-[10px] font-black uppercase tracking-widest">{room.location.toUpperCase()}</span>
+              </li>
+            </ul>
+          </div>
+
+          <div className="pt-12 space-y-8 border-t border-white/5 mt-10">
+            <div className="flex items-baseline gap-1">
+              <span className="text-lg font-light text-white/20">$</span>
+              <span className="text-4xl font-bold tracking-tighter text-white">{room.basePrice.toLocaleString()}</span>
+            </div>
+            <button 
+              onClick={() => onRequestAccess(room.id)}
+              className="w-full bg-white text-stone py-6 rounded-2xl text-[11px] font-black uppercase tracking-[0.3em] shadow-2xl hover:bg-aqua-primary transition-all active:scale-[0.98]"
+            >
+              REQUEST ACCESS
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 interface ApplyModalProps {
   sessions: ResidencySession[];
   rooms: Room[];
   initialSessionId: string;
+  initialRoomId?: string;
   onSubmit: (form: BookingState) => Promise<any>;
   onClose: () => void;
   showToast: (message: string, type: 'success' | 'error' | 'info') => void;
 }
 
-export const ApplyModal: React.FC<ApplyModalProps> = ({ sessions, rooms, initialSessionId, onSubmit, onClose, showToast }) => {
-  const [step, setStep] = useState(1);
+export const ApplyModal: React.FC<ApplyModalProps> = ({ sessions, rooms, initialSessionId, initialRoomId, onSubmit, onClose, showToast }) => {
+  const [step, setStep] = useState(initialRoomId ? 3 : 1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submittedId, setSubmittedId] = useState('');
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [form, setForm] = useState<BookingState>({
     sessionId: initialSessionId, guestName: '', guestEmail: '', guestPhone: '', gender: '',
-    bookingType: 'solo', companionName: '', roomPreferenceId: '',
+    bookingType: 'solo', companionName: '', roomPreferenceId: initialRoomId || '',
     healthNotes: '', oneOnOneInterest: false, bathroomConsent: false,
     alcoholConsent: false, language: 'English', notes: '', isConfirmed: false
   });
@@ -134,7 +216,7 @@ export const ApplyModal: React.FC<ApplyModalProps> = ({ sessions, rooms, initial
   const selectedRoom = rooms.find(r => r.id === form.roomPreferenceId);
 
   return (
-    <div className="fixed inset-0 z-[600] bg-stone/20 backdrop-blur-sm flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-[1500] bg-stone/20 backdrop-blur-sm flex items-center justify-center p-4">
       <div className="bg-white w-full max-w-2xl rounded-[3.5rem] shadow-2xl overflow-hidden animate-reveal border border-white">
         <div className={`p-10 md:p-14 space-y-8 max-h-[95vh] overflow-y-auto no-scrollbar relative ${step === 5 ? 'bg-[#fcfcfc]' : ''}`}>
           
@@ -312,7 +394,7 @@ export const ApplyModal: React.FC<ApplyModalProps> = ({ sessions, rooms, initial
               </div>
               <div className="flex gap-4">
                 <button 
-                  onClick={() => setStep(2)} 
+                  onClick={() => initialRoomId ? setStep(1) : setStep(2)} 
                   className="flex-1 bg-[#faf9f6] text-stone py-6 rounded-full text-[12px] font-black uppercase tracking-[0.2em] shadow-sm hover:bg-stone/5 transition-all flex items-center justify-center gap-2"
                 >
                   <ChevronLeft size={16} /> Back

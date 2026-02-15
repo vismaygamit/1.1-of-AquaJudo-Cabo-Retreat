@@ -15,6 +15,7 @@ const App: React.FC = () => {
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [showApplyModal, setShowApplyModal] = useState(false);
   const [targetSessionId, setTargetSessionId] = useState('');
+  const [targetRoomId, setTargetRoomId] = useState('');
   
   // Toast State
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' | 'info' } | null>(null);
@@ -24,8 +25,9 @@ const App: React.FC = () => {
   };
 
   // Handle Internal Routing Actions
-  const openApply = async (sessionId?: string) => {
+  const openApply = async (sessionId?: string, roomId?: string) => {
     setTargetSessionId(sessionId || '');
+    setTargetRoomId(roomId || '');
     // Fetch fresh data from API only upon opening the inquiry form
     await Promise.all([
       state.fetchSessionsFromApi(),
@@ -128,6 +130,7 @@ const App: React.FC = () => {
           sessions={state.sessions} 
           rooms={state.rooms} 
           initialSessionId={targetSessionId} 
+          initialRoomId={targetRoomId}
           onSubmit={state.submitApplication} 
           onClose={() => setShowApplyModal(false)}
           showToast={showToast}
