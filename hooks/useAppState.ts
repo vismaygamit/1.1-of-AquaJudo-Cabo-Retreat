@@ -375,6 +375,7 @@ export const useAppState = () => {
         roomId: form.roomPreferenceId,
         sessionId: form.sessionId,
         backgroundDescription: form.healthNotes,
+        // Fix: accessing bathroomConsent and alcoholConsent from form (BookingState)
         isBathroomProtocolChecked: form.bathroomConsent,
         isAlcoholFreeEstateChecked: form.alcoholConsent
       })

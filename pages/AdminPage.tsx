@@ -179,8 +179,8 @@ export const AdminPage: React.FC<AdminPageProps> = ({
       try {
         await deleteFaqFromApi(id);
         showToast('Intelligence entry purged.', 'success');
-      } catch (e) {
-        showToast('Purge failed.', 'error');
+      } catch (e: any) {
+        showToast(e.message || 'Purge failed.', 'error');
       } finally {
         setIsSaving(prev => ({ ...prev, [id]: false }));
         setDeleteTarget(null);
