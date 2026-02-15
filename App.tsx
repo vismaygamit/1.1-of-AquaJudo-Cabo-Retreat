@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useAppState } from './hooks/useAppState';
 import { MainLayout } from './layouts/MainLayout';
@@ -63,6 +62,7 @@ const App: React.FC = () => {
           fetchSessionsFromApi={state.fetchSessionsFromApi}
           fetchRoomsFromApi={state.fetchRoomsFromApi}
           fetchItineraryFromApi={state.fetchItineraryFromApi}
+          fetchFaqsFromApi={state.fetchFaqsFromApi}
           saveItineraryToApi={state.saveItineraryToApi}
           saveSessionToApi={state.saveSessionToApi}
           deleteSessionFromApi={state.deleteSessionFromApi}

@@ -15,6 +15,7 @@ interface AdminPageProps {
   fetchSessionsFromApi: (force?: boolean) => Promise<void>;
   fetchRoomsFromApi: (force?: boolean) => Promise<void>;
   fetchItineraryFromApi: (force?: boolean) => Promise<void>;
+  fetchFaqsFromApi: (force?: boolean) => Promise<void>;
   saveItineraryToApi: (days: any[]) => Promise<any>;
   saveSessionToApi: (session: any) => Promise<any>;
   deleteSessionFromApi: (id: string) => Promise<any>;
@@ -36,7 +37,7 @@ type TabType = 'applications' | 'sessions' | 'rooms' | 'itinerary' | 'faqs' | 'p
 const ITEMS_PER_PAGE = 5;
 
 export const AdminPage: React.FC<AdminPageProps> = ({ 
-  onExit, applications, pagination, setApplications, fetchInquiriesFromApi, fetchSessionsFromApi, fetchRoomsFromApi, fetchItineraryFromApi, saveItineraryToApi, saveSessionToApi, deleteSessionFromApi, rooms, setRooms, 
+  onExit, applications, pagination, setApplications, fetchInquiriesFromApi, fetchSessionsFromApi, fetchRoomsFromApi, fetchItineraryFromApi, fetchFaqsFromApi, saveItineraryToApi, saveSessionToApi, deleteSessionFromApi, rooms, setRooms, 
   sessions, setSessions, itinerary, setItinerary, 
   faqs, setFaqs, portalConfig, setPortalConfig, showToast
 }) => {
@@ -64,6 +65,9 @@ export const AdminPage: React.FC<AdminPageProps> = ({
       initialLoadDone.current[t] = true;
     } else if (t === 'itinerary') {
       fetchItineraryFromApi(true);
+      initialLoadDone.current[t] = true;
+    } else if (t === 'faqs') {
+      fetchFaqsFromApi(true);
       initialLoadDone.current[t] = true;
     } else if (!initialLoadDone.current[t]) {
       initialLoadDone.current[t] = true;
@@ -96,6 +100,8 @@ export const AdminPage: React.FC<AdminPageProps> = ({
         await fetchRoomsFromApi(true);
       } else if (tab === 'itinerary') {
         await fetchItineraryFromApi(true);
+      } else if (tab === 'faqs') {
+        await fetchFaqsFromApi(true);
       }
       showToast('Registry synchronized.', 'success');
     } catch (e) {
@@ -606,7 +612,10 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                   <textarea value={faq.a} onChange={e => { const next = [...faqs]; next[idx].a = e.target.value; setFaqs(next); }} className="w-full bg-[#faf9f6] p-6 rounded-2xl text-[14px] font-serif italic text-stone/50 outline-none min-h-[80px]" />
                 </div>
               ))}
-              <button onClick={() => { updateStorage('aj_faqs', faqs); showToast('Intelligence updated.', 'success'); }} className="w-full py-6 bg-[#111] text-white rounded-full font-black uppercase tracking-widest">SAVE INTELLIGENCE</button>
+              <div className="flex flex-col gap-4">
+                <button onClick={() => { updateStorage('aj_faqs', faqs); showToast('Intelligence updated locally.', 'success'); }} className="w-full py-6 bg-[#111] text-white rounded-full font-black uppercase tracking-widest">SAVE INTELLIGENCE</button>
+                <button onClick={handleRefresh} className="w-full py-4 bg-transparent text-stone/40 text-[10px] font-black uppercase tracking-widest hover:text-aqua-primary transition-all">REFRESH FROM REGISTRY</button>
+              </div>
             </div>
           </div>
         )}

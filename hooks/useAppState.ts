@@ -76,12 +76,14 @@ export const useAppState = () => {
   const isFetchingRooms = useRef(false);
   const isFetchingSessions = useRef(false);
   const isFetchingItinerary = useRef(false);
+  const isFetchingFaqs = useRef(false);
   
   const lastInquiryFetch = useRef(0);
   const lastInquiryPage = useRef(0);
   const lastRoomFetch = useRef(0);
   const lastSessionFetch = useRef(0);
   const lastItineraryFetch = useRef(0);
+  const lastFaqFetch = useRef(0);
 
   const saveToStorage = (key: string, data: any) => {
     localStorage.setItem(key, JSON.stringify(data));
@@ -226,10 +228,41 @@ export const useAppState = () => {
   }, []);
 
   /**
+   * Fetches the Estate Intelligence (FAQs) from the registry.
+   */
+  const fetchFaqsFromApi = useCallback(async (force = false) => {
+    const now = Date.now();
+    if (isFetchingFaqs.current) return;
+    if (!force && (now - lastFaqFetch.current < FETCH_THROTTLE_MS)) return;
+
+    isFetchingFaqs.current = true;
+    lastFaqFetch.current = now;
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/faq`, {
+        headers: {
+          'Authorization': 'Bearer YOUR_TOKEN_HERE'
+        }
+      });
+      const result = await response.json();
+      if (result.success && Array.isArray(result.data)) {
+        const mappedFaqs: FAQItem[] = result.data.map((apiFaq: any) => ({
+          id: apiFaq._id,
+          q: apiFaq.que,
+          a: apiFaq.ans
+        }));
+        setFaqs(mappedFaqs);
+        saveToStorage('aj_faqs', mappedFaqs);
+      }
+    } catch (error) {
+      console.warn("FAQ API unavailable:", error);
+    } finally {
+      isFetchingFaqs.current = false;
+    }
+  }, []);
+
+  /**
    * Synchronizes the technical pathway with the registry.
-   * Method: PUT
-   * Endpoint: /api/itinerary
-   * Payload: { "days": [...] }
    */
   const saveItineraryToApi = async (days: any[]) => {
     const url = `${API_BASE_URL}/itinerary`;
@@ -316,6 +349,7 @@ export const useAppState = () => {
     fetchRoomsFromApi();
     fetchSessionsFromApi();
     fetchItineraryFromApi();
+    fetchFaqsFromApi();
 
     const storedFaqs = JSON.parse(get('aj_faqs') || 'null');
     if (storedFaqs) setFaqs(storedFaqs);
@@ -331,7 +365,7 @@ export const useAppState = () => {
       const found = storedApps.find((a: Application) => a.id === portalId);
       if (found) setActivePortalGuest(found);
     }
-  }, [fetchRoomsFromApi, fetchSessionsFromApi, fetchItineraryFromApi]);
+  }, [fetchRoomsFromApi, fetchSessionsFromApi, fetchItineraryFromApi, fetchFaqsFromApi]);
 
   return {
     applications,
@@ -352,6 +386,7 @@ export const useAppState = () => {
     fetchRoomsFromApi,
     fetchSessionsFromApi,
     fetchItineraryFromApi,
+    fetchFaqsFromApi,
     saveItineraryToApi,
     saveSessionToApi,
     deleteSessionFromApi,
