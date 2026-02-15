@@ -343,7 +343,7 @@ export const useAppState = () => {
 
   const saveSessionToApi = async (session: any) => {
     const isNew = session.id.length < 15 && !isNaN(Number(session.id));
-    const url = isNew ? `${API_BASE_URL}/session/createSession` : `${API_BASE_URL}/session/updateSession/${session.id}`;
+    const url = isNew ? `${API_BASE_URL}/session/add` : `${API_BASE_URL}/session/update/${session.id}`;
     const method = isNew ? 'POST' : 'PUT';
     const response = await fetch(url, {
       method,
@@ -356,7 +356,7 @@ export const useAppState = () => {
   };
 
   const deleteSessionFromApi = async (id: string) => {
-    const response = await fetch(`${API_BASE_URL}/session/deleteSession/${id}`, { method: 'DELETE' });
+    const response = await fetch(`${API_BASE_URL}/session/delete/${id}`, { method: 'DELETE' });
     const result = await response.json();
     if (result.success) await fetchSessionsFromApi(true);
     return result;
