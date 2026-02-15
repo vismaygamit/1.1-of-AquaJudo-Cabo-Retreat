@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { 
   API_BASE_URL,
@@ -242,7 +243,7 @@ export const useAppState = () => {
     isFetchingPortal.current = true;
     lastPortalFetch.current = now;
     try {
-      const response = await fetch(`${API_BASE_URL}/portal`);
+      const response = await fetch(`${API_BASE_URL}/getPortalSettings`);
       if (!response.ok) throw new Error(`Portal GET Error ${response.status}`);
       const result = await response.json();
       if (result.success && result.data) {

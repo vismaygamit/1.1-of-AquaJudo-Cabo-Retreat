@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useEffect } from 'react';
 import { LogOut, Plus, Trash2, Copy, Image as ImageIcon, CheckCircle2, XCircle, Clock, Upload, Film, MessageSquare, MapPin, Package, ShieldCheck, RefreshCw, Calendar, Home, Quote, ChevronLeft, ChevronRight, Save, AlertCircle, Loader2, Video } from 'lucide-react';
 import { AdminSectionHeader, Logo } from '../components/Shared';
@@ -76,7 +77,12 @@ export const AdminPage: React.FC<AdminPageProps> = ({
       fetchFaqsFromApi(true);
       initialLoadDone.current[t] = true;
     } else if (t === 'portal') {
-      fetchPortalConfigFromApi(true);
+      // Ensure fetchPortalConfigFromApi is a function before calling
+      if (typeof fetchPortalConfigFromApi === 'function') {
+        fetchPortalConfigFromApi(true);
+      } else {
+        console.error("fetchPortalConfigFromApi is not provided as a function to AdminPage");
+      }
       initialLoadDone.current[t] = true;
     } else if (!initialLoadDone.current[t]) {
       initialLoadDone.current[t] = true;
@@ -357,9 +363,13 @@ export const AdminPage: React.FC<AdminPageProps> = ({
   const handleSavePortalConfig = async () => {
     setIsSaving(prev => ({ ...prev, portal: true }));
     try {
-      await savePortalConfigToApi(portalConfig, stagedVideoFile || undefined);
-      setStagedVideoFile(null);
-      showToast('Portal settings synchronized with registry.', 'success');
+      if (typeof savePortalConfigToApi === 'function') {
+        await savePortalConfigToApi(portalConfig, stagedVideoFile || undefined);
+        setStagedVideoFile(null);
+        showToast('Portal settings synchronized with registry.', 'success');
+      } else {
+        throw new Error("savePortalConfigToApi is not available");
+      }
     } catch (e: any) {
       console.error("Portal Save Error:", e);
       showToast(e.message || 'Failed to synchronize portal settings.', 'error');
@@ -665,7 +675,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                     <div className="flex justify-between items-start gap-4">
                       <input value={faq.q} onChange={e => { const next = [...faqs]; next[idx].q = e.target.value; setFaqs(next); }} className="text-[15px] font-black uppercase text-stone w-full bg-transparent border-b border-stone/5 pb-3 outline-none focus:border-aqua-primary/30" />
                       <div className="flex items-center gap-2">
-                         <button onClick={() => setDeleteTarget({ id: faq.id, type: 'faqs', label: faq.q })} className="p-2 text-stone/10 hover:text-red-500 transition-colors"><Trash2 size={18}/></button>
+                         <button onClick={() => setDeleteTarget({ id: faq.id, type: 'faqs', label: faq.q })} className="p-2 text-stone/10 hover:text-red-400 transition-colors"><Trash2 size={18}/></button>
                       </div>
                     </div>
                     <textarea value={faq.a} onChange={e => { const next = [...faqs]; next[idx].a = e.target.value; setFaqs(next); }} className="w-full bg-[#faf9f6] p-6 rounded-2xl text-[14px] font-serif italic text-stone/50 outline-none min-h-[80px]" />
