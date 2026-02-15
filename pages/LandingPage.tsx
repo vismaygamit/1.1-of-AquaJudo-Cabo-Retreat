@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Zap, Play, ChevronDown } from 'lucide-react';
 
@@ -143,7 +142,11 @@ export const LandingPage: React.FC<LandingPageProps> = ({ sessions, rooms, itine
 
       {/* FAQ */}
       <section className="py-24 px-6 border-t border-stone/5 bg-white">
-        <div className="max-w-2xl mx-auto space-y-12">
+        <div className="max-w-2xl mx-auto space-y-16">
+          <div className="text-center space-y-4">
+            <p className="text-[11px] tracking-[0.5em] text-aqua-deep font-black uppercase opacity-40">ELIGIBILITY VERIFICATION</p>
+            <h2 className="text-3xl md:text-5xl font-display font-light uppercase tracking-tighter">Common Questions</h2>
+          </div>
           <div className="space-y-4">
              {faqs.map(faq => (
                <div key={faq.id} className="border-b border-stone/10 pb-6 last:border-0">
