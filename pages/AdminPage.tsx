@@ -1,6 +1,6 @@
 
 import React, { useState, useRef, useEffect } from 'react';
-import { LogOut, Plus, Trash2, Copy, Image as ImageIcon, CheckCircle2, XCircle, Clock, Upload, Film, MessageSquare, MapPin, Package, ShieldCheck, RefreshCw, Calendar, Home, Quote, ChevronLeft, ChevronRight, Save, AlertCircle, Loader2 } from 'lucide-react';
+import { LogOut, Plus, Trash2, Copy, Image as ImageIcon, CheckCircle2, XCircle, Clock, Upload, Film, MessageSquare, MapPin, Package, ShieldCheck, RefreshCw, Calendar, Home, Quote, ChevronLeft, ChevronRight, Save, AlertCircle, Loader2, Video } from 'lucide-react';
 import { AdminSectionHeader, Logo } from '../components/Shared';
 import { DeleteConfirmModal } from '../components/Modals';
 import { ApplicationStatus, Room, Application } from '../types';
@@ -17,6 +17,8 @@ interface AdminPageProps {
   fetchRoomsFromApi: (force?: boolean) => Promise<void>;
   fetchItineraryFromApi: (force?: boolean) => Promise<void>;
   fetchFaqsFromApi: (force?: boolean) => Promise<void>;
+  fetchPortalConfigFromApi: (force?: boolean) => Promise<void>;
+  savePortalConfigToApi: (config: any, videoFile?: File) => Promise<any>;
   saveFaqToApi: (faq: { id: string, q: string, a: string }) => Promise<any>;
   deleteFaqFromApi: (id: string) => Promise<any>;
   saveItineraryToApi: (days: any[]) => Promise<any>;
@@ -40,7 +42,7 @@ type TabType = 'applications' | 'sessions' | 'rooms' | 'itinerary' | 'faqs' | 'p
 const ITEMS_PER_PAGE = 5;
 
 export const AdminPage: React.FC<AdminPageProps> = ({ 
-  onExit, applications, pagination, setApplications, fetchInquiriesFromApi, fetchSessionsFromApi, fetchRoomsFromApi, fetchItineraryFromApi, fetchFaqsFromApi, saveFaqToApi, deleteFaqFromApi, saveItineraryToApi, saveSessionToApi, deleteSessionFromApi, rooms, setRooms, 
+  onExit, applications, pagination, setApplications, fetchInquiriesFromApi, fetchSessionsFromApi, fetchRoomsFromApi, fetchItineraryFromApi, fetchFaqsFromApi, fetchPortalConfigFromApi, savePortalConfigToApi, saveFaqToApi, deleteFaqFromApi, saveItineraryToApi, saveSessionToApi, deleteSessionFromApi, rooms, setRooms, 
   sessions, setSessions, itinerary, setItinerary, 
   faqs, setFaqs, portalConfig, setPortalConfig, showToast
 }) => {
@@ -50,7 +52,9 @@ export const AdminPage: React.FC<AdminPageProps> = ({
   const [deleteTarget, setDeleteTarget] = useState<{ id: string, type: TabType, label: string } | null>(null);
   const [roomErrors, setRoomErrors] = useState<Record<string, boolean>>({});
   const [roomFiles, setRoomFiles] = useState<Record<string, File>>({});
+  const [stagedVideoFile, setStagedVideoFile] = useState<File | null>(null);
   const fileInputRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
+  const videoFileInputRef = useRef<HTMLInputElement>(null);
   
   const initialLoadDone = useRef<Record<string, boolean>>({});
 
@@ -71,6 +75,9 @@ export const AdminPage: React.FC<AdminPageProps> = ({
       initialLoadDone.current[t] = true;
     } else if (t === 'faqs') {
       fetchFaqsFromApi(true);
+      initialLoadDone.current[t] = true;
+    } else if (t === 'portal') {
+      fetchPortalConfigFromApi(true);
       initialLoadDone.current[t] = true;
     } else if (!initialLoadDone.current[t]) {
       initialLoadDone.current[t] = true;
@@ -105,6 +112,8 @@ export const AdminPage: React.FC<AdminPageProps> = ({
         await fetchItineraryFromApi(true);
       } else if (tab === 'faqs') {
         await fetchFaqsFromApi(true);
+      } else if (tab === 'portal') {
+        await fetchPortalConfigFromApi(true);
       }
       showToast('Registry synchronized.', 'success');
     } catch (e) {
@@ -273,22 +282,12 @@ export const AdminPage: React.FC<AdminPageProps> = ({
       data.append('name', room.name);
       data.append('price', room.basePrice.toString());
       data.append('description', room.description);
-      
       const file = roomFiles[room.id];
-      if (file) {
-        data.append('image', file);
-      }
-
+      if (file) data.append('image', file);
       const url = isNew ? `${API_BASE_URL}/createRoom` : `${API_BASE_URL}/updateRoom/${room.id}`;
       const method = isNew ? 'POST' : 'PUT';
-
-      const response = await fetch(url, {
-        method: method,
-        body: data
-      });
-
+      const response = await fetch(url, { method, body: data });
       const result = await response.json();
-      
       if (result.success) {
         showToast(result.message || (isNew ? 'Sanctuary added successfully.' : 'Sanctuary updated successfully.'), 'success');
         const nextFiles = { ...roomFiles };
@@ -321,20 +320,16 @@ export const AdminPage: React.FC<AdminPageProps> = ({
 
   const handleImageUpload = (roomId: string, file: File) => {
     const validTypes = ['image/jpeg', 'image/jpg', 'image/png'];
-    const maxSize = 2 * 1024 * 1024; // 2MB
-
+    const maxSize = 2 * 1024 * 1024; 
     if (!validTypes.includes(file.type)) {
       showToast('INVALID FORMAT. ONLY JPG, JPEG, AND PNG ARE PERMITTED.', 'error');
       return;
     }
-
     if (file.size > maxSize) {
       showToast('FILE TOO LARGE. MAXIMUM SIZE IS 2MB.', 'error');
       return;
     }
-
     setRoomFiles(prev => ({ ...prev, [roomId]: file }));
-
     const reader = new FileReader();
     reader.onloadend = () => {
       const base64String = reader.result as string;
@@ -344,6 +339,34 @@ export const AdminPage: React.FC<AdminPageProps> = ({
       showToast('Asset staged for sync.', 'info');
     };
     reader.readAsDataURL(file);
+  };
+
+  const handleVideoFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.size > 100 * 1024 * 1024) {
+        showToast("FILE EXCEEDS 100MB LIMIT.", "error");
+        return;
+      }
+      setStagedVideoFile(file);
+      const objectUrl = URL.createObjectURL(file);
+      setPortalConfig({ ...portalConfig, promoVideoUrl: objectUrl });
+      showToast("Local video staged for preview. Remember to synchronize.", "info");
+    }
+  };
+
+  const handleSavePortalConfig = async () => {
+    setIsSaving(prev => ({ ...prev, portal: true }));
+    try {
+      await savePortalConfigToApi(portalConfig, stagedVideoFile || undefined);
+      setStagedVideoFile(null);
+      showToast('Portal settings synchronized with registry.', 'success');
+    } catch (e) {
+      console.error("Portal Save Error:", e);
+      showToast('Failed to synchronize portal settings.', 'error');
+    } finally {
+      setIsSaving(prev => ({ ...prev, portal: false }));
+    }
   };
 
   const tabs: TabType[] = ['applications', 'sessions', 'rooms', 'itinerary', 'faqs', 'portal'];
@@ -481,7 +504,6 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                 const hasPriceError = roomErrors[`${room.id}-basePrice`];
                 const hasImageError = roomErrors[`${room.id}-image`];
                 const isRoomSaving = isSaving[room.id];
-
                 return (
                   <div key={room.id} className="bg-white p-10 md:p-14 rounded-[3.5rem] border border-stone/5 shadow-2xl space-y-12 group transition-all hover:shadow-aqua-primary/5">
                     <div className="flex flex-col md:flex-row justify-between items-start gap-8">
@@ -555,7 +577,6 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                         </div>
                       </div>
                     </div>
-
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div className="space-y-2 max-w-xs">
                         <label className="text-[9px] font-black uppercase tracking-[0.3em] text-stone/20 px-1">Base Price (USD) <span className="text-red-500">*</span></label>
@@ -575,7 +596,6 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                         </div>
                       </div>
                     </div>
-
                     <div className="pt-6 flex justify-end">
                       <button 
                         disabled={isRoomSaving}
@@ -678,32 +698,128 @@ export const AdminPage: React.FC<AdminPageProps> = ({
 
         {tab === 'portal' && (
           <div className="space-y-12 animate-fade-in pb-20">
-            <div className="bg-white p-10 rounded-[3rem] border border-stone/5 space-y-8 shadow-xl">
-              <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-stone/40">Portal Content Settings</h4>
-              <div className="space-y-6">
-                <div className="space-y-2">
-                  <label className="text-[8px] font-black uppercase tracking-widest text-stone/20 px-2">Welcome Paragraph</label>
-                  <textarea value={portalConfig.welcomeParagraph} onChange={e => setPortalConfig({...portalConfig, welcomeParagraph: e.target.value})} className="w-full bg-[#faf9f6] p-8 rounded-2xl border border-stone/5 text-sm font-serif italic text-stone/60 outline-none min-h-[120px]" />
+            <h3 className="text-4xl font-black uppercase tracking-tight text-stone">PORTAL SETTINGS</h3>
+            <div className="bg-white p-10 md:p-14 rounded-[3.5rem] border border-stone/5 space-y-16 shadow-xl relative overflow-hidden">
+              <div className="absolute top-0 left-0 w-full h-1 bg-aqua-primary opacity-20"></div>
+              <div className="space-y-8">
+                <div className="flex items-center gap-3">
+                  <Video size={18} className="text-aqua-primary" />
+                  <h5 className="text-[10px] font-black uppercase tracking-[0.4em] text-stone/20">ESTATE NARRATIVE VIDEO</h5>
+                </div>
+                <div className="grid md:grid-cols-2 gap-10">
+                  <div className="space-y-6">
+                    <div className="space-y-2">
+                      <label className="text-[8px] font-black uppercase tracking-widest text-stone/10 px-1">VIDEO SOURCE URL</label>
+                      <input value={portalConfig.promoVideoUrl} onChange={e => setPortalConfig({...portalConfig, promoVideoUrl: e.target.value})} className="w-full bg-[#faf9f6] px-6 py-4 rounded-xl border border-stone/5 text-xs font-sans outline-none focus:border-aqua-primary/30 transition-all" placeholder="https://vimeo.com/..." />
+                    </div>
+                    <div className="space-y-4">
+                      <p className="text-[8px] font-black uppercase tracking-widest text-stone/10 px-1">UPLOAD LOCAL VIDEO</p>
+                      <input type="file" ref={videoFileInputRef} onChange={handleVideoFileChange} accept="video/*" className="hidden" />
+                      <button onClick={() => videoFileInputRef.current?.click()} className="w-full py-4 bg-[#111] text-white rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-3 hover:bg-stone-light transition-all">
+                        <Upload size={14} /> SELECT VIDEO FILE
+                      </button>
+                      <p className="text-[8px] font-serif italic text-stone/20 text-center">Storage limit: 100MB for local files. Use URLs for larger professional videos.</p>
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <p className="text-[8px] font-black uppercase tracking-widest text-stone/10 px-1">PREVIEW</p>
+                    <div className="aspect-video bg-[#faf9f6] rounded-[2rem] border border-stone/5 overflow-hidden flex items-center justify-center relative">
+                      {portalConfig.promoVideoUrl ? (
+                        <video key={portalConfig.promoVideoUrl} className="w-full h-full object-cover opacity-80" muted playsInline loop autoPlay>
+                          <source src={portalConfig.promoVideoUrl} />
+                        </video>
+                      ) : (
+                        <Video size={32} className="text-stone/5" />
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div className="space-y-4">
+                <div className="flex items-center gap-3">
+                  <MessageSquare size={16} className="text-aqua-primary" />
+                  <h5 className="text-[10px] font-black uppercase tracking-[0.4em] text-stone/20">WELCOME MESSAGE</h5>
+                </div>
+                <textarea value={portalConfig.welcomeParagraph} onChange={e => setPortalConfig({...portalConfig, welcomeParagraph: e.target.value})} className="w-full bg-[#faf9f6] p-10 rounded-[2.5rem] border border-stone/5 text-sm font-serif italic text-stone/50 outline-none min-h-[140px] leading-relaxed resize-none focus:border-aqua-primary/30 transition-all shadow-inner" />
+              </div>
+              <div className="space-y-8">
+                <div className="flex items-center gap-3">
+                  <MapPin size={16} className="text-aqua-primary" />
+                  <h5 className="text-[10px] font-black uppercase tracking-[0.4em] text-stone/20">ARRIVAL LOGISTICS</h5>
+                </div>
+                <div className="grid md:grid-cols-2 gap-8">
+                  <div className="space-y-2">
+                    <label className="text-[8px] font-black uppercase tracking-widest text-stone/10 px-1">ESTATE ADDRESS</label>
+                    <input value={portalConfig.logistics.address} onChange={e => setPortalConfig({...portalConfig, logistics: {...portalConfig.logistics, address: e.target.value}})} className="w-full bg-[#faf9f6] px-6 py-4 rounded-xl border border-stone/5 text-xs outline-none focus:border-aqua-primary/30 transition-all" />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-[8px] font-black uppercase tracking-widest text-stone/10 px-1">CHECK-IN WINDOW</label>
+                    <input value={portalConfig.logistics.checkInWindow} onChange={e => setPortalConfig({...portalConfig, logistics: {...portalConfig.logistics, checkInWindow: e.target.value}})} className="w-full bg-[#faf9f6] px-6 py-4 rounded-xl border border-stone/5 text-xs outline-none focus:border-aqua-primary/30 transition-all" />
+                  </div>
                 </div>
                 <div className="space-y-2">
-                  <label className="text-[8px] font-black uppercase tracking-widest text-stone/20 px-2">Narrative Video URL</label>
-                  <input value={portalConfig.promoVideoUrl} onChange={e => setPortalConfig({...portalConfig, promoVideoUrl: e.target.value})} className="w-full bg-[#faf9f6] px-8 py-4 rounded-xl border border-stone/5 text-xs font-serif italic text-stone/60 outline-none" />
+                  <label className="text-[8px] font-black uppercase tracking-widest text-stone/10 px-1">GATED ACCESS INSTRUCTIONS</label>
+                  <textarea value={portalConfig.logistics.gateInstructions} onChange={e => setPortalConfig({...portalConfig, logistics: {...portalConfig.logistics, gateInstructions: e.target.value}})} className="w-full bg-[#faf9f6] px-8 py-6 rounded-[2rem] border border-stone/5 text-xs outline-none focus:border-aqua-primary/30 transition-all min-h-[100px] resize-none" />
                 </div>
-                <button onClick={() => { updateStorage('aj_portal_config', portalConfig); showToast('Portal settings synchronized.', 'success'); }} className="w-full py-5 bg-[#111] text-white rounded-2xl font-black uppercase tracking-widest shadow-xl">SAVE PORTAL SETTINGS</button>
+              </div>
+              <div className="space-y-8">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <Package size={16} className="text-aqua-primary" />
+                    <h5 className="text-[10px] font-black uppercase tracking-[0.4em] text-stone/20">PACKING INVENTORY</h5>
+                  </div>
+                  <button onClick={() => setPortalConfig({...portalConfig, packingList: [...portalConfig.packingList, 'New Item']})} className="px-6 py-2 bg-[#111] text-white rounded-full text-[9px] font-black uppercase tracking-widest flex items-center gap-2 hover:scale-105 transition-all shadow-md">
+                    <Plus size={12} /> ADD ITEM
+                  </button>
+                </div>
+                <div className="space-y-3">
+                  {portalConfig.packingList.map((item: string, idx: number) => (
+                    <div key={idx} className="flex items-center gap-4 group">
+                      <div className="flex-1 bg-[#faf9f6] px-8 py-4 rounded-2xl border border-stone/5 shadow-sm transition-all group-hover:border-stone/10">
+                        <input value={item} onChange={e => { const next = [...portalConfig.packingList]; next[idx] = e.target.value; setPortalConfig({...portalConfig, packingList: next}); }} className="w-full bg-transparent text-[11px] font-black uppercase tracking-widest text-stone outline-none" />
+                      </div>
+                      <button onClick={() => { const next = portalConfig.packingList.filter((_: any, i: number) => i !== idx); setPortalConfig({...portalConfig, packingList: next}); }} className="p-3 text-stone/10 hover:text-red-400 transition-colors">
+                        <Trash2 size={16} />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div className="space-y-10">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <ShieldCheck size={16} className="text-aqua-primary" />
+                    <h5 className="text-[10px] font-black uppercase tracking-[0.4em] text-stone/20">REGISTRY GUIDELINES</h5>
+                  </div>
+                  <button onClick={() => setPortalConfig({...portalConfig, houseGuidelines: [...portalConfig.houseGuidelines, { title: 'NEW GUIDELINE', desc: '' }]})} className="px-6 py-2 bg-[#111] text-white rounded-full text-[9px] font-black uppercase tracking-widest flex items-center gap-2 hover:scale-105 transition-all shadow-md">
+                    <Plus size={12} /> ADD GUIDELINE
+                  </button>
+                </div>
+                <div className="grid gap-6">
+                  {portalConfig.houseGuidelines.map((g: any, idx: number) => (
+                    <div key={idx} className="bg-[#faf9f6] p-10 rounded-[3rem] border border-stone/5 shadow-inner space-y-8 relative group">
+                      <div className="flex justify-between items-center border-b border-stone/5 pb-6">
+                        <input value={g.title} onChange={e => { const next = [...portalConfig.houseGuidelines]; next[idx].title = e.target.value.toUpperCase(); setPortalConfig({...portalConfig, houseGuidelines: next}); }} placeholder="GUIDELINE TITLE" className="bg-transparent text-[12px] font-black uppercase tracking-widest text-stone outline-none flex-1" />
+                        <button onClick={() => { const next = portalConfig.houseGuidelines.filter((_: any, i: number) => i !== idx); setPortalConfig({...portalConfig, houseGuidelines: next}); }} className="p-2 text-stone/10 hover:text-red-500 transition-colors">
+                          <Trash2 size={18} />
+                        </button>
+                      </div>
+                      <textarea value={g.desc} onChange={e => { const next = [...portalConfig.houseGuidelines]; next[idx].desc = e.target.value; setPortalConfig({...portalConfig, houseGuidelines: next}); }} placeholder="Detailed estate protocol description..." className="w-full bg-white p-8 rounded-[2rem] border border-stone/5 text-xs outline-none focus:border-aqua-primary/20 transition-all min-h-[100px] resize-none leading-relaxed italic" />
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div className="pt-10 flex flex-col items-center gap-6">
+                <button onClick={handleSavePortalConfig} disabled={isSaving.portal} className="w-full max-w-md py-6 bg-aqua-primary text-stone rounded-full font-black uppercase tracking-[0.3em] shadow-2xl hover:bg-aqua-deep hover:text-white transition-all active:scale-[0.98] flex items-center justify-center gap-3">
+                  {isSaving.portal ? <Loader2 className="animate-spin" size={20} /> : 'SYNCHRONIZE ALL PORTAL SETTINGS'}
+                </button>
+                <p className="text-[9px] font-black uppercase tracking-[0.4em] text-stone/10">Registry Version 1.2.4 • Cabo San Lucas</p>
               </div>
             </div>
           </div>
         )}
       </main>
-
-      <DeleteConfirmModal 
-        isOpen={!!deleteTarget}
-        title="Confirm Purge"
-        description={`Are you sure you want to permanently remove "${deleteTarget?.label}"? This action cannot be reversed within the estate registry.`}
-        isLoading={deleteTarget ? isSaving[deleteTarget.id] : false}
-        onConfirm={handleConfirmedDelete}
-        onCancel={() => setDeleteTarget(null)}
-      />
+      <DeleteConfirmModal isOpen={!!deleteTarget} title="Confirm Purge" description={`Are you sure you want to permanently remove "${deleteTarget?.label}"? This action cannot be reversed within the estate registry.`} isLoading={deleteTarget ? isSaving[deleteTarget.id] : false} onConfirm={handleConfirmedDelete} onCancel={() => setDeleteTarget(null)} />
     </div>
   );
 };

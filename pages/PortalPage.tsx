@@ -1,6 +1,5 @@
-
 import React from 'react';
-import { Film, Clock, Coffee, ShieldCheck, Package, MapPin } from 'lucide-react';
+import { Film, Clock, Coffee, ShieldCheck, Package, MapPin, Info } from 'lucide-react';
 import { PortalSection } from '../components/Shared';
 
 interface PortalPageProps {
@@ -63,6 +62,17 @@ export const PortalPage: React.FC<PortalPageProps> = ({ guest, session, room, po
         )}
       </PortalSection>
 
+      <PortalSection title="House Guidelines" subtitle="Estate Protocol" icon={ShieldCheck}>
+        <div className="grid gap-6">
+          {portalConfig.houseGuidelines.map((item: any, i: number) => (
+            <div key={i} className="bg-white p-8 rounded-[2rem] border border-stone/5 shadow-sm space-y-3">
+              <h5 className="text-[10px] font-black uppercase tracking-[0.3em] text-aqua-primary">{item.title}</h5>
+              <p className="text-[14px] font-serif italic text-stone/50 leading-relaxed">{item.desc}</p>
+            </div>
+          ))}
+        </div>
+      </PortalSection>
+
       <PortalSection title="Packing Inventory" icon={Package}>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-4">
           {portalConfig.packingList.map((item: string, i: number) => (
@@ -75,10 +85,26 @@ export const PortalPage: React.FC<PortalPageProps> = ({ guest, session, room, po
       </PortalSection>
 
       <PortalSection title="Arrival & Access" icon={MapPin}>
-        <div className="p-10 bg-stone rounded-[2.5rem] text-white space-y-6 shadow-xl">
-          <div className="space-y-2">
-            <h6 className="text-[10px] font-black text-aqua-primary uppercase tracking-widest">ESTATE ADDRESS</h6>
-            <p className="text-xl font-black uppercase tracking-tight">{portalConfig.logistics.address}</p>
+        <div className="space-y-6">
+          <div className="p-10 bg-stone rounded-[3rem] text-white space-y-8 shadow-xl">
+            <div className="space-y-2">
+              <h6 className="text-[10px] font-black text-aqua-primary uppercase tracking-widest">ESTATE ADDRESS</h6>
+              <p className="text-xl md:text-2xl font-black uppercase tracking-tight">{portalConfig.logistics.address}</p>
+            </div>
+            <div className="grid md:grid-cols-2 gap-8">
+              <div className="space-y-2">
+                <h6 className="text-[10px] font-black text-aqua-primary/40 uppercase tracking-widest">SECURITY PROTOCOL</h6>
+                <p className="text-[13px] font-serif italic opacity-70 leading-relaxed">{portalConfig.logistics.gateInstructions}</p>
+              </div>
+              <div className="space-y-2">
+                <h6 className="text-[10px] font-black text-aqua-primary/40 uppercase tracking-widest">CHECK-IN WINDOW</h6>
+                <p className="text-[13px] font-serif italic opacity-70 leading-relaxed">{portalConfig.logistics.checkInWindow}</p>
+              </div>
+            </div>
+          </div>
+          <div className="flex items-center gap-4 px-8 py-4 bg-aqua-primary/5 rounded-2xl text-aqua-primary border border-aqua-primary/10">
+            <Info size={18} />
+            <p className="text-[10px] font-black uppercase tracking-widest">Present your registry ID for gate access.</p>
           </div>
         </div>
       </PortalSection>
