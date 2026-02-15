@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { 
   API_BASE_URL,
@@ -226,6 +225,32 @@ export const useAppState = () => {
     }
   }, []);
 
+  /**
+   * Synchronizes the technical pathway with the registry.
+   * Method: PUT
+   * Endpoint: /api/itinerary
+   * Payload: { "days": [...] }
+   */
+  const saveItineraryToApi = async (days: any[]) => {
+    const url = `${API_BASE_URL}/itinerary`;
+    const response = await fetch(url, {
+      method: 'PUT',
+      headers: { 
+        'Authorization': 'Bearer YOUR_CLERK_TOKEN',
+        'Content-Type': 'application/json' 
+      },
+      body: JSON.stringify({ days })
+    });
+    const result = await response.json();
+    if (result.success) {
+      setItinerary(result.data);
+      saveToStorage('aj_itinerary', result.data);
+    } else {
+      throw new Error(result.message || "Failed to synchronize pathway");
+    }
+    return result;
+  };
+
   // Save or update a residency window on the backend
   const saveSessionToApi = async (session: any) => {
     const isNew = session.id.length < 15 && !isNaN(Number(session.id));
@@ -327,6 +352,7 @@ export const useAppState = () => {
     fetchRoomsFromApi,
     fetchSessionsFromApi,
     fetchItineraryFromApi,
+    saveItineraryToApi,
     saveSessionToApi,
     deleteSessionFromApi,
     submitApplication

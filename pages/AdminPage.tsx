@@ -15,6 +15,7 @@ interface AdminPageProps {
   fetchSessionsFromApi: (force?: boolean) => Promise<void>;
   fetchRoomsFromApi: (force?: boolean) => Promise<void>;
   fetchItineraryFromApi: (force?: boolean) => Promise<void>;
+  saveItineraryToApi: (days: any[]) => Promise<any>;
   saveSessionToApi: (session: any) => Promise<any>;
   deleteSessionFromApi: (id: string) => Promise<any>;
   rooms: Room[];
@@ -35,7 +36,7 @@ type TabType = 'applications' | 'sessions' | 'rooms' | 'itinerary' | 'faqs' | 'p
 const ITEMS_PER_PAGE = 5;
 
 export const AdminPage: React.FC<AdminPageProps> = ({ 
-  onExit, applications, pagination, setApplications, fetchInquiriesFromApi, fetchSessionsFromApi, fetchRoomsFromApi, fetchItineraryFromApi, saveSessionToApi, deleteSessionFromApi, rooms, setRooms, 
+  onExit, applications, pagination, setApplications, fetchInquiriesFromApi, fetchSessionsFromApi, fetchRoomsFromApi, fetchItineraryFromApi, saveItineraryToApi, saveSessionToApi, deleteSessionFromApi, rooms, setRooms, 
   sessions, setSessions, itinerary, setItinerary, 
   faqs, setFaqs, portalConfig, setPortalConfig, showToast
 }) => {
@@ -261,6 +262,19 @@ export const AdminPage: React.FC<AdminPageProps> = ({
       showToast('Network error: Sanctuary could not be synchronized.', 'error');
     } finally {
       setIsSaving(prev => ({ ...prev, [room.id]: false }));
+    }
+  };
+
+  const handleSyncItinerary = async () => {
+    setIsSaving(prev => ({ ...prev, itinerary: true }));
+    try {
+      await saveItineraryToApi(itinerary);
+      showToast('Technical Pathway synchronized with registry.', 'success');
+    } catch (e) {
+      console.error("Itinerary Sync Error:", e);
+      showToast('Failed to synchronize pathway.', 'error');
+    } finally {
+      setIsSaving(prev => ({ ...prev, itinerary: false }));
     }
   };
 
@@ -561,7 +575,20 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                    </div>
                  </div>
                ))}
-               <button onClick={() => { updateStorage('aj_itinerary', itinerary); showToast('Pathway updated.', 'success'); }} className="w-full py-6 bg-aqua-primary text-stone rounded-full font-black uppercase tracking-widest shadow-xl">SYNCHRONIZE PATHWAY</button>
+               <button 
+                onClick={handleSyncItinerary} 
+                disabled={isSaving.itinerary}
+                className="w-full py-6 bg-aqua-primary text-stone rounded-full font-black uppercase tracking-widest shadow-xl flex items-center justify-center gap-3 hover:bg-aqua-deep hover:text-white transition-all disabled:opacity-50"
+               >
+                 {isSaving.itinerary ? (
+                   <>
+                     <Loader2 size={18} className="animate-spin" />
+                     Synchronizing Pathway...
+                   </>
+                 ) : (
+                   'SYNCHRONIZE PATHWAY'
+                 )}
+               </button>
              </div>
            </div>
         )}
