@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { 
   API_BASE_URL,
@@ -262,6 +263,34 @@ export const useAppState = () => {
   }, []);
 
   /**
+   * Adds or updates an intelligence entry in the registry.
+   */
+  const saveFaqToApi = async (faq: { id: string, q: string, a: string }) => {
+    const isNew = faq.id.length < 15 && !isNaN(Number(faq.id));
+    const url = isNew ? `${API_BASE_URL}/faq` : `${API_BASE_URL}/faq/${faq.id}`;
+    const method = isNew ? 'POST' : 'PUT';
+
+    const response = await fetch(url, {
+      method: method,
+      headers: { 
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer YOUR_TOKEN_HERE'
+      },
+      body: JSON.stringify({
+        que: faq.q,
+        ans: faq.a
+      })
+    });
+    const result = await response.json();
+    if (result.success) {
+      await fetchFaqsFromApi(true);
+    } else {
+      throw new Error(result.message || "Failed to synchronize intelligence entry");
+    }
+    return result;
+  };
+
+  /**
    * Synchronizes the technical pathway with the registry.
    */
   const saveItineraryToApi = async (days: any[]) => {
@@ -387,6 +416,7 @@ export const useAppState = () => {
     fetchSessionsFromApi,
     fetchItineraryFromApi,
     fetchFaqsFromApi,
+    saveFaqToApi,
     saveItineraryToApi,
     saveSessionToApi,
     deleteSessionFromApi,

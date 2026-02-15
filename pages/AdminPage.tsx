@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useEffect } from 'react';
 import { LogOut, Plus, Trash2, Copy, Image as ImageIcon, CheckCircle2, XCircle, Clock, Upload, Film, MessageSquare, MapPin, Package, ShieldCheck, RefreshCw, Calendar, Home, Quote, ChevronLeft, ChevronRight, Save, AlertCircle, Loader2 } from 'lucide-react';
 import { AdminSectionHeader, Logo } from '../components/Shared';
@@ -16,6 +17,7 @@ interface AdminPageProps {
   fetchRoomsFromApi: (force?: boolean) => Promise<void>;
   fetchItineraryFromApi: (force?: boolean) => Promise<void>;
   fetchFaqsFromApi: (force?: boolean) => Promise<void>;
+  saveFaqToApi: (faq: { id: string, q: string, a: string }) => Promise<any>;
   saveItineraryToApi: (days: any[]) => Promise<any>;
   saveSessionToApi: (session: any) => Promise<any>;
   deleteSessionFromApi: (id: string) => Promise<any>;
@@ -37,7 +39,7 @@ type TabType = 'applications' | 'sessions' | 'rooms' | 'itinerary' | 'faqs' | 'p
 const ITEMS_PER_PAGE = 5;
 
 export const AdminPage: React.FC<AdminPageProps> = ({ 
-  onExit, applications, pagination, setApplications, fetchInquiriesFromApi, fetchSessionsFromApi, fetchRoomsFromApi, fetchItineraryFromApi, fetchFaqsFromApi, saveItineraryToApi, saveSessionToApi, deleteSessionFromApi, rooms, setRooms, 
+  onExit, applications, pagination, setApplications, fetchInquiriesFromApi, fetchSessionsFromApi, fetchRoomsFromApi, fetchItineraryFromApi, fetchFaqsFromApi, saveFaqToApi, saveItineraryToApi, saveSessionToApi, deleteSessionFromApi, rooms, setRooms, 
   sessions, setSessions, itinerary, setItinerary, 
   faqs, setFaqs, portalConfig, setPortalConfig, showToast
 }) => {
@@ -164,11 +166,34 @@ export const AdminPage: React.FC<AdminPageProps> = ({
         setDeleteTarget(null);
       }
     } else if (type === 'faqs') {
-      const next = faqs.filter(f => f.id !== id);
-      setFaqs(next);
-      updateStorage('aj_faqs', next);
-      showToast('Intelligence entry removed.', 'info');
-      setDeleteTarget(null);
+      const isLocalOnly = id.length < 15 && !isNaN(Number(id));
+      if (isLocalOnly) {
+        const next = faqs.filter(f => f.id !== id);
+        setFaqs(next);
+        showToast('Local draft discarded.', 'info');
+        setDeleteTarget(null);
+        return;
+      }
+
+      setIsSaving(prev => ({ ...prev, [id]: true }));
+      try {
+        const response = await fetch(`${API_BASE_URL}/faq/${id}`, {
+          method: 'DELETE',
+          headers: { 'Authorization': 'Bearer YOUR_TOKEN_HERE' }
+        });
+        const result = await response.json();
+        if (result.success) {
+          showToast('Intelligence entry purged.', 'success');
+          await fetchFaqsFromApi(true);
+        } else {
+           throw new Error(result.message || "Failed to delete");
+        }
+      } catch (e) {
+        showToast('Purge failed.', 'error');
+      } finally {
+        setIsSaving(prev => ({ ...prev, [id]: false }));
+        setDeleteTarget(null);
+      }
     }
   };
 
@@ -188,6 +213,24 @@ export const AdminPage: React.FC<AdminPageProps> = ({
       showToast('Save failed.', 'error');
     } finally {
       setIsSaving(prev => ({ ...prev, [s.id]: false }));
+    }
+  };
+
+  const handleSaveFaq = async (faq: any) => {
+    if (!faq.q || !faq.a) {
+      showToast('Both question and answer are required.', 'error');
+      return;
+    }
+
+    setIsSaving(prev => ({ ...prev, [faq.id]: true }));
+    try {
+      await saveFaqToApi({ id: faq.id, q: faq.q, a: faq.a });
+      showToast('Intelligence entry synchronized.', 'success');
+    } catch (e) {
+      console.error("Save FAQ Error:", e);
+      showToast('Failed to synchronize intelligence.', 'error');
+    } finally {
+      setIsSaving(prev => ({ ...prev, [faq.id]: false }));
     }
   };
 
@@ -601,19 +644,44 @@ export const AdminPage: React.FC<AdminPageProps> = ({
 
         {tab === 'faqs' && (
           <div className="space-y-8 animate-fade-in">
-            <AdminSectionHeader title="Estate Intelligence" onAdd={() => { const next = [...faqs, { id: Date.now().toString(), q: "Question?", a: "Answer." }]; setFaqs(next); showToast('New FAQ added.', 'info'); }} />
+            <AdminSectionHeader title="Estate Intelligence" onAdd={() => { const next = [...faqs, { id: Date.now().toString(), q: "Question?", a: "Answer." }]; setFaqs(next); showToast('New FAQ draft added.', 'info'); }} />
             <div className="grid gap-6">
-              {faqs.map((faq, idx) => (
-                <div key={faq.id} className="bg-white p-10 rounded-[2.5rem] border border-stone/5 shadow-lg space-y-6">
-                  <div className="flex justify-between items-start gap-4">
-                    <input value={faq.q} onChange={e => { const next = [...faqs]; next[idx].q = e.target.value; setFaqs(next); }} className="text-[15px] font-black uppercase text-stone w-full bg-transparent border-b border-stone/5 pb-3 outline-none" />
-                    <button onClick={() => setDeleteTarget({ id: faq.id, type: 'faqs', label: faq.q })} className="text-stone/10 hover:text-red-500 transition-colors"><Trash2 size={18}/></button>
+              {faqs.map((faq, idx) => {
+                const isItemSaving = isSaving[faq.id];
+                const isNew = faq.id.length < 15 && !isNaN(Number(faq.id));
+                return (
+                  <div key={faq.id} className="bg-white p-10 rounded-[2.5rem] border border-stone/5 shadow-lg space-y-6 group">
+                    <div className="flex justify-between items-start gap-4">
+                      <input value={faq.q} onChange={e => { const next = [...faqs]; next[idx].q = e.target.value; setFaqs(next); }} className="text-[15px] font-black uppercase text-stone w-full bg-transparent border-b border-stone/5 pb-3 outline-none focus:border-aqua-primary/30" />
+                      <div className="flex items-center gap-2">
+                         <button onClick={() => setDeleteTarget({ id: faq.id, type: 'faqs', label: faq.q })} className="p-2 text-stone/10 hover:text-red-500 transition-colors"><Trash2 size={18}/></button>
+                      </div>
+                    </div>
+                    <textarea value={faq.a} onChange={e => { const next = [...faqs]; next[idx].a = e.target.value; setFaqs(next); }} className="w-full bg-[#faf9f6] p-6 rounded-2xl text-[14px] font-serif italic text-stone/50 outline-none min-h-[80px]" />
+                    <div className="pt-2 flex justify-end">
+                      <button 
+                        onClick={() => handleSaveFaq(faq)} 
+                        disabled={isItemSaving}
+                        className="px-8 py-3 bg-aqua-primary text-stone rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-aqua-deep hover:text-white transition-all shadow-md flex items-center gap-2 disabled:opacity-50"
+                      >
+                        {isItemSaving ? (
+                          <>
+                            <Loader2 size={14} className="animate-spin" />
+                            Syncing...
+                          </>
+                        ) : (
+                          <>
+                            <Save size={14} />
+                            {isNew ? 'Sync to Registry' : 'SAVE CHANGES'}
+                          </>
+                        )}
+                      </button>
+                    </div>
                   </div>
-                  <textarea value={faq.a} onChange={e => { const next = [...faqs]; next[idx].a = e.target.value; setFaqs(next); }} className="w-full bg-[#faf9f6] p-6 rounded-2xl text-[14px] font-serif italic text-stone/50 outline-none min-h-[80px]" />
-                </div>
-              ))}
+                );
+              })}
               <div className="flex flex-col gap-4">
-                <button onClick={() => { updateStorage('aj_faqs', faqs); showToast('Intelligence updated locally.', 'success'); }} className="w-full py-6 bg-[#111] text-white rounded-full font-black uppercase tracking-widest">SAVE INTELLIGENCE</button>
+                <button onClick={() => { updateStorage('aj_faqs', faqs); showToast('Intelligence updated locally.', 'success'); }} className="w-full py-6 bg-[#111] text-white rounded-full font-black uppercase tracking-widest shadow-xl">SAVE ALL DRAFTS LOCALLY</button>
                 <button onClick={handleRefresh} className="w-full py-4 bg-transparent text-stone/40 text-[10px] font-black uppercase tracking-widest hover:text-aqua-primary transition-all">REFRESH FROM REGISTRY</button>
               </div>
             </div>
