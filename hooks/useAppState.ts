@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { 
   API_BASE_URL,
@@ -246,7 +245,10 @@ export const useAppState = () => {
       const response = await fetch(`${API_BASE_URL}/portal`);
       const result = await response.json();
       if (result.success && result.data) {
-        const api = result.data;
+        // Safe access if data is an array
+        const api = Array.isArray(result.data) ? result.data[0] : result.data;
+        if (!api) return;
+
         const mappedPortal = {
           welcomeParagraph: api.welcomeMessage || DEFAULT_PORTAL_CONFIG.welcomeParagraph,
           packingList: api.packingInventory || DEFAULT_PORTAL_CONFIG.packingList,
@@ -294,6 +296,7 @@ export const useAppState = () => {
     });
     const result = await response.json();
     if (result.success) {
+      // Refresh local state with updated server data
       await fetchPortalConfigFromApi(true);
     } else {
       throw new Error(result.message || "Failed to update portal settings");
