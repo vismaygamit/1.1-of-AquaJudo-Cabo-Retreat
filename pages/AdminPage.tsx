@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { LogOut, Plus, Trash2, Copy, Image as ImageIcon, CheckCircle2, XCircle, Clock, Upload, Film, MessageSquare, MapPin, Package, ShieldCheck, RefreshCw, Calendar, Home, Quote, ChevronLeft, ChevronRight, Save, AlertCircle, Loader2, Video } from 'lucide-react';
 import { AdminSectionHeader, Logo } from '../components/Shared';
@@ -77,7 +76,6 @@ export const AdminPage: React.FC<AdminPageProps> = ({
       fetchFaqsFromApi(true);
       initialLoadDone.current[t] = true;
     } else if (t === 'portal') {
-      // Ensure fetchPortalConfigFromApi is a function before calling
       if (typeof fetchPortalConfigFromApi === 'function') {
         fetchPortalConfigFromApi(true);
       } else {
@@ -372,7 +370,8 @@ export const AdminPage: React.FC<AdminPageProps> = ({
       }
     } catch (e: any) {
       console.error("Portal Save Error:", e);
-      showToast(e.message || 'Failed to synchronize portal settings.', 'error');
+      // SPECIFIC ERROR MESSAGE MATCHING USER PROMPT
+      showToast('Failed to synchronize portal settings.', 'error');
     } finally {
       setIsSaving(prev => ({ ...prev, portal: false }));
     }

@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { 
   API_BASE_URL,
@@ -7,13 +6,6 @@ import {
 import { BookingState, Room, ResidencySession, Application, FAQItem, ApplicationStatus } from '../types';
 
 const INITIAL_PROMO_VIDEO_URL = "https://player.vimeo.com/external/517042307.hd.mp4?s=d946d0a7a4073a9e34c9c7379201509a2503254e&profile_id=174";
-
-const INITIAL_FAQS: FAQItem[] = [
-  { id: 'f1', q: "How do shared bathrooms work?", a: "Shared bathrooms are assigned strictly by same-gender or to guests booking together as a private group. Curation ensures a respectful and aligned environment." },
-  { id: 'f2', q: "Is the estate alcohol-free?", a: "Yes. To prioritize technical focus, metabolic recovery, and mental clarity, we maintain a strictly alcohol-free residency environment." },
-  { id: 'f3', q: "What is the fitness expectation?", a: "This is a foundational technical residency suitable for beginners. While active, the pace is restorative and focused on alignment rather than intensity." },
-  { id: 'f4', q: "Why is an application required?", a: "With only 4 guests per residency, curation is essential to ensure a high-quality, aligned, and respectful group experience for all participants." }
-];
 
 const DEFAULT_PORTAL_CONFIG = {
   welcomeParagraph: "Our team is standing by to ensure your technical immersion is seamless and restorative. We look forward to your arrival at the estate.",
@@ -53,7 +45,7 @@ const DEFAULT_PORTAL_CONFIG = {
   promoVideoUrl: INITIAL_PROMO_VIDEO_URL
 };
 
-const FETCH_THROTTLE_MS = 3000;
+const FETCH_THROTTLE_MS = 2000;
 
 export interface PaginationInfo {
   total: number;
@@ -246,10 +238,9 @@ export const useAppState = () => {
       const response = await fetch(`${API_BASE_URL}/getPortalSettings`);
       if (!response.ok) throw new Error(`Portal GET Error ${response.status}`);
       const result = await response.json();
+      
       if (result.success && result.data) {
-        const api = Array.isArray(result.data) ? result.data[0] : result.data;
-        if (!api) return;
-
+        const api = result.data;
         const mappedPortal = {
           welcomeParagraph: api.welcomeMessage || DEFAULT_PORTAL_CONFIG.welcomeParagraph,
           packingList: (Array.isArray(api.packingInventory) && api.packingInventory.length > 0) 
@@ -295,8 +286,8 @@ export const useAppState = () => {
       description: g.desc
     }))));
 
-    const response = await fetch(`${API_BASE_URL}/portal`, {
-      method: 'POST',
+    const response = await fetch(`${API_BASE_URL}/updatePortalSettings`, {
+      method: 'PUT',
       body: formData
     });
 
