@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useEffect } from 'react';
 import { LogOut, Plus, Trash2, Copy, Image as ImageIcon, CheckCircle2, XCircle, Clock, Upload, Film, MessageSquare, MapPin, Package, ShieldCheck, RefreshCw, Calendar, Home, Quote, ChevronLeft, ChevronRight, Save, AlertCircle, Loader2 } from 'lucide-react';
 import { AdminSectionHeader, Logo } from '../components/Shared';
@@ -671,10 +672,6 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                   </div>
                 );
               })}
-              <div className="flex flex-col gap-4">
-                <button onClick={() => { updateStorage('aj_faqs', faqs); showToast('Intelligence updated locally.', 'success'); }} className="w-full py-6 bg-[#111] text-white rounded-full font-black uppercase tracking-widest shadow-xl">SAVE ALL DRAFTS LOCALLY</button>
-                <button onClick={handleRefresh} className="w-full py-4 bg-transparent text-stone/40 text-[10px] font-black uppercase tracking-widest hover:text-aqua-primary transition-all">REFRESH FROM REGISTRY</button>
-              </div>
             </div>
           </div>
         )}
