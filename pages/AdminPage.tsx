@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { LogOut, Plus, Trash2, Copy, Image as ImageIcon, CheckCircle2, XCircle, Clock, Upload, Film, MessageSquare, MapPin, Package, ShieldCheck, RefreshCw, Calendar, Home, Quote, ChevronLeft, ChevronRight, Save, AlertCircle, Loader2, Video } from 'lucide-react';
 import { AdminSectionHeader, Logo } from '../components/Shared';
@@ -361,9 +360,9 @@ export const AdminPage: React.FC<AdminPageProps> = ({
       await savePortalConfigToApi(portalConfig, stagedVideoFile || undefined);
       setStagedVideoFile(null);
       showToast('Portal settings synchronized with registry.', 'success');
-    } catch (e) {
+    } catch (e: any) {
       console.error("Portal Save Error:", e);
-      showToast('Failed to synchronize portal settings.', 'error');
+      showToast(e.message || 'Failed to synchronize portal settings.', 'error');
     } finally {
       setIsSaving(prev => ({ ...prev, portal: false }));
     }

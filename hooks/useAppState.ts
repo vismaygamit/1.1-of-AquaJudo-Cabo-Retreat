@@ -52,7 +52,7 @@ const DEFAULT_PORTAL_CONFIG = {
   promoVideoUrl: INITIAL_PROMO_VIDEO_URL
 };
 
-const FETCH_THROTTLE_MS = 10000;
+const FETCH_THROTTLE_MS = 3000;
 
 export interface PaginationInfo {
   total: number;
@@ -243,19 +243,23 @@ export const useAppState = () => {
     lastPortalFetch.current = now;
     try {
       const response = await fetch(`${API_BASE_URL}/portal`);
+      if (!response.ok) throw new Error(`Portal GET Error ${response.status}`);
       const result = await response.json();
       if (result.success && result.data) {
-        // Safe access if data is an array
         const api = Array.isArray(result.data) ? result.data[0] : result.data;
         if (!api) return;
 
         const mappedPortal = {
           welcomeParagraph: api.welcomeMessage || DEFAULT_PORTAL_CONFIG.welcomeParagraph,
-          packingList: api.packingInventory || DEFAULT_PORTAL_CONFIG.packingList,
-          houseGuidelines: (api.registryGuidelines || []).map((g: any) => ({
-            title: g.title,
-            desc: g.description
-          })) || DEFAULT_PORTAL_CONFIG.houseGuidelines,
+          packingList: (Array.isArray(api.packingInventory) && api.packingInventory.length > 0) 
+            ? api.packingInventory 
+            : DEFAULT_PORTAL_CONFIG.packingList,
+          houseGuidelines: (Array.isArray(api.registryGuidelines) && api.registryGuidelines.length > 0) 
+            ? api.registryGuidelines.map((g: any) => ({
+              title: g.title,
+              desc: g.description
+            })) 
+            : DEFAULT_PORTAL_CONFIG.houseGuidelines,
           logistics: {
             address: api.arrivalLogistics?.estateAddress || DEFAULT_PORTAL_CONFIG.logistics.address,
             gateInstructions: api.arrivalLogistics?.gatedAccessInstructions || DEFAULT_PORTAL_CONFIG.logistics.gateInstructions,
@@ -267,7 +271,7 @@ export const useAppState = () => {
         saveToStorage('aj_portal_config', mappedPortal);
       }
     } catch (error) {
-      console.warn("Portal API unavailable:", error);
+      console.warn("Portal API fetch failed:", error);
     } finally {
       isFetchingPortal.current = false;
     }
@@ -294,12 +298,17 @@ export const useAppState = () => {
       method: 'POST',
       body: formData
     });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`Registry refused sync: ${response.status} ${errorText || ''}`);
+    }
+
     const result = await response.json();
     if (result.success) {
-      // Refresh local state with updated server data
       await fetchPortalConfigFromApi(true);
     } else {
-      throw new Error(result.message || "Failed to update portal settings");
+      throw new Error(result.message || "Portal update failed on server.");
     }
     return result;
   };
