@@ -62,10 +62,16 @@ export const LandingPage: React.FC<LandingPageProps> = ({ sessions, rooms, itine
             <h2 className="text-3xl md:text-5xl font-display font-light uppercase tracking-tighter">The Experience</h2>
           </div>
           <div className="relative aspect-video rounded-[3rem] overflow-hidden shadow-2xl group cursor-pointer bg-parchment">
-            <video autoPlay loop muted playsInline className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000 opacity-90">
-              <source src={promoVideoUrl} />
-            </video>
-            <div className="absolute inset-0 flex items-center justify-center bg-black/5 group-hover:bg-transparent transition-colors">
+            <video 
+              key={promoVideoUrl}
+              src={promoVideoUrl}
+              autoPlay 
+              loop 
+              muted 
+              playsInline 
+              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000 opacity-90"
+            />
+            <div className="absolute inset-0 flex items-center justify-center bg-black/5 group-hover:bg-transparent transition-colors pointer-events-none">
               <div className="w-20 h-20 bg-white/10 backdrop-blur-md rounded-full flex items-center justify-center border border-white/20">
                 <Play size={28} className="text-white fill-white ml-1" />
               </div>

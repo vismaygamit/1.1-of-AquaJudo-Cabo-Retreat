@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useCallback, useRef } from 'react';
 import {
   API_BASE_URL,
@@ -145,8 +146,8 @@ export const useAppState = () => {
           location: apiRoom.location || "Estate Wing",
           bedType: apiRoom.bedType || 'Restorative Sanctuary',
           basePrice: apiRoom.price,
-          image: apiRoom.imgPath ? `${apiRoom.imgPath.startsWith('http') ? apiRoom.imgPath : `${API_ROOT}${apiRoom.imgPath}`}?t=${t}` : undefined,
-          video: apiRoom.videoPath ? `${apiRoom.videoPath.startsWith('http') ? apiRoom.videoPath : `${API_ROOT}${apiRoom.videoPath}`}?t=${t}` : undefined,
+          image: apiRoom.imgPath ? (apiRoom.imgPath.startsWith('http') ? apiRoom.imgPath : `${API_ROOT}${apiRoom.imgPath}`) + `?t=${t}` : undefined,
+          video: apiRoom.videoPath ? (apiRoom.videoPath.startsWith('http') ? apiRoom.videoPath : `${API_ROOT}${apiRoom.videoPath}`) + `?t=${t}` : undefined,
           maxOccupancy: apiRoom.maxOccupancy || 2,
           bathType: apiRoom.bathRoomType?.toLowerCase().includes('shared') ? 'shared' : 'private'
         }));
@@ -258,7 +259,10 @@ export const useAppState = () => {
             gateInstructions: api.arrivalLogistics?.gatedAccessInstructions || DEFAULT_PORTAL_CONFIG.logistics.gateInstructions,
             checkInWindow: api.arrivalLogistics?.checkInWindow || DEFAULT_PORTAL_CONFIG.logistics.checkInWindow
           },
-          promoVideoUrl: api.estateNarrativeVideoPath ? `${API_ROOT}${api.estateNarrativeVideoPath}` : DEFAULT_PORTAL_CONFIG.promoVideoUrl
+          // Build absolute URL for video if it's a relative path from the API
+          promoVideoUrl: api.estateNarrativeVideoPath 
+            ? (api.estateNarrativeVideoPath.startsWith('http') ? api.estateNarrativeVideoPath : `${API_ROOT}${api.estateNarrativeVideoPath}`) 
+            : DEFAULT_PORTAL_CONFIG.promoVideoUrl
         };
         setPortalConfig(mappedPortal);
         saveToStorage('aj_portal_config', mappedPortal);

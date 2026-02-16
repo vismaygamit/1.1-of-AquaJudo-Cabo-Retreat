@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Film, Clock, Coffee, ShieldCheck, Package, MapPin, Info } from 'lucide-react';
 import { PortalSection } from '../components/Shared';
@@ -42,9 +43,15 @@ export const PortalPage: React.FC<PortalPageProps> = ({ guest, session, room, po
 
       <PortalSection title="The Experience" subtitle="Estate Narrative" icon={Film}>
         <div className="relative aspect-video rounded-[3rem] overflow-hidden shadow-2xl bg-parchment">
-          <video autoPlay loop muted playsInline className="w-full h-full object-cover">
-            <source src={portalConfig.promoVideoUrl} />
-          </video>
+          <video 
+            key={portalConfig.promoVideoUrl}
+            src={portalConfig.promoVideoUrl}
+            autoPlay 
+            loop 
+            muted 
+            playsInline 
+            className="w-full h-full object-cover"
+          />
         </div>
       </PortalSection>
 
@@ -103,7 +110,9 @@ export const PortalPage: React.FC<PortalPageProps> = ({ guest, session, room, po
             </div>
           </div>
           <div className="flex items-center gap-4 px-8 py-4 bg-aqua-primary/5 rounded-2xl text-aqua-primary border border-aqua-primary/10">
-            <Info size={18} />
+            <div className="flex-shrink-0">
+              <Info size={18} />
+            </div>
             <p className="text-[10px] font-black uppercase tracking-widest">Present your registry ID for gate access.</p>
           </div>
         </div>
