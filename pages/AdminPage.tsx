@@ -42,11 +42,14 @@ type TabType = 'applications' | 'sessions' | 'rooms' | 'itinerary' | 'faqs' | 'p
 
 const ITEMS_PER_PAGE = 5;
 
-// Helper for Canada localization in text display (America/Toronto)
-const formatCanadaDateText = (iso?: string) => {
+/**
+ * Standardized Date Formatter
+ * Displays dates as stored in the registry (UTC) without local timezone shifting.
+ */
+const formatRegistryDateText = (iso?: string) => {
   if (!iso) return 'TBD';
   try {
-    const dt = DateTime.fromISO(iso, { zone: 'utc' }).setZone('America/Toronto');
+    const dt = DateTime.fromISO(iso, { zone: 'utc' });
     if (!dt.isValid) return 'TBD';
     return dt.toFormat('MMM dd, yyyy').toUpperCase();
   } catch (e) {
@@ -54,12 +57,15 @@ const formatCanadaDateText = (iso?: string) => {
   }
 };
 
-// Helper to format ISO for Date Input (yyyy-MM-dd) localized to Canada/Toronto
-const formatForCanadaInput = (iso?: string) => {
+/**
+ * Standardized Date Input Formatter
+ * Extracts yyyy-MM-dd from ISO strings for HTML5 date inputs.
+ */
+const formatRegistryDateForInput = (iso?: string) => {
   if (!iso) return '';
   try {
     if (iso.length === 10 && !iso.includes('T')) return iso;
-    const dt = DateTime.fromISO(iso, { zone: 'utc' }).setZone('America/Toronto');
+    const dt = DateTime.fromISO(iso, { zone: 'utc' });
     return dt.isValid ? dt.toFormat('yyyy-MM-dd') : '';
   } catch (e) {
     return '';
@@ -484,8 +490,8 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                 </div>
               ) : (
                 applications.map(app => {
-                  const sLabel = formatCanadaDateText(app.sessionStartDate);
-                  const eLabel = formatCanadaDateText(app.sessionEndDate);
+                  const sLabel = formatRegistryDateText(app.sessionStartDate);
+                  const eLabel = formatRegistryDateText(app.sessionEndDate);
                   const sessionRange = (sLabel !== 'TBD' && eLabel !== 'TBD') ? `${sLabel} — ${eLabel}` : 'DATES PENDING';
 
                   return (
@@ -541,8 +547,8 @@ export const AdminPage: React.FC<AdminPageProps> = ({
             }} />
             <div className="grid gap-8">
               {sessions.map((s, idx) => {
-                const sLabelText = formatCanadaDateText(s.startDate);
-                const eLabelText = formatCanadaDateText(s.endDate);
+                const sLabelText = formatRegistryDateText(s.startDate);
+                const eLabelText = formatRegistryDateText(s.endDate);
                 const localizedRangeText = (sLabelText !== 'TBD' && eLabelText !== 'TBD') ? `${sLabelText} — ${eLabelText}` : 'RESIDENCY WINDOW DRAFT';
 
                 return (
@@ -553,19 +559,19 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                       <div className="space-y-2">
-                        <label className="text-[8px] font-black uppercase tracking-widest text-stone/20 px-1">Start Date (Canada/Toronto Time)</label>
+                        <label className="text-[8px] font-black uppercase tracking-widest text-stone/20 px-1">Start Date (Registry/UTC)</label>
                         <input 
                           type="date" 
-                          value={formatForCanadaInput(s.startDate)} 
+                          value={formatRegistryDateForInput(s.startDate)} 
                           onChange={e => { const next = [...sessions]; next[idx].startDate = e.target.value; setSessions(next); }} 
                           className="w-full bg-[#faf9f6] p-5 rounded-2xl border border-stone/5 text-xs outline-none focus:border-aqua-primary/40 transition-all shadow-inner font-sans" 
                         />
                       </div>
                       <div className="space-y-2">
-                        <label className="text-[8px] font-black uppercase tracking-widest text-stone/20 px-1">End Date (Canada/Toronto Time)</label>
+                        <label className="text-[8px] font-black uppercase tracking-widest text-stone/20 px-1">End Date (Registry/UTC)</label>
                         <input 
                           type="date" 
-                          value={formatForCanadaInput(s.endDate)} 
+                          value={formatRegistryDateForInput(s.endDate)} 
                           onChange={e => { const next = [...sessions]; next[idx].endDate = e.target.value; setSessions(next); }} 
                           className="w-full bg-[#faf9f6] p-5 rounded-2xl border border-stone/5 text-xs outline-none focus:border-aqua-primary/40 transition-all shadow-inner font-sans" 
                         />
