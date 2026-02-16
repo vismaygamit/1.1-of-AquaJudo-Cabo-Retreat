@@ -108,6 +108,8 @@ export const useAppState = () => {
           roomPreferenceId: apiInquiry.roomId,
           roomName: apiInquiry.roomName,
           residencyDate: apiInquiry.date,
+          sessionStartDate: apiInquiry.sessionStartDate,
+          sessionEndDate: apiInquiry.sessionEndDate,
           bookingType: 'solo',
           status: (apiInquiry.status.charAt(0).toUpperCase() + apiInquiry.status.slice(1)) as ApplicationStatus,
           consentBathroom: apiInquiry.isBathroomProtocolChecked,

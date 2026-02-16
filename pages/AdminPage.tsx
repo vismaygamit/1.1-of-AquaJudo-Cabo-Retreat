@@ -1,6 +1,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { LogOut, Plus, Trash2, Copy, Image as ImageIcon, CheckCircle2, XCircle, Clock, Upload, Film, MessageSquare, MapPin, Package, ShieldCheck, RefreshCw, Calendar, Home, Quote, ChevronLeft, ChevronRight, Save, AlertCircle, Loader2, Video } from 'lucide-react';
+import { DateTime } from 'luxon';
 import { AdminSectionHeader, Logo } from '../components/Shared';
 import { DeleteConfirmModal } from '../components/Modals';
 import { ApplicationStatus, Room, Application } from '../types';
@@ -464,34 +465,49 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                   <p className="text-stone/20 font-black uppercase tracking-widest text-[10px]">No active inquiries found</p>
                 </div>
               ) : (
-                applications.map(app => (
-                  <div key={app.id} className="bg-white p-10 md:p-14 rounded-[3.5rem] border border-stone/5 flex flex-col gap-10 shadow-sm hover:shadow-xl transition-all">
-                    <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-10">
-                      <div className="space-y-4">
-                        <div className="flex items-center gap-5">
-                          <p className="text-3xl font-black uppercase text-stone leading-none tracking-tight">{app.guestName}</p>
-                          <span className={`px-5 py-2 rounded-full text-[10px] font-black uppercase tracking-[0.2em] ${app.status === 'Approved' ? 'bg-[#e6f9f7] text-[#4fd1c5]' : 'bg-stone/5 text-stone/30'}`}>{app.status}</span>
+                applications.map(app => {
+                  const formatResidencyDate = (utcIso?: string) => {
+                    if (!utcIso) return '';
+                    return DateTime.fromISO(utcIso, { zone: 'utc' })
+                      .setZone('America/Toronto')
+                      .toFormat('MMM dd')
+                      .toUpperCase();
+                  };
+                  const sessionLabel = app.sessionStartDate && app.sessionEndDate 
+                    ? `${formatResidencyDate(app.sessionStartDate)} - ${formatResidencyDate(app.sessionEndDate)}, ${DateTime.fromISO(app.sessionEndDate, { zone: 'utc' }).setZone('America/Toronto').year}`
+                    : '';
+
+                  return (
+                    <div key={app.id} className="bg-white p-10 md:p-14 rounded-[3.5rem] border border-stone/5 flex flex-col gap-10 shadow-sm hover:shadow-xl transition-all">
+                      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-10">
+                        <div className="space-y-4">
+                          <div className="flex items-center gap-5">
+                            <p className="text-3xl font-black uppercase text-stone leading-none tracking-tight">{app.guestName}</p>
+                            <span className={`px-5 py-2 rounded-full text-[10px] font-black uppercase tracking-[0.2em] ${app.status === 'Approved' ? 'bg-[#e6f9f7] text-[#4fd1c5]' : 'bg-stone/5 text-stone/30'}`}>{app.status}</span>
+                          </div>
+                          <div className="flex flex-wrap gap-x-6 gap-y-2 text-[11px] text-stone/40 font-bold uppercase tracking-widest">
+                            <span className="text-aqua-primary">{app.id}</span>
+                            {app.roomName && <span className="text-stone font-black italic">{app.roomName}</span>}
+                            {sessionLabel && <span className="text-stone/60 font-black">{sessionLabel}</span>}
+                            <span>{app.email}</span>
+                            <span>{app.phone}</span>
+                          </div>
                         </div>
-                        <div className="flex flex-wrap gap-x-6 gap-y-2 text-[11px] text-stone/40 font-bold uppercase tracking-widest">
-                          <span className="text-aqua-primary">{app.id}</span>
-                          <span>{app.email}</span>
-                          <span>{app.phone}</span>
+                        <div className="flex flex-wrap items-center gap-3">
+                          <button onClick={() => handleStatusChange(app.id, 'Approved')} className="px-6 py-4 bg-[#f9f9f9] text-stone rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-[#111] hover:text-white transition-all">APPROVE</button>
+                          <button onClick={() => handleStatusChange(app.id, 'Declined')} className="px-6 py-4 bg-[#f9f9f9] text-stone rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-red-500 hover:text-white transition-all">DECLINE</button>
+                          <button onClick={() => {
+                            const link = `${window.location.origin}${window.location.pathname}?portal=${app.id}`;
+                            navigator.clipboard.writeText(link);
+                            showToast('Magic link copied.', 'success');
+                          }} className="px-8 py-4 bg-aqua-primary text-stone rounded-2xl text-[10px] font-black uppercase tracking-widest flex items-center gap-3 hover:scale-105 transition-all shadow-xl">
+                            <Copy size={14} /> MAGIC LINK
+                          </button>
                         </div>
-                      </div>
-                      <div className="flex flex-wrap items-center gap-3">
-                        <button onClick={() => handleStatusChange(app.id, 'Approved')} className="px-6 py-4 bg-[#f9f9f9] text-stone rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-[#111] hover:text-white transition-all">APPROVE</button>
-                        <button onClick={() => handleStatusChange(app.id, 'Declined')} className="px-6 py-4 bg-[#f9f9f9] text-stone rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-red-500 hover:text-white transition-all">DECLINE</button>
-                        <button onClick={() => {
-                          const link = `${window.location.origin}${window.location.pathname}?portal=${app.id}`;
-                          navigator.clipboard.writeText(link);
-                          showToast('Magic link copied.', 'success');
-                        }} className="px-8 py-4 bg-aqua-primary text-stone rounded-2xl text-[10px] font-black uppercase tracking-widest flex items-center gap-3 hover:scale-105 transition-all shadow-xl">
-                          <Copy size={14} /> MAGIC LINK
-                        </button>
                       </div>
                     </div>
-                  </div>
-                ))
+                  );
+                })
               )}
             </div>
           </div>

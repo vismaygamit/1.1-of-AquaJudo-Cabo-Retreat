@@ -20,6 +20,8 @@ export interface Application {
   roomPreferenceId: string;
   roomName?: string;
   residencyDate?: string;
+  sessionStartDate?: string;
+  sessionEndDate?: string;
   bookingType: 'solo' | 'couple' | 'group';
   companionName?: string;
   status: ApplicationStatus;
