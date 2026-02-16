@@ -98,27 +98,33 @@ export const useAppState = () => {
       const result = await response.json();
       if (result.success && result.data) {
         const inquiriesData = result.data.inquiries || [];
-        const mappedInquiries: Application[] = inquiriesData.map((apiInquiry: any) => ({
-          id: apiInquiry.refId || apiInquiry._id,
-          sessionId: apiInquiry.sessionId || '',
-          guestName: apiInquiry.fullName,
-          email: apiInquiry.email,
-          phone: apiInquiry.phone,
-          gender: '',
-          roomPreferenceId: apiInquiry.roomId,
-          roomName: apiInquiry.roomName,
-          residencyDate: apiInquiry.date,
-          sessionStartDate: apiInquiry.sessionStartDate,
-          sessionEndDate: apiInquiry.sessionEndDate,
-          bookingType: 'solo',
-          status: (apiInquiry.status.charAt(0).toUpperCase() + apiInquiry.status.slice(1)) as ApplicationStatus,
-          consentBathroom: apiInquiry.isBathroomProtocolChecked,
-          consentAlcohol: apiInquiry.isAlcoholFreeEstateChecked,
-          totalPrice: 0,
-          depositPaid: false,
-          timestamp: new Date(apiInquiry.createdAt).getTime(),
-          healthNotes: apiInquiry.backgroundDescription
-        }));
+        const mappedInquiries: Application[] = inquiriesData.map((apiInquiry: any) => {
+          // Attempt to find session dates in various possible fields returned by API
+          const sStart = apiInquiry.sessionStartDate || apiInquiry.startDate || (apiInquiry.session && apiInquiry.session.startDate);
+          const sEnd = apiInquiry.sessionEndDate || apiInquiry.endDate || (apiInquiry.session && apiInquiry.session.endDate);
+          
+          return {
+            id: apiInquiry.refId || apiInquiry._id,
+            sessionId: apiInquiry.sessionId || '',
+            guestName: apiInquiry.fullName,
+            email: apiInquiry.email,
+            phone: apiInquiry.phone,
+            gender: '',
+            roomPreferenceId: apiInquiry.roomId,
+            roomName: apiInquiry.roomName,
+            residencyDate: apiInquiry.date,
+            sessionStartDate: sStart,
+            sessionEndDate: sEnd,
+            bookingType: 'solo',
+            status: (apiInquiry.status.charAt(0).toUpperCase() + apiInquiry.status.slice(1)) as ApplicationStatus,
+            consentBathroom: apiInquiry.isBathroomProtocolChecked,
+            consentAlcohol: apiInquiry.isAlcoholFreeEstateChecked,
+            totalPrice: 0,
+            depositPaid: false,
+            timestamp: new Date(apiInquiry.createdAt).getTime(),
+            healthNotes: apiInquiry.backgroundDescription
+          };
+        });
         setApplications(mappedInquiries);
         setPagination(result.data.pagination || null);
         if (page === 1) saveToStorage('aj_apps', mappedInquiries);
