@@ -42,6 +42,20 @@ type TabType = 'applications' | 'sessions' | 'rooms' | 'itinerary' | 'faqs' | 'p
 
 const ITEMS_PER_PAGE = 5;
 
+// Helper for Canada localization
+const formatCanadaDate = (iso?: string) => {
+  if (!iso) return 'TBD';
+  try {
+    // If it's already a short date YYYY-MM-DD, parsing it as ISO is fine. 
+    // If it's UTC full ISO, Luxon will shift it.
+    const dt = DateTime.fromISO(iso, { zone: 'utc' }).setZone('America/Toronto');
+    if (!dt.isValid) return 'TBD';
+    return dt.toFormat('MMM dd, yyyy').toUpperCase();
+  } catch (e) {
+    return 'TBD';
+  }
+};
+
 export const AdminPage: React.FC<AdminPageProps> = ({ 
   onExit, applications, pagination, setApplications, fetchInquiriesFromApi, fetchSessionsFromApi, fetchRoomsFromApi, fetchItineraryFromApi, fetchFaqsFromApi, fetchPortalConfigFromApi, savePortalConfigToApi, saveFaqToApi, deleteFaqFromApi, saveItineraryToApi, saveSessionToApi, deleteSessionFromApi, rooms, setRooms, 
   sessions, setSessions, itinerary, setItinerary, 
@@ -466,23 +480,9 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                 </div>
               ) : (
                 applications.map(app => {
-                  const formatResidencyDate = (utcIso?: string) => {
-                    if (!utcIso) return '';
-                    // Defensive formatting using Luxon
-                    try {
-                      const dt = DateTime.fromISO(utcIso, { zone: 'utc' }).setZone('America/Toronto');
-                      if (!dt.isValid) return 'TBD';
-                      return dt.toFormat('MMM dd').toUpperCase();
-                    } catch (e) {
-                      return 'TBD';
-                    }
-                  };
-                  
-                  const sDateStr = formatResidencyDate(app.sessionStartDate);
-                  const eDateStr = formatResidencyDate(app.sessionEndDate);
-                  const yearStr = app.sessionEndDate ? DateTime.fromISO(app.sessionEndDate, { zone: 'utc' }).setZone('America/Toronto').year : '';
-                  
-                  const sessionLabel = sDateStr && eDateStr ? `${sDateStr} - ${eDateStr}${yearStr ? ', ' + yearStr : ''}` : '';
+                  const sLabel = formatCanadaDate(app.sessionStartDate);
+                  const eLabel = formatCanadaDate(app.sessionEndDate);
+                  const sessionRange = (sLabel !== 'TBD' && eLabel !== 'TBD') ? `${sLabel} — ${eLabel}` : 'DATES PENDING';
 
                   return (
                     <div key={app.id} className="bg-white p-10 md:p-14 rounded-[3.5rem] border border-stone/5 flex flex-col gap-10 shadow-sm hover:shadow-xl transition-all">
@@ -491,28 +491,26 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                           <div className="flex items-center gap-5">
                             <p className="text-3xl font-black uppercase text-stone leading-none tracking-tight">{app.guestName}</p>
                             <span className={`px-5 py-2 rounded-full text-[10px] font-black uppercase tracking-[0.2em] ${
-                              app.status === 'Approved' ? 'bg-[#e6f9f7] text-[#4fd1c5]' : 
+                              app.status === 'Approved' ? 'bg-aqua-primary/10 text-aqua-primary' : 
                               app.status === 'Pending' ? 'bg-amber-50 text-amber-600 border border-amber-100' :
                               'bg-stone/5 text-stone/30'
                             }`}>{app.status}</span>
                           </div>
                           <div className="flex flex-wrap gap-x-6 gap-y-2 text-[11px] text-stone/40 font-bold uppercase tracking-widest items-center">
-                            <span className="text-aqua-primary bg-aqua-primary/5 px-2 py-0.5 rounded-md">{app.id}</span>
+                            <span className="text-aqua-primary font-black">{app.id}</span>
                             {app.roomName && <span className="text-stone font-black italic">{app.roomName.toUpperCase()}</span>}
-                            {sessionLabel && (
-                              <span className="flex items-center gap-2 text-stone/60 font-black bg-stone/5 px-3 py-1 rounded-full">
-                                <Calendar size={12} className="text-aqua-primary" />
-                                {sessionLabel}
-                              </span>
-                            )}
-                            <span className="opacity-60">{app.email}</span>
-                            <span className="opacity-60">{app.phone}</span>
+                            <span className="flex items-center gap-2 text-stone font-black bg-[#faf9f6] px-4 py-1.5 rounded-full shadow-sm">
+                              <Calendar size={12} className="text-aqua-primary" />
+                              {sessionRange}
+                            </span>
+                            <span>{app.email}</span>
+                            <span>{app.phone}</span>
                           </div>
                         </div>
                         <div className="flex flex-wrap items-center gap-3">
-                          <button onClick={() => handleStatusChange(app.id, 'Pending')} className="px-6 py-4 bg-[#f9f9f9] text-stone rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-amber-500 hover:text-white transition-all">PENDING</button>
-                          <button onClick={() => handleStatusChange(app.id, 'Approved')} className="px-6 py-4 bg-[#f9f9f9] text-stone rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-[#111] hover:text-white transition-all">APPROVE</button>
-                          <button onClick={() => handleStatusChange(app.id, 'Declined')} className="px-6 py-4 bg-[#f9f9f9] text-stone rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-red-500 hover:text-white transition-all">DECLINE</button>
+                          <button onClick={() => handleStatusChange(app.id, 'Pending')} className="px-6 py-4 bg-[#f9f9f9] text-stone rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-amber-500 hover:text-white transition-all shadow-sm">PENDING</button>
+                          <button onClick={() => handleStatusChange(app.id, 'Approved')} className="px-6 py-4 bg-[#f9f9f9] text-stone rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-[#111] hover:text-white transition-all shadow-sm">APPROVE</button>
+                          <button onClick={() => handleStatusChange(app.id, 'Declined')} className="px-6 py-4 bg-[#f9f9f9] text-stone rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-red-500 hover:text-white transition-all shadow-sm">DECLINE</button>
                           <button onClick={() => {
                             const link = `${window.location.origin}${window.location.pathname}?portal=${app.id}`;
                             navigator.clipboard.writeText(link);
@@ -537,33 +535,44 @@ export const AdminPage: React.FC<AdminPageProps> = ({
               setSessions(next);
               showToast('Draft window added.', 'info');
             }} />
-            <div className="grid gap-6">
-              {sessions.map((s, idx) => (
-                <div key={s.id} className="bg-white p-8 rounded-[2rem] border border-stone/5 shadow-lg flex flex-col md:flex-row items-center gap-8 group">
-                  <div className="flex-1 grid grid-cols-2 md:grid-cols-3 gap-6 w-full">
-                    <div className="space-y-1">
-                      <label className="text-[8px] font-black uppercase tracking-widest text-stone/20 px-1">Start Date</label>
-                      <input type="date" min={today} value={s.startDate} onChange={e => { const next = [...sessions]; next[idx].startDate = e.target.value; setSessions(next); }} className="w-full bg-[#faf9f6] p-4 rounded-xl border border-stone/5 text-xs outline-none" />
+            <div className="grid gap-8">
+              {sessions.map((s, idx) => {
+                const sLabel = formatCanadaDate(s.startDate);
+                const eLabel = formatCanadaDate(s.endDate);
+                const localizedRange = (sLabel !== 'TBD' && eLabel !== 'TBD') ? `${sLabel} — ${eLabel}` : 'RESIDENCY WINDOW DRAFT';
+
+                return (
+                  <div key={s.id} className="bg-white p-10 rounded-[3rem] border border-stone/5 shadow-xl flex flex-col gap-8 group">
+                    <div className="flex items-center gap-3 pb-4 border-b border-stone/5">
+                      <Calendar size={18} className="text-aqua-primary" />
+                      <h4 className="text-[12px] font-black uppercase tracking-[0.2em] text-stone">{localizedRange}</h4>
                     </div>
-                    <div className="space-y-1">
-                      <label className="text-[8px] font-black uppercase tracking-widest text-stone/20 px-1">End Date</label>
-                      <input type="date" min={s.startDate || today} value={s.endDate} onChange={e => { const next = [...sessions]; next[idx].endDate = e.target.value; setSessions(next); }} className="w-full bg-[#faf9f6] p-4 rounded-xl border border-stone/5 text-xs outline-none" />
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                      <div className="space-y-2">
+                        <label className="text-[8px] font-black uppercase tracking-widest text-stone/20 px-1">Start Date (Registry)</label>
+                        <input type="date" value={s.startDate ? s.startDate.split('T')[0] : ''} onChange={e => { const next = [...sessions]; next[idx].startDate = e.target.value; setSessions(next); }} className="w-full bg-[#faf9f6] p-5 rounded-2xl border border-stone/5 text-xs outline-none focus:border-aqua-primary/40 transition-all shadow-inner font-sans" />
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-[8px] font-black uppercase tracking-widest text-stone/20 px-1">End Date (Registry)</label>
+                        <input type="date" value={s.endDate ? s.endDate.split('T')[0] : ''} onChange={e => { const next = [...sessions]; next[idx].endDate = e.target.value; setSessions(next); }} className="w-full bg-[#faf9f6] p-5 rounded-2xl border border-stone/5 text-xs outline-none focus:border-aqua-primary/40 transition-all shadow-inner font-sans" />
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-[8px] font-black uppercase tracking-widest text-stone/20 px-1 text-center block">Max Guests</label>
+                        <input type="number" min="1" value={s.maxGuests} onChange={e => { const next = [...sessions]; next[idx].maxGuests = parseInt(e.target.value) || 0; setSessions(next); }} className="w-full bg-[#faf9f6] p-5 rounded-2xl border border-stone/5 text-xs outline-none text-center focus:border-aqua-primary/40 transition-all shadow-inner font-sans" />
+                      </div>
                     </div>
-                    <div className="space-y-1">
-                      <label className="text-[8px] font-black uppercase tracking-widest text-stone/20 px-1 text-center block">Max Guests</label>
-                      <input type="number" min="1" value={s.maxGuests} onChange={e => { const next = [...sessions]; next[idx].maxGuests = parseInt(e.target.value) || 0; setSessions(next); }} className="w-full bg-[#faf9f6] p-4 rounded-xl border border-stone/5 text-xs outline-none text-center" />
+                    <div className="flex items-center justify-between pt-4">
+                      <button onClick={() => setDeleteTarget({ id: s.id, type: 'sessions', label: localizedRange })} className="p-4 text-stone/10 hover:text-red-500 hover:bg-red-50 rounded-full transition-all">
+                        <Trash2 size={22}/>
+                      </button>
+                      <button onClick={() => handleSaveSession(s)} disabled={isSaving[s.id]} className="px-10 py-4 bg-[#111] text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-aqua-primary transition-all shadow-xl min-w-[120px] flex items-center justify-center gap-2">
+                        {isSaving[s.id] ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />}
+                        SYNCHRONIZE
+                      </button>
                     </div>
                   </div>
-                  <div className="flex items-center gap-4 pt-4 md:pt-0">
-                    <button onClick={() => handleSaveSession(s)} disabled={isSaving[s.id]} className="px-6 py-3 bg-[#111] text-white rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-stone-light transition-all shadow-md min-w-[80px] flex items-center justify-center">
-                      {isSaving[s.id] ? <Loader2 size={14} className="animate-spin" /> : 'SAVE'}
-                    </button>
-                    <button onClick={() => setDeleteTarget({ id: s.id, type: 'sessions', label: `Residency starting ${s.startDate}` })} className="p-4 text-stone/10 hover:text-red-500 transition-all">
-                      <Trash2 size={20}/>
-                    </button>
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         )}

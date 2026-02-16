@@ -99,13 +99,13 @@ export const useAppState = () => {
       if (result.success && result.data) {
         const inquiriesData = result.data.inquiries || [];
         const mappedInquiries: Application[] = inquiriesData.map((apiInquiry: any) => {
-          // Attempt to find session dates in various possible fields returned by API
-          const sStart = apiInquiry.sessionStartDate || apiInquiry.startDate || (apiInquiry.session && apiInquiry.session.startDate);
-          const sEnd = apiInquiry.sessionEndDate || apiInquiry.endDate || (apiInquiry.session && apiInquiry.session.endDate);
+          // Robust session date extraction
+          const sStart = apiInquiry.sessionStartDate || apiInquiry.startDate || (apiInquiry.session && (apiInquiry.session.startDate || apiInquiry.session.start_date));
+          const sEnd = apiInquiry.sessionEndDate || apiInquiry.endDate || (apiInquiry.session && (apiInquiry.session.endDate || apiInquiry.session.end_date));
           
           return {
             id: apiInquiry.refId || apiInquiry._id,
-            sessionId: apiInquiry.sessionId || '',
+            sessionId: apiInquiry.sessionId || (apiInquiry.session && apiInquiry.session._id) || '',
             guestName: apiInquiry.fullName,
             email: apiInquiry.email,
             phone: apiInquiry.phone,
@@ -180,8 +180,8 @@ export const useAppState = () => {
       if (result.success && Array.isArray(result.data)) {
         const mappedSessions: ResidencySession[] = result.data.map((apiSession: any) => ({
           id: apiSession._id,
-          startDate: apiSession.startDate.split('T')[0],
-          endDate: apiSession.endDate.split('T')[0],
+          startDate: apiSession.startDate, // Keep full string for Luxon localization in UI
+          endDate: apiSession.endDate,
           status: 'Open',
           maxGuests: apiSession.maxGuests
         }));
