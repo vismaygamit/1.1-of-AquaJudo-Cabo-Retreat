@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useEffect } from 'react';
 import { LogOut, Plus, Trash2, Copy, Image as ImageIcon, CheckCircle2, XCircle, Clock, Upload, Film, MessageSquare, MapPin, Package, ShieldCheck, RefreshCw, Calendar, Home, Quote, ChevronLeft, ChevronRight, Save, AlertCircle, Loader2, Video } from 'lucide-react';
 import { AdminSectionHeader, Logo } from '../components/Shared';
@@ -51,8 +52,10 @@ export const AdminPage: React.FC<AdminPageProps> = ({
   const [deleteTarget, setDeleteTarget] = useState<{ id: string, type: TabType, label: string } | null>(null);
   const [roomErrors, setRoomErrors] = useState<Record<string, boolean>>({});
   const [roomFiles, setRoomFiles] = useState<Record<string, File>>({});
+  const [roomVideoFiles, setRoomVideoFiles] = useState<Record<string, File>>({});
   const [stagedVideoFile, setStagedVideoFile] = useState<File | null>(null);
   const fileInputRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
+  const videoInputRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
   const videoFileInputRef = useRef<HTMLInputElement>(null);
   
   const initialLoadDone = useRef<Record<string, boolean>>({});
@@ -244,6 +247,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({
     const newErrors: Record<string, boolean> = { ...roomErrors };
     let hasError = false;
 
+    // Validation
     if (!room.name || !room.name.trim()) {
       showToast('SANCTUARY NAME IS REQUIRED.', 'error');
       newErrors[`${room.id}-name`] = true;
@@ -268,7 +272,8 @@ export const AdminPage: React.FC<AdminPageProps> = ({
       newErrors[`${room.id}-basePrice`] = false;
     }
 
-    if (!room.image && !roomFiles[room.id]) {
+    // For new rooms, an image file is mandatory
+    if (isNew && !roomFiles[room.id]) {
       if (!hasError) showToast('A VISUAL ASSET (IMAGE) IS REQUIRED.', 'error');
       newErrors[`${room.id}-image`] = true;
       hasError = true;
@@ -281,28 +286,49 @@ export const AdminPage: React.FC<AdminPageProps> = ({
 
     setIsSaving(prev => ({ ...prev, [room.id]: true }));
     try {
+      // Construct Payload exactly as per requested snippet
       const data = new FormData();
       data.append('name', room.name);
       data.append('price', room.basePrice.toString());
       data.append('description', room.description);
+      
       const file = roomFiles[room.id];
-      if (file) data.append('image', file);
+      if (file) {
+        data.append('image', file);
+      }
+
+      const videoFile = roomVideoFiles[room.id];
+      if (videoFile) {
+        data.append('video', videoFile);
+      }
+
       const url = isNew ? `${API_BASE_URL}/createRoom` : `${API_BASE_URL}/updateRoom/${room.id}`;
+      // Use POST for creation as per snippet, and PUT/PATCH for updates
       const method = isNew ? 'POST' : 'PUT';
+      
       const response = await fetch(url, { method, body: data });
       const result = await response.json();
+
       if (result.success) {
-        showToast(result.message || (isNew ? 'Sanctuary added successfully.' : 'Sanctuary updated successfully.'), 'success');
+        showToast(result.message || (isNew ? 'Sanctuary created successfully' : 'Sanctuary updated successfully'), 'success');
+        
+        // Clean up staged files
         const nextFiles = { ...roomFiles };
         delete nextFiles[room.id];
         setRoomFiles(nextFiles);
+
+        const nextVideoFiles = { ...roomVideoFiles };
+        delete nextVideoFiles[room.id];
+        setRoomVideoFiles(nextVideoFiles);
+
+        // Refresh global state
         await fetchRoomsFromApi(true);
       } else {
-        throw new Error(result.message || 'Operation failed');
+        throw new Error(result.message || 'Operation failed on registry server.');
       }
-    } catch (e) {
+    } catch (e: any) {
       console.error("Save Room Error:", e);
-      showToast('Network error: Sanctuary could not be synchronized.', 'error');
+      showToast(e.message || 'Synchronization failed: Registry unreachable.', 'error');
     } finally {
       setIsSaving(prev => ({ ...prev, [room.id]: false }));
     }
@@ -344,6 +370,19 @@ export const AdminPage: React.FC<AdminPageProps> = ({
     reader.readAsDataURL(file);
   };
 
+  const handleRoomVideoUpload = (roomId: string, file: File) => {
+    const maxSize = 50 * 1024 * 1024; // 50MB per room video
+    if (file.size > maxSize) {
+      showToast('FILE TOO LARGE. MAXIMUM SIZE IS 50MB.', 'error');
+      return;
+    }
+    setRoomVideoFiles(prev => ({ ...prev, [roomId]: file }));
+    const objectUrl = URL.createObjectURL(file);
+    const next = rooms.map(r => r.id === roomId ? { ...r, video: objectUrl } : r);
+    setRooms(next);
+    showToast('Video staged for sync.', 'info');
+  };
+
   const handleVideoFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -370,7 +409,6 @@ export const AdminPage: React.FC<AdminPageProps> = ({
       }
     } catch (e: any) {
       console.error("Portal Save Error:", e);
-      // SPECIFIC ERROR MESSAGE MATCHING USER PROMPT
       showToast('Failed to synchronize portal settings.', 'error');
     } finally {
       setIsSaving(prev => ({ ...prev, portal: false }));
@@ -500,7 +538,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({
         {tab === 'rooms' && (
           <div className="space-y-10 animate-fade-in">
             <AdminSectionHeader title="Sanctuaries" onAdd={() => {
-              const next = [...rooms, { id: `room-${Date.now()}`, name: "", basePrice: 0, description: "", image: "" }];
+              const next = [...rooms, { id: `room-${Date.now()}`, name: "", basePrice: 0, description: "", image: "", location: "Estate Wing", bedType: "Restorative Sanctuary", maxOccupancy: 2, bathType: 'private' }];
               setRooms(next);
               showToast('Draft sanctuary added.', 'info');
             }} />
@@ -553,35 +591,74 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                         />
                       </div>
                       <div className="w-full md:w-80 space-y-6">
-                        <div className={`aspect-[4/3] rounded-[2.5rem] bg-[#faf9f6] overflow-hidden border relative group/img shadow-inner transition-all ${hasImageError ? 'border-red-400 ring-4 ring-red-400/10' : 'border-stone/5'}`}>
-                          {room.image ? (
-                            <img src={room.image} className="w-full h-full object-cover opacity-90" alt={room.name} />
-                          ) : (
-                            <div className={`w-full h-full flex flex-col items-center justify-center gap-2 ${hasImageError ? 'text-red-400' : 'text-stone/10'}`}>
-                              <ImageIcon size={40} />
-                              <span className="text-[10px] font-black uppercase tracking-widest">Visual Asset Req.</span>
-                            </div>
-                          )}
-                          <input 
-                            type="file" 
-                            disabled={isRoomSaving}
-                            ref={el => { fileInputRefs.current[room.id] = el; }}
-                            className="hidden" 
-                            accept=".jpg,.jpeg,.png"
-                            onChange={e => {
-                              const file = e.target.files?.[0];
-                              if (file) handleImageUpload(room.id, file);
-                            }}
-                          />
-                          <button 
-                            disabled={isRoomSaving}
-                            onClick={() => fileInputRefs.current[room.id]?.click()}
-                            className="absolute inset-0 bg-stone/20 opacity-0 group-hover/img:opacity-100 transition-all flex items-center justify-center disabled:hidden"
-                          >
-                             <div className="p-4 bg-white rounded-full shadow-xl">
-                                <Upload size={20} className="text-stone" />
-                             </div>
-                          </button>
+                        {/* Image Asset Section */}
+                        <div className="space-y-2">
+                          <p className="text-[8px] font-black uppercase tracking-widest text-stone/10 px-1">Image Asset *</p>
+                          <div className={`aspect-[4/3] rounded-[2.5rem] bg-[#faf9f6] overflow-hidden border relative group/img shadow-inner transition-all ${hasImageError ? 'border-red-400 ring-4 ring-red-400/10' : 'border-stone/5'}`}>
+                            {room.image ? (
+                              <img src={room.image} className="w-full h-full object-cover opacity-90" alt={room.name} />
+                            ) : (
+                              <div className={`w-full h-full flex flex-col items-center justify-center gap-2 ${hasImageError ? 'text-red-400' : 'text-stone/10'}`}>
+                                <ImageIcon size={32} />
+                                <span className="text-[10px] font-black uppercase tracking-widest">Image Req.</span>
+                              </div>
+                            )}
+                            <input 
+                              type="file" 
+                              disabled={isRoomSaving}
+                              ref={el => { fileInputRefs.current[room.id] = el; }}
+                              className="hidden" 
+                              accept=".jpg,.jpeg,.png"
+                              onChange={e => {
+                                const file = e.target.files?.[0];
+                                if (file) handleImageUpload(room.id, file);
+                              }}
+                            />
+                            <button 
+                              disabled={isRoomSaving}
+                              onClick={() => fileInputRefs.current[room.id]?.click()}
+                              className="absolute inset-0 bg-stone/20 opacity-0 group-hover/img:opacity-100 transition-all flex items-center justify-center disabled:hidden"
+                            >
+                               <div className="p-4 bg-white rounded-full shadow-xl">
+                                  <Upload size={20} className="text-stone" />
+                               </div>
+                            </button>
+                          </div>
+                        </div>
+
+                        {/* Video Asset Section */}
+                        <div className="space-y-2">
+                          <p className="text-[8px] font-black uppercase tracking-widest text-stone/10 px-1">Video Asset (Optional)</p>
+                          <div className={`aspect-video rounded-[2rem] bg-[#faf9f6] overflow-hidden border relative group/video shadow-inner border-stone/5`}>
+                            {room.video ? (
+                              <video key={room.video} src={room.video} className="w-full h-full object-cover opacity-80" muted playsInline loop autoPlay />
+                            ) : (
+                              <div className="w-full h-full flex flex-col items-center justify-center gap-2 text-stone/10">
+                                <Video size={32} />
+                                <span className="text-[10px] font-black uppercase tracking-widest">Add Video</span>
+                              </div>
+                            )}
+                            <input 
+                              type="file" 
+                              disabled={isRoomSaving}
+                              ref={el => { videoInputRefs.current[room.id] = el; }}
+                              className="hidden" 
+                              accept="video/*"
+                              onChange={e => {
+                                const file = e.target.files?.[0];
+                                if (file) handleRoomVideoUpload(room.id, file);
+                              }}
+                            />
+                            <button 
+                              disabled={isRoomSaving}
+                              onClick={() => videoInputRefs.current[room.id]?.click()}
+                              className="absolute inset-0 bg-stone/20 opacity-0 group-hover/video:opacity-100 transition-all flex items-center justify-center disabled:hidden"
+                            >
+                               <div className="p-4 bg-white rounded-full shadow-xl">
+                                  <Upload size={20} className="text-stone" />
+                               </div>
+                            </button>
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -808,7 +885,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                     <div key={idx} className="bg-[#faf9f6] p-10 rounded-[3rem] border border-stone/5 shadow-inner space-y-8 relative group">
                       <div className="flex justify-between items-center border-b border-stone/5 pb-6">
                         <input value={g.title} onChange={e => { const next = [...portalConfig.houseGuidelines]; next[idx].title = e.target.value.toUpperCase(); setPortalConfig({...portalConfig, houseGuidelines: next}); }} placeholder="GUIDELINE TITLE" className="bg-transparent text-[12px] font-black uppercase tracking-widest text-stone outline-none flex-1" />
-                        <button onClick={() => { const next = portalConfig.houseGuidelines.filter((_: any, i: number) => i !== idx); setPortalConfig({...portalConfig, houseGuidelines: next}); }} className="p-2 text-stone/10 hover:text-red-500 transition-colors">
+                        <button onClick={() => { const next = portalConfig.houseGuidelines.filter((_: any, i: number) => i !== idx); setPortalConfig({...portalConfig, houseGuidelines: next}); }} className="p-2 text-stone/10 hover:text-red-400 transition-colors">
                           <Trash2 size={18} />
                         </button>
                       </div>
