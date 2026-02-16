@@ -42,17 +42,27 @@ type TabType = 'applications' | 'sessions' | 'rooms' | 'itinerary' | 'faqs' | 'p
 
 const ITEMS_PER_PAGE = 5;
 
-// Helper for Canada localization
-const formatCanadaDate = (iso?: string) => {
+// Helper for Canada localization in text display (America/Toronto)
+const formatCanadaDateText = (iso?: string) => {
   if (!iso) return 'TBD';
   try {
-    // If it's already a short date YYYY-MM-DD, parsing it as ISO is fine. 
-    // If it's UTC full ISO, Luxon will shift it.
     const dt = DateTime.fromISO(iso, { zone: 'utc' }).setZone('America/Toronto');
     if (!dt.isValid) return 'TBD';
     return dt.toFormat('MMM dd, yyyy').toUpperCase();
   } catch (e) {
     return 'TBD';
+  }
+};
+
+// Helper to format ISO for Date Input (yyyy-MM-dd) localized to Canada/Toronto
+const formatForCanadaInput = (iso?: string) => {
+  if (!iso) return '';
+  try {
+    if (iso.length === 10 && !iso.includes('T')) return iso;
+    const dt = DateTime.fromISO(iso, { zone: 'utc' }).setZone('America/Toronto');
+    return dt.isValid ? dt.toFormat('yyyy-MM-dd') : '';
+  } catch (e) {
+    return '';
   }
 };
 
@@ -262,7 +272,6 @@ export const AdminPage: React.FC<AdminPageProps> = ({
     const newErrors: Record<string, boolean> = { ...roomErrors };
     let hasError = false;
 
-    // Validation
     if (!room.name || !room.name.trim()) {
       showToast('SANCTUARY NAME IS REQUIRED.', 'error');
       newErrors[`${room.id}-name`] = true;
@@ -287,7 +296,6 @@ export const AdminPage: React.FC<AdminPageProps> = ({
       newErrors[`${room.id}-basePrice`] = false;
     }
 
-    // For new rooms, an image file is mandatory
     if (isNew && !roomFiles[room.id]) {
       if (!hasError) showToast('A VISUAL ASSET (IMAGE) IS REQUIRED.', 'error');
       newErrors[`${room.id}-image`] = true;
@@ -301,7 +309,6 @@ export const AdminPage: React.FC<AdminPageProps> = ({
 
     setIsSaving(prev => ({ ...prev, [room.id]: true }));
     try {
-      // Construct Payload exactly as per requested snippet
       const data = new FormData();
       data.append('name', room.name);
       data.append('price', room.basePrice.toString());
@@ -318,7 +325,6 @@ export const AdminPage: React.FC<AdminPageProps> = ({
       }
 
       const url = isNew ? `${API_BASE_URL}/createRoom` : `${API_BASE_URL}/updateRoom/${room.id}`;
-      // Use POST for creation as per snippet, and PUT/PATCH for updates
       const method = isNew ? 'POST' : 'PUT';
       
       const response = await fetch(url, { method, body: data });
@@ -327,7 +333,6 @@ export const AdminPage: React.FC<AdminPageProps> = ({
       if (result.success) {
         showToast(result.message || (isNew ? 'Sanctuary created successfully' : 'Sanctuary updated successfully'), 'success');
         
-        // Clean up staged files
         const nextFiles = { ...roomFiles };
         delete nextFiles[room.id];
         setRoomFiles(nextFiles);
@@ -336,7 +341,6 @@ export const AdminPage: React.FC<AdminPageProps> = ({
         delete nextVideoFiles[room.id];
         setRoomVideoFiles(nextVideoFiles);
 
-        // Refresh global state
         await fetchRoomsFromApi(true);
       } else {
         throw new Error(result.message || 'Operation failed on registry server.');
@@ -386,7 +390,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({
   };
 
   const handleRoomVideoUpload = (roomId: string, file: File) => {
-    const maxSize = 50 * 1024 * 1024; // 50MB per room video
+    const maxSize = 50 * 1024 * 1024; 
     if (file.size > maxSize) {
       showToast('FILE TOO LARGE. MAXIMUM SIZE IS 50MB.', 'error');
       return;
@@ -480,8 +484,8 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                 </div>
               ) : (
                 applications.map(app => {
-                  const sLabel = formatCanadaDate(app.sessionStartDate);
-                  const eLabel = formatCanadaDate(app.sessionEndDate);
+                  const sLabel = formatCanadaDateText(app.sessionStartDate);
+                  const eLabel = formatCanadaDateText(app.sessionEndDate);
                   const sessionRange = (sLabel !== 'TBD' && eLabel !== 'TBD') ? `${sLabel} — ${eLabel}` : 'DATES PENDING';
 
                   return (
@@ -537,32 +541,48 @@ export const AdminPage: React.FC<AdminPageProps> = ({
             }} />
             <div className="grid gap-8">
               {sessions.map((s, idx) => {
-                const sLabel = formatCanadaDate(s.startDate);
-                const eLabel = formatCanadaDate(s.endDate);
-                const localizedRange = (sLabel !== 'TBD' && eLabel !== 'TBD') ? `${sLabel} — ${eLabel}` : 'RESIDENCY WINDOW DRAFT';
+                const sLabelText = formatCanadaDateText(s.startDate);
+                const eLabelText = formatCanadaDateText(s.endDate);
+                const localizedRangeText = (sLabelText !== 'TBD' && eLabelText !== 'TBD') ? `${sLabelText} — ${eLabelText}` : 'RESIDENCY WINDOW DRAFT';
 
                 return (
                   <div key={s.id} className="bg-white p-10 rounded-[3rem] border border-stone/5 shadow-xl flex flex-col gap-8 group">
                     <div className="flex items-center gap-3 pb-4 border-b border-stone/5">
                       <Calendar size={18} className="text-aqua-primary" />
-                      <h4 className="text-[12px] font-black uppercase tracking-[0.2em] text-stone">{localizedRange}</h4>
+                      <h4 className="text-[12px] font-black uppercase tracking-[0.2em] text-stone">{localizedRangeText}</h4>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                       <div className="space-y-2">
-                        <label className="text-[8px] font-black uppercase tracking-widest text-stone/20 px-1">Start Date (Registry)</label>
-                        <input type="date" value={s.startDate ? s.startDate.split('T')[0] : ''} onChange={e => { const next = [...sessions]; next[idx].startDate = e.target.value; setSessions(next); }} className="w-full bg-[#faf9f6] p-5 rounded-2xl border border-stone/5 text-xs outline-none focus:border-aqua-primary/40 transition-all shadow-inner font-sans" />
+                        <label className="text-[8px] font-black uppercase tracking-widest text-stone/20 px-1">Start Date (Canada/Toronto Time)</label>
+                        <input 
+                          type="date" 
+                          value={formatForCanadaInput(s.startDate)} 
+                          onChange={e => { const next = [...sessions]; next[idx].startDate = e.target.value; setSessions(next); }} 
+                          className="w-full bg-[#faf9f6] p-5 rounded-2xl border border-stone/5 text-xs outline-none focus:border-aqua-primary/40 transition-all shadow-inner font-sans" 
+                        />
                       </div>
                       <div className="space-y-2">
-                        <label className="text-[8px] font-black uppercase tracking-widest text-stone/20 px-1">End Date (Registry)</label>
-                        <input type="date" value={s.endDate ? s.endDate.split('T')[0] : ''} onChange={e => { const next = [...sessions]; next[idx].endDate = e.target.value; setSessions(next); }} className="w-full bg-[#faf9f6] p-5 rounded-2xl border border-stone/5 text-xs outline-none focus:border-aqua-primary/40 transition-all shadow-inner font-sans" />
+                        <label className="text-[8px] font-black uppercase tracking-widest text-stone/20 px-1">End Date (Canada/Toronto Time)</label>
+                        <input 
+                          type="date" 
+                          value={formatForCanadaInput(s.endDate)} 
+                          onChange={e => { const next = [...sessions]; next[idx].endDate = e.target.value; setSessions(next); }} 
+                          className="w-full bg-[#faf9f6] p-5 rounded-2xl border border-stone/5 text-xs outline-none focus:border-aqua-primary/40 transition-all shadow-inner font-sans" 
+                        />
                       </div>
                       <div className="space-y-2">
                         <label className="text-[8px] font-black uppercase tracking-widest text-stone/20 px-1 text-center block">Max Guests</label>
-                        <input type="number" min="1" value={s.maxGuests} onChange={e => { const next = [...sessions]; next[idx].maxGuests = parseInt(e.target.value) || 0; setSessions(next); }} className="w-full bg-[#faf9f6] p-5 rounded-2xl border border-stone/5 text-xs outline-none text-center focus:border-aqua-primary/40 transition-all shadow-inner font-sans" />
+                        <input 
+                          type="number" 
+                          min="1" 
+                          value={s.maxGuests} 
+                          onChange={e => { const next = [...sessions]; next[idx].maxGuests = parseInt(e.target.value) || 0; setSessions(next); }} 
+                          className="w-full bg-[#faf9f6] p-5 rounded-2xl border border-stone/5 text-xs outline-none text-center focus:border-aqua-primary/40 transition-all shadow-inner font-sans" 
+                        />
                       </div>
                     </div>
                     <div className="flex items-center justify-between pt-4">
-                      <button onClick={() => setDeleteTarget({ id: s.id, type: 'sessions', label: localizedRange })} className="p-4 text-stone/10 hover:text-red-500 hover:bg-red-50 rounded-full transition-all">
+                      <button onClick={() => setDeleteTarget({ id: s.id, type: 'sessions', label: localizedRangeText })} className="p-4 text-stone/10 hover:text-red-500 hover:bg-red-50 rounded-full transition-all">
                         <Trash2 size={22}/>
                       </button>
                       <button onClick={() => handleSaveSession(s)} disabled={isSaving[s.id]} className="px-10 py-4 bg-[#111] text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-aqua-primary transition-all shadow-xl min-w-[120px] flex items-center justify-center gap-2">
@@ -633,7 +653,6 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                         />
                       </div>
                       <div className="w-full md:w-80 space-y-6">
-                        {/* Image Asset Section */}
                         <div className="space-y-2">
                           <p className="text-[8px] font-black uppercase tracking-widest text-stone/10 px-1">Image Asset *</p>
                           <div className={`aspect-[4/3] rounded-[2.5rem] bg-[#faf9f6] overflow-hidden border relative group/img shadow-inner transition-all ${hasImageError ? 'border-red-400 ring-4 ring-red-400/10' : 'border-stone/5'}`}>
@@ -668,7 +687,6 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                           </div>
                         </div>
 
-                        {/* Video Asset Section */}
                         <div className="space-y-2">
                           <p className="text-[8px] font-black uppercase tracking-widest text-stone/10 px-1">Video Asset (Optional)</p>
                           <div className={`aspect-video rounded-[2rem] bg-[#faf9f6] overflow-hidden border relative group/video shadow-inner border-stone/5`}>

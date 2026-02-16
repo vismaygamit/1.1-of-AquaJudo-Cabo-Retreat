@@ -99,7 +99,7 @@ export const useAppState = () => {
       if (result.success && result.data) {
         const inquiriesData = result.data.inquiries || [];
         const mappedInquiries: Application[] = inquiriesData.map((apiInquiry: any) => {
-          // Robust session date extraction
+          // Robust session date extraction from API response
           const sStart = apiInquiry.sessionStartDate || apiInquiry.startDate || (apiInquiry.session && (apiInquiry.session.startDate || apiInquiry.session.start_date));
           const sEnd = apiInquiry.sessionEndDate || apiInquiry.endDate || (apiInquiry.session && (apiInquiry.session.endDate || apiInquiry.session.end_date));
           
@@ -180,7 +180,7 @@ export const useAppState = () => {
       if (result.success && Array.isArray(result.data)) {
         const mappedSessions: ResidencySession[] = result.data.map((apiSession: any) => ({
           id: apiSession._id,
-          startDate: apiSession.startDate, // Keep full string for Luxon localization in UI
+          startDate: apiSession.startDate, // Keep raw ISO for UI localization
           endDate: apiSession.endDate,
           status: 'Open',
           maxGuests: apiSession.maxGuests
@@ -267,7 +267,6 @@ export const useAppState = () => {
             gateInstructions: api.arrivalLogistics?.gatedAccessInstructions || DEFAULT_PORTAL_CONFIG.logistics.gateInstructions,
             checkInWindow: api.arrivalLogistics?.checkInWindow || DEFAULT_PORTAL_CONFIG.logistics.checkInWindow
           },
-          // Build absolute URL for video if it's a relative path from the API
           promoVideoUrl: api.estateNarrativeVideoPath 
             ? (api.estateNarrativeVideoPath.startsWith('http') ? api.estateNarrativeVideoPath : `${API_ROOT}${api.estateNarrativeVideoPath}`) 
             : DEFAULT_PORTAL_CONFIG.promoVideoUrl
