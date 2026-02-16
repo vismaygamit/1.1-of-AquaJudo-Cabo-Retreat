@@ -37,7 +37,7 @@ const App: React.FC = () => {
   };
 
   const handleAdminLogin = (password: string) => {
-    if (password === "admin") {
+    if (password.trim() === "admin") {
       setIsAdminLoggedIn(true);
       setShowLoginModal(false);
       setView('admin');

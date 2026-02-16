@@ -45,7 +45,7 @@ export const MainLayout: React.FC<MainLayoutProps> = ({
                  </button>
                )}
                <button onClick={onAdminClick} className="px-6 py-2.5 bg-[#111] text-white rounded-full text-[10px] font-black uppercase tracking-widest flex items-center gap-3 hover:bg-stone-light transition-all shadow-xl">
-                 <ShieldCheck size={14} className="text-aqua-primary" /> PORTAL
+                 <ShieldCheck size={14} className="text-aqua-primary" /> ADMIN
                </button>
              </>
            )}
