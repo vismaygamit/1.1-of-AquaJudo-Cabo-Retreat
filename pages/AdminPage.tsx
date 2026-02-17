@@ -278,8 +278,12 @@ export const AdminPage: React.FC<AdminPageProps> = ({
       data.append('price', room.basePrice.toString());
       data.append('description', room.description);
       
-      const cleanArray = (arr?: string[]) => Array.from(new Set((arr || []).map(f => f.trim()).filter(f => f.length > 0)));
-      data.append('facilities', JSON.stringify(cleanArray(room.facilities)));
+      const cleanFacilities = Array.from(new Set((room.facilities || []).map(f => f.trim()).filter(f => f.length > 0)));
+      
+      // Changed to append each facility individually with 'facilities[]' key per user request snippet
+      cleanFacilities.forEach(facility => {
+        data.append('facilities[]', facility);
+      });
       
       const file = roomFiles[room.id];
       if (file) data.append('image', file);
@@ -582,7 +586,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                           />
                         </div>
 
-                        {/* Facilities Management Section - Updated to match screenshot exactly */}
+                        {/* Facilities Management Section - Dynamic Side-by-Side Textboxes */}
                         <div className="space-y-6">
                           <div className="flex items-center justify-between border-b border-stone/5 pb-3">
                             <div className="space-y-1">
@@ -613,7 +617,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                                     onChange={e => {
                                       const n = [...rooms];
                                       const nFacs = [...(n[idx].facilities || [])];
-                                      nFacs[fIdx] = e.target.value.toUpperCase(); // Matched screenshot style (uppercase)
+                                      nFacs[fIdx] = e.target.value.toUpperCase();
                                       n[idx].facilities = nFacs;
                                       setRooms(n);
                                     }}
