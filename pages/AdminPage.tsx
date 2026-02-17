@@ -279,10 +279,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({
       data.append('description', room.description);
       
       const cleanArray = (arr?: string[]) => Array.from(new Set((arr || []).map(f => f.trim()).filter(f => f.length > 0)));
-      
-      // Included both facilities and features in the payload as requested
       data.append('facilities', JSON.stringify(cleanArray(room.facilities)));
-      data.append('features', JSON.stringify(cleanArray(room.features)));
       
       const file = roomFiles[room.id];
       if (file) data.append('image', file);
@@ -535,7 +532,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({
         {tab === 'rooms' && (
           <div className="space-y-10 animate-fade-in">
             <AdminSectionHeader title="Sanctuaries" onAdd={() => {
-              const next = [...rooms, { id: `room-${Date.now()}`, name: "", basePrice: 0, description: "", image: "", location: "Estate Wing", bedType: "Restorative Sanctuary", maxOccupancy: 2, bathType: 'private', facilities: [], features: [] }];
+              const next = [...rooms, { id: `room-${Date.now()}`, name: "", basePrice: 0, description: "", image: "", location: "Estate Wing", bedType: "Restorative Sanctuary", maxOccupancy: 2, bathType: 'private', facilities: [] }];
               setRooms(next);
               showToast('Draft sanctuary added.', 'info');
             }} />
@@ -585,12 +582,12 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                           />
                         </div>
 
-                        {/* Facilities Management Section - Dynamic textboxes for each array element */}
+                        {/* Facilities Management Section - Grid matched to screenshot */}
                         <div className="space-y-6">
-                          <div className="flex items-center justify-between border-b border-stone/5 pb-2">
-                            <div className="space-y-0.5">
-                              <p className="text-[10px] font-black uppercase tracking-[0.4em] text-aqua-primary">SANCTUARY HIGHLIGHTS (FACILITIES)</p>
-                              <p className="text-[8px] font-serif italic text-stone/20">Managed as an array: one entry per textbox.</p>
+                          <div className="flex items-center justify-between border-b border-stone/5 pb-3">
+                            <div className="space-y-1">
+                              <p className="text-[14px] font-black uppercase tracking-[0.2em] text-aqua-primary">SANCTUARY HIGHLIGHTS (FACILITIES)</p>
+                              <p className="text-[10px] font-serif italic text-stone/20">Managed as an array: one entry per textbox.</p>
                             </div>
                             <button 
                               disabled={isRoomSaving}
@@ -598,17 +595,18 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                                 const n = [...rooms];
                                 n[idx].facilities = [...(n[idx].facilities || []), ""];
                                 setRooms(n);
-                                showToast('Added facility anchor.', 'info');
+                                showToast('Facility entry added.', 'info');
                               }}
-                              className="text-[10px] font-black uppercase text-aqua-primary hover:text-aqua-deep transition-all flex items-center gap-2"
+                              className="text-[10px] font-black uppercase text-aqua-primary hover:text-aqua-deep transition-all flex items-center gap-2 px-3 py-1.5 rounded-full border border-aqua-primary/10 hover:bg-aqua-primary/5"
                             >
-                              <Plus size={12} /> ADD FACILITY
+                              <Plus size={14} /> ADD FACILITY
                             </button>
                           </div>
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
                             {(room.facilities || []).map((fac, fIdx) => (
-                              <div key={`fac-${fIdx}`} className="flex items-center gap-2 group/fac animate-fade-in">
-                                <div className="flex-1">
+                              <div key={`fac-${fIdx}`} className="flex items-center gap-3 group/fac animate-fade-in">
+                                <div className="flex-1 relative">
                                   <input 
                                     value={fac}
                                     disabled={isRoomSaving}
@@ -619,8 +617,8 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                                       n[idx].facilities = nFacs;
                                       setRooms(n);
                                     }}
-                                    placeholder={`Facility item e.g. "one"`}
-                                    className="w-full bg-[#faf9f6] px-5 py-3 rounded-xl border border-stone/5 text-[11px] font-bold uppercase tracking-widest text-stone outline-none focus:border-aqua-primary/30 transition-all shadow-sm"
+                                    placeholder={`e.g. "${fIdx === 0 ? 'ONE' : 'TWO'}"`}
+                                    className="w-full bg-[#faf9f6] px-8 py-5 rounded-[1.5rem] border border-stone/5 text-[13px] font-black uppercase tracking-[0.1em] text-stone outline-none focus:border-aqua-primary/30 transition-all shadow-sm placeholder:text-stone/10"
                                   />
                                 </div>
                                 <button 
@@ -629,16 +627,16 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                                     const n = [...rooms];
                                     n[idx].facilities = n[idx].facilities?.filter((_, i) => i !== fIdx);
                                     setRooms(n);
-                                    showToast('Removed facility entry.', 'info');
+                                    showToast('Facility entry removed.', 'info');
                                   }}
-                                  className="p-3 text-stone/10 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all"
+                                  className="p-3 text-stone/10 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all flex-shrink-0"
                                 >
-                                  <Trash2 size={16} />
+                                  <Trash2 size={18} />
                                 </button>
                               </div>
                             ))}
                             {(room.facilities || []).length === 0 && (
-                              <p className="col-span-full text-[10px] font-serif italic text-stone/20 py-6 text-center border border-dashed border-stone/5 rounded-xl">No facility definitions found in registry.</p>
+                              <p className="col-span-full text-[11px] font-serif italic text-stone/20 py-8 text-center border border-dashed border-stone/5 rounded-[2rem]">No facility definitions assigned to this sanctuary.</p>
                             )}
                           </div>
                         </div>
