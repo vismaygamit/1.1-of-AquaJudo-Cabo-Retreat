@@ -29,34 +29,43 @@ export const LandingPage: React.FC<LandingPageProps> = ({ sessions, rooms, itine
 
   return (
     <main>
-      {/* HERO */}
-      <header className="relative min-h-[70vh] flex flex-col items-center justify-center text-center px-6 overflow-hidden">
+      {/* HERO SECTION - Updated to match attached image style */}
+      <header className="relative min-h-[90vh] flex flex-col items-center justify-center text-center px-6 bg-[#faf9f6] overflow-hidden">
+        {/* Extremely subtle background video to maintain the "clean" image look while keeping the feature available */}
         <video 
           autoPlay 
           loop 
           muted 
           playsInline 
-          controls 
-          className="absolute inset-0 w-full h-full object-cover opacity-20 transition-opacity duration-700 scale-100"
+          className="absolute inset-0 w-full h-full object-cover opacity-[0.03] pointer-events-none"
         >
           <source src={HERO_VIDEO_URL} type="video/mp4" />
         </video>
-        <div className="absolute inset-0 bg-gradient-to-b from-[#faf9f6]/80 via-transparent to-[#faf9f6] pointer-events-none"></div>
-        <div className="relative z-10 space-y-8 max-w-4xl animate-fade-in pt-24 md:pt-32 pointer-events-none">
-          <div className="space-y-4">
-            <p className="text-[14px] md:text-[16px] tracking-[0.4em] text-stone font-black uppercase">CABO SAN LUCAS • MEXICO</p>
-            <h1 className="text-5xl md:text-7xl font-display font-light uppercase tracking-tighter leading-tight text-stone">
-              AquaJudo Cabo <br/> 
-              <span className="text-aqua-primary italic font-serif lowercase tracking-normal text-2xl md:text-4xl block mt-2">A 7-Day Private Coastal Residency</span>
-            </h1>
+
+        <div className="relative z-10 space-y-10 max-w-5xl animate-fade-in flex flex-col items-center">
+          <div className="space-y-6">
+            <p className="text-[12px] md:text-[14px] tracking-[0.6em] text-stone font-black uppercase opacity-90">
+              CABO SAN LUCAS • MEXICO
+            </p>
+            
+            <div className="space-y-2">
+              <h1 className="text-6xl md:text-8xl font-display font-medium uppercase tracking-tight text-stone leading-[0.9]">
+                AQUA JUDO CABO
+              </h1>
+              <p className="text-aqua-primary italic font-serif lowercase text-3xl md:text-4xl tracking-normal">
+                a 7-day private coastal residency
+              </p>
+            </div>
           </div>
-          <p className="text-lg md:text-xl text-stone-light/60 font-serif italic max-w-xl mx-auto leading-relaxed">
-            Restorative movement and coastal exploration in a founder-led, alcohol-free estate.
-          </p>
-          <div className="pt-6 pointer-events-auto">
-             <button onClick={() => onApplyClick()} className="bg-[#111] text-white px-10 py-4 rounded-full text-[12px] tracking-[0.3em] font-black uppercase shadow-2xl hover:scale-105 active:scale-95 transition-all flex items-center gap-4 group mx-auto">
-               APPLY FOR RESIDENCY <Zap size={16} className="text-aqua-primary group-hover:rotate-12 transition-transform" />
-             </button>
+
+          <div className="pt-4">
+            <button 
+              onClick={() => onApplyClick()} 
+              className="bg-[#111] text-white px-12 py-5 rounded-full text-[13px] tracking-[0.2em] font-black uppercase shadow-[0_20px_50px_rgba(0,0,0,0.1)] hover:scale-105 active:scale-95 transition-all flex items-center gap-4 group"
+            >
+              APPLY FOR RESIDENCY 
+              <Zap size={18} className="text-aqua-primary fill-aqua-primary group-hover:rotate-12 transition-transform" />
+            </button>
           </div>
         </div>
       </header>
