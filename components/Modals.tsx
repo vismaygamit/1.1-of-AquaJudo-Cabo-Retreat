@@ -71,7 +71,7 @@ export const RoomDetailModal: React.FC<{
   onRequestAccess: (roomId: string) => void;
 }> = ({ room, onClose, onRequestAccess }) => {
   return (
-    <div className="fixed inset-0 z-[1200] bg-black/80 backdrop-blur-md flex items-center justify-center p-4 animate-fade-in">
+    <div className="fixed inset-0 z-[1200] bg-black/85 backdrop-blur-lg flex items-center justify-center p-4 sm:p-6 animate-fade-in">
       <div className="bg-[#1a1a1a] w-full max-w-4xl max-h-[95vh] rounded-[3.5rem] overflow-hidden flex flex-col relative shadow-2xl border border-white/5">
         
         {/* Close button - Top right floating */}
@@ -82,8 +82,8 @@ export const RoomDetailModal: React.FC<{
           <X size={20} />
         </button>
 
-        {/* Media Container - Improved for responsiveness */}
-        <div className="w-full relative bg-stone/40 flex-shrink-0 aspect-[4/3] sm:aspect-video md:aspect-auto md:h-[45%]">
+        {/* Media Container - Optimized Aspect Ratios */}
+        <div className="w-full relative bg-stone/40 flex-shrink-0 aspect-[4/3] sm:aspect-video md:h-[400px]">
           {room.video ? (
             <video
               src={room.video}
@@ -104,9 +104,9 @@ export const RoomDetailModal: React.FC<{
           )}
         </div>
 
-        {/* Content Area - Matches User Screenshot Aesthetic */}
-        <div className="flex-1 flex flex-col p-8 sm:p-12 overflow-y-auto no-scrollbar relative">
-          <div className="space-y-10 pb-20">
+        {/* Content Area - Matches Screenshot Aesthetic */}
+        <div className="flex-1 flex flex-col p-8 sm:p-14 overflow-y-auto no-scrollbar relative">
+          <div className="space-y-10 pb-28">
             <div className="space-y-4">
               <p className="text-[11px] font-black uppercase tracking-[0.4em] text-aqua-primary">SANCTUARY OVERVIEW</p>
               <h2 className="text-4xl sm:text-6xl font-bold uppercase tracking-tighter text-white leading-none">
@@ -141,20 +141,22 @@ export const RoomDetailModal: React.FC<{
             </ul>
           </div>
 
-          {/* Footer with Price and Apply Action */}
-          <div className="sticky bottom-0 left-0 w-full pt-8 pb-2 flex items-end justify-between bg-gradient-to-t from-[#1a1a1a] via-[#1a1a1a] to-transparent">
-            <div className="flex items-baseline gap-1.5 group">
-              <span className="text-xl font-light text-white/30">$</span>
-              <span className="text-5xl sm:text-7xl font-bold tracking-tighter text-white leading-none">
+          {/* Footer - Optimized for small screens to prevent overlap */}
+          <div className="sticky bottom-0 left-0 w-full pt-6 pb-2 mt-auto flex flex-row items-end justify-between bg-gradient-to-t from-[#1a1a1a] via-[#1a1a1a] to-transparent gap-4">
+            <div className="flex items-baseline gap-1 group flex-shrink-0">
+              <span className="text-lg sm:text-xl font-light text-white/30">$</span>
+              <span className="text-4xl sm:text-7xl font-bold tracking-tighter text-white leading-none">
                 {room.basePrice.toLocaleString()}
               </span>
             </div>
-            <button
-              onClick={() => onRequestAccess(room.id)}
-              className="bg-white text-[#1a1a1a] px-8 sm:px-12 py-4 sm:py-5 rounded-2xl text-[12px] font-black uppercase tracking-[0.3em] shadow-xl hover:bg-aqua-primary transition-all active:scale-[0.98]"
-            >
-              REQUEST ACCESS
-            </button>
+            <div className="flex-shrink-0">
+              <button
+                onClick={() => onRequestAccess(room.id)}
+                className="bg-white text-[#1a1a1a] px-6 sm:px-12 py-3.5 sm:py-5 rounded-2xl text-[10px] sm:text-[12px] font-black uppercase tracking-[0.2em] sm:tracking-[0.3em] shadow-2xl hover:bg-aqua-primary transition-all active:scale-[0.98] whitespace-nowrap mb-0.5"
+              >
+                REQUEST ACCESS
+              </button>
+            </div>
           </div>
         </div>
       </div>
