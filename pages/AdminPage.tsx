@@ -322,7 +322,6 @@ export const AdminPage: React.FC<AdminPageProps> = ({
       
       const cleanArray = (arr?: string[]) => Array.from(new Set((arr || []).map(f => f.trim()).filter(f => f.length > 0)));
       
-      data.append('features', JSON.stringify(cleanArray(room.features)));
       data.append('facilities', JSON.stringify(cleanArray(room.facilities)));
       
       const file = roomFiles[room.id];
@@ -611,7 +610,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({
         {tab === 'rooms' && (
           <div className="space-y-10 animate-fade-in">
             <AdminSectionHeader title="Sanctuaries" onAdd={() => {
-              const next = [...rooms, { id: `room-${Date.now()}`, name: "", basePrice: 0, description: "", image: "", location: "Estate Wing", bedType: "Restorative Sanctuary", maxOccupancy: 2, bathType: 'private', features: [], facilities: [] }];
+              const next = [...rooms, { id: `room-${Date.now()}`, name: "", basePrice: 0, description: "", image: "", location: "Estate Wing", bedType: "Restorative Sanctuary", maxOccupancy: 2, bathType: 'private', facilities: [] }];
               setRooms(next);
               showToast('Draft sanctuary added.', 'info');
             }} />
@@ -715,60 +714,6 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                             ))}
                             {(room.facilities || []).length === 0 && (
                               <p className="col-span-full text-[10px] font-serif italic text-stone/20 py-4 text-center border border-dashed border-stone/5 rounded-xl">No specific facilities added.</p>
-                            )}
-                          </div>
-                        </div>
-
-                        {/* Features Management Section */}
-                        <div className="space-y-6">
-                          <div className="flex items-center justify-between border-b border-stone/5 pb-2">
-                            <p className="text-[10px] font-black uppercase tracking-[0.4em] text-stone/20">TECHNICAL FEATURES</p>
-                            <button 
-                              disabled={isRoomSaving}
-                              onClick={() => {
-                                const next = [...rooms];
-                                next[idx].features = [...(next[idx].features || []), ""];
-                                setRooms(next);
-                                showToast('Feature field added.', 'info');
-                              }}
-                              className="text-[10px] font-black uppercase text-aqua-primary hover:text-aqua-deep transition-all flex items-center gap-2"
-                            >
-                              <Plus size={12} /> ADD FEATURE
-                            </button>
-                          </div>
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            {(room.features || []).map((feat, fIdx) => (
-                              <div key={`feat-${fIdx}`} className="flex items-center gap-2 group/feat animate-fade-in">
-                                <div className="flex-1">
-                                  <input 
-                                    value={feat}
-                                    disabled={isRoomSaving}
-                                    onChange={e => {
-                                      const next = [...rooms];
-                                      const nextFeats = [...(next[idx].features || [])];
-                                      nextFeats[fIdx] = e.target.value;
-                                      next[idx].features = nextFeats;
-                                      setRooms(next);
-                                    }}
-                                    placeholder="e.g. Ergonomic Recovery Mat"
-                                    className="w-full bg-[#faf9f6] px-5 py-3 rounded-xl border border-stone/5 text-[11px] font-bold uppercase tracking-widest text-stone outline-none focus:border-aqua-primary/30 transition-all shadow-sm"
-                                  />
-                                </div>
-                                <button 
-                                  disabled={isRoomSaving}
-                                  onClick={() => {
-                                    const next = [...rooms];
-                                    next[idx].features = next[idx].features?.filter((_, i) => i !== fIdx);
-                                    setRooms(next);
-                                  }}
-                                  className="p-3 text-stone/10 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all"
-                                >
-                                  <Trash2 size={16} />
-                                </button>
-                              </div>
-                            ))}
-                            {(room.features || []).length === 0 && (
-                              <p className="col-span-full text-[10px] font-serif italic text-stone/20 py-4 text-center border border-dashed border-stone/5 rounded-xl">No distinctive technical features added.</p>
                             )}
                           </div>
                         </div>
