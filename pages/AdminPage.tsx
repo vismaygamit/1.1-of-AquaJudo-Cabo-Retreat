@@ -279,7 +279,10 @@ export const AdminPage: React.FC<AdminPageProps> = ({
       data.append('description', room.description);
       
       const cleanArray = (arr?: string[]) => Array.from(new Set((arr || []).map(f => f.trim()).filter(f => f.length > 0)));
+      
+      // Included both facilities and features in the payload as requested
       data.append('facilities', JSON.stringify(cleanArray(room.facilities)));
+      data.append('features', JSON.stringify(cleanArray(room.features)));
       
       const file = roomFiles[room.id];
       if (file) data.append('image', file);
@@ -532,7 +535,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({
         {tab === 'rooms' && (
           <div className="space-y-10 animate-fade-in">
             <AdminSectionHeader title="Sanctuaries" onAdd={() => {
-              const next = [...rooms, { id: `room-${Date.now()}`, name: "", basePrice: 0, description: "", image: "", location: "Estate Wing", bedType: "Restorative Sanctuary", maxOccupancy: 2, bathType: 'private', facilities: [] }];
+              const next = [...rooms, { id: `room-${Date.now()}`, name: "", basePrice: 0, description: "", image: "", location: "Estate Wing", bedType: "Restorative Sanctuary", maxOccupancy: 2, bathType: 'private', facilities: [], features: [] }];
               setRooms(next);
               showToast('Draft sanctuary added.', 'info');
             }} />
@@ -582,17 +585,20 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                           />
                         </div>
 
-                        {/* Facilities Management Section - Dynamic Array textboxes */}
+                        {/* Facilities Management Section - Dynamic textboxes for each array element */}
                         <div className="space-y-6">
                           <div className="flex items-center justify-between border-b border-stone/5 pb-2">
-                            <p className="text-[10px] font-black uppercase tracking-[0.4em] text-aqua-primary">SANCTUARY HIGHLIGHTS (FACILITIES)</p>
+                            <div className="space-y-0.5">
+                              <p className="text-[10px] font-black uppercase tracking-[0.4em] text-aqua-primary">SANCTUARY HIGHLIGHTS (FACILITIES)</p>
+                              <p className="text-[8px] font-serif italic text-stone/20">Managed as an array: one entry per textbox.</p>
+                            </div>
                             <button 
                               disabled={isRoomSaving}
                               onClick={() => {
                                 const n = [...rooms];
                                 n[idx].facilities = [...(n[idx].facilities || []), ""];
                                 setRooms(n);
-                                showToast('New facility textbox added.', 'info');
+                                showToast('Added facility anchor.', 'info');
                               }}
                               className="text-[10px] font-black uppercase text-aqua-primary hover:text-aqua-deep transition-all flex items-center gap-2"
                             >
@@ -613,7 +619,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                                       n[idx].facilities = nFacs;
                                       setRooms(n);
                                     }}
-                                    placeholder={`Facility Item ${fIdx + 1}`}
+                                    placeholder={`Facility item e.g. "one"`}
                                     className="w-full bg-[#faf9f6] px-5 py-3 rounded-xl border border-stone/5 text-[11px] font-bold uppercase tracking-widest text-stone outline-none focus:border-aqua-primary/30 transition-all shadow-sm"
                                   />
                                 </div>
@@ -623,7 +629,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                                     const n = [...rooms];
                                     n[idx].facilities = n[idx].facilities?.filter((_, i) => i !== fIdx);
                                     setRooms(n);
-                                    showToast('Facility textbox removed.', 'info');
+                                    showToast('Removed facility entry.', 'info');
                                   }}
                                   className="p-3 text-stone/10 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all"
                                 >
@@ -632,7 +638,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                               </div>
                             ))}
                             {(room.facilities || []).length === 0 && (
-                              <p className="col-span-full text-[10px] font-serif italic text-stone/20 py-4 text-center border border-dashed border-stone/5 rounded-xl">No facilities added (length wise textboxes will appear here).</p>
+                              <p className="col-span-full text-[10px] font-serif italic text-stone/20 py-6 text-center border border-dashed border-stone/5 rounded-xl">No facility definitions found in registry.</p>
                             )}
                           </div>
                         </div>
