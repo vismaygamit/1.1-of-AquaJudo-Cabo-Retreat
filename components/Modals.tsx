@@ -71,17 +71,22 @@ export const RoomDetailModal: React.FC<{
   onRequestAccess: (roomId: string) => void;
 }> = ({ room, onClose, onRequestAccess }) => {
   return (
-    <div className="fixed inset-0 z-[1200] bg-[#111]/95 backdrop-blur-sm flex items-center justify-center p-4 md:p-8 animate-fade-in">
-      <div className="bg-[#1a1a1a] w-full max-w-6xl h-full max-h-[85vh] md:max-h-[700px] rounded-[3rem] overflow-hidden flex flex-col md:flex-row relative shadow-[0_0_100px_rgba(0,0,0,0.5)] border border-white/5">
-        <button onClick={onClose} className="absolute top-8 right-8 z-[1300] w-12 h-12 bg-white/5 hover:bg-white/10 text-white rounded-full flex items-center justify-center transition-all">
-          <X size={24} />
+    <div className="fixed inset-0 z-[1200] bg-[#111]/90 backdrop-blur-sm flex items-center justify-center p-4 animate-fade-in">
+      <div className="bg-[#1a1a1a] w-full max-w-4xl max-h-[90vh] rounded-[4rem] overflow-hidden flex flex-col relative shadow-[0_0_100px_rgba(0,0,0,0.8)] border border-white/5 no-scrollbar">
+        {/* Close button - Top right circular */}
+        <button 
+          onClick={onClose} 
+          className="absolute top-6 right-6 z-[1300] w-10 h-10 bg-white/10 hover:bg-white/20 text-white rounded-full flex items-center justify-center transition-all backdrop-blur-md"
+        >
+          <X size={20} />
         </button>
 
-        <div className="w-full md:w-3/5 bg-black/40 flex items-center justify-center relative overflow-hidden h-64 md:h-auto">
+        {/* Top Media Area - Fixed aspect ratio or flexible with minimums to prevent "cut" issues */}
+        <div className="w-full relative bg-stone/40 min-h-[40%] md:min-h-[350px]">
           {room.video ? (
             <video
               src={room.video}
-              className="w-full h-full object-cover opacity-80"
+              className="w-full h-full absolute inset-0 object-cover opacity-90"
               controls
               autoPlay
               loop
@@ -89,59 +94,62 @@ export const RoomDetailModal: React.FC<{
               playsInline
             />
           ) : room.image ? (
-            <img src={room.image} className="w-full h-full object-cover opacity-80" alt={room.name} />
+            <img src={room.image} className="w-full h-full absolute inset-0 object-cover opacity-90" alt={room.name} />
           ) : (
-            <div className="text-white/10 flex flex-col items-center gap-2">
+            <div className="absolute inset-0 flex flex-col items-center justify-center text-white/20 gap-2">
               <Loader2 className="animate-spin" size={32} />
-              <span className="text-[10px] uppercase font-black tracking-widest">Asset Loading</span>
+              <span className="text-[10px] uppercase font-black tracking-widest">Loading Asset</span>
             </div>
           )}
         </div>
 
-        <div className="w-full md:w-2/5 p-12 md:p-16 flex flex-col justify-between overflow-y-auto no-scrollbar bg-[#1a1a1a]">
+        {/* Bottom Content Area - Matches Screenshot Styling */}
+        <div className="flex-1 p-8 md:p-14 flex flex-col justify-between overflow-y-auto custom-scrollbar">
           <div className="space-y-10">
-            <div className="space-y-2">
+            <div className="space-y-3">
               <p className="text-[10px] font-black uppercase tracking-[0.4em] text-aqua-primary">SANCTUARY OVERVIEW</p>
-              <h2 className="text-4xl font-bold uppercase tracking-tighter text-white leading-none">{room.name}</h2>
+              <h2 className="text-4xl md:text-5xl font-bold uppercase tracking-tighter text-white leading-none">
+                {room.name}
+              </h2>
             </div>
 
-            <p className="text-sm md:text-base font-serif italic text-white/40 leading-relaxed">
+            <p className="text-base md:text-lg font-serif italic text-white/40 leading-relaxed">
               {room.description}
             </p>
 
-            <ul className="space-y-4">
-              {/* Prioritize standard room info as default highlights */}
-              <li className="flex items-center gap-3 text-white/60 animate-fade-in">
-                <div className="w-1 h-1 rounded-full bg-aqua-primary/80 shadow-[0_0_8px_rgba(79,209,197,0.4)]" />
-                <span className="text-[10px] font-black uppercase tracking-widest text-white/80">{room.bedType}</span>
+            <ul className="space-y-5">
+              <li className="flex items-center gap-4 text-white/80 animate-fade-in">
+                <div className="w-1.5 h-1.5 rounded-full bg-aqua-primary shadow-[0_0_8px_rgba(79,209,197,0.6)]" />
+                <span className="text-[11px] font-black uppercase tracking-[0.2em]">{room.bedType}</span>
               </li>
-              <li className="flex items-center gap-3 text-white/60 animate-fade-in">
-                <div className="w-1 h-1 rounded-full bg-aqua-primary/80 shadow-[0_0_8px_rgba(79,209,197,0.4)]" />
-                <span className="text-[10px] font-black uppercase tracking-widest text-white/80">{room.bathType} BATHROOM</span>
+              <li className="flex items-center gap-4 text-white/80 animate-fade-in">
+                <div className="w-1.5 h-1.5 rounded-full bg-aqua-primary shadow-[0_0_8px_rgba(79,209,197,0.6)]" />
+                <span className="text-[11px] font-black uppercase tracking-[0.2em]">{room.bathType} BATHROOM</span>
               </li>
-              <li className="flex items-center gap-3 text-white/60 animate-fade-in">
-                <div className="w-1 h-1 rounded-full bg-aqua-primary/80 shadow-[0_0_8px_rgba(79,209,197,0.4)]" />
-                <span className="text-[10px] font-black uppercase tracking-widest text-white/80">{room.location.toUpperCase()}</span>
+              <li className="flex items-center gap-4 text-white/80 animate-fade-in">
+                <div className="w-1.5 h-1.5 rounded-full bg-aqua-primary shadow-[0_0_8px_rgba(79,209,197,0.6)]" />
+                <span className="text-[11px] font-black uppercase tracking-[0.2em]">{room.location.toUpperCase()}</span>
               </li>
 
-              {/* Dynamic Facilities List - Array length wise rendering as textboxes in Admin */}
               {room.facilities && room.facilities.length > 0 && room.facilities.map((fac, i) => fac.trim() && (
-                <li key={`fac-${i}`} className="flex items-center gap-3 text-white/60 animate-fade-in">
-                  <div className="w-1 h-1 rounded-full bg-aqua-primary/80 shadow-[0_0_8px_rgba(79,209,197,0.4)]" />
-                  <span className="text-[10px] font-black uppercase tracking-widest text-white/80">{fac}</span>
+                <li key={`fac-${i}`} className="flex items-center gap-4 text-white/80 animate-fade-in">
+                  <div className="w-1.5 h-1.5 rounded-full bg-aqua-primary shadow-[0_0_8px_rgba(79,209,197,0.6)]" />
+                  <span className="text-[11px] font-black uppercase tracking-[0.2em]">{fac}</span>
                 </li>
               ))}
             </ul>
           </div>
 
-          <div className="pt-12 space-y-8 border-t border-white/5 mt-10">
-            <div className="flex items-baseline gap-1">
-              <span className="text-lg font-light text-white/20">$</span>
-              <span className="text-4xl font-bold tracking-tighter text-white">{room.basePrice.toLocaleString()}</span>
+          <div className="pt-12 flex flex-col md:flex-row md:items-end justify-between gap-8">
+            <div className="flex items-baseline gap-2">
+              <span className="text-xl font-light text-white/20">$</span>
+              <span className="text-5xl md:text-6xl font-bold tracking-tighter text-white leading-none">
+                {room.basePrice.toLocaleString()}
+              </span>
             </div>
             <button
               onClick={() => onRequestAccess(room.id)}
-              className="w-full bg-white text-stone py-6 rounded-2xl text-[11px] font-black uppercase tracking-[0.3em] shadow-2xl hover:bg-aqua-primary transition-all active:scale-[0.98]"
+              className="w-full md:w-auto md:px-16 bg-white text-[#1a1a1a] py-5 rounded-2xl text-[12px] font-black uppercase tracking-[0.3em] shadow-2xl hover:bg-aqua-primary transition-all active:scale-[0.98] mt-2"
             >
               REQUEST ACCESS
             </button>
