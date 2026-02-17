@@ -73,10 +73,10 @@ export const RoomDetailModal: React.FC<{
   return (
     <div className="fixed inset-0 z-[1200] bg-black/85 backdrop-blur-lg flex items-center justify-center p-4 sm:p-6 animate-fade-in">
       <div className="bg-[#1a1a1a] w-full max-w-4xl max-h-[95vh] rounded-[3.5rem] overflow-hidden flex flex-col relative shadow-2xl border border-white/5">
-        
+
         {/* Close button - Top right floating */}
-        <button 
-          onClick={onClose} 
+        <button
+          onClick={onClose}
           className="absolute top-6 right-6 z-[1350] w-10 h-10 bg-white/10 hover:bg-white/20 text-white rounded-full flex items-center justify-center transition-all backdrop-blur-md border border-white/10"
         >
           <X size={20} />
@@ -119,19 +119,6 @@ export const RoomDetailModal: React.FC<{
             </p>
 
             <ul className="space-y-4 pt-2">
-              <li className="flex items-center gap-4 text-white/80 animate-fade-in">
-                <div className="w-1.5 h-1.5 rounded-full bg-aqua-primary shadow-[0_0_8px_rgba(79,209,197,0.8)]" />
-                <span className="text-[11px] font-black uppercase tracking-[0.2em]">{room.bedType}</span>
-              </li>
-              <li className="flex items-center gap-4 text-white/80 animate-fade-in">
-                <div className="w-1.5 h-1.5 rounded-full bg-aqua-primary shadow-[0_0_8px_rgba(79,209,197,0.8)]" />
-                <span className="text-[11px] font-black uppercase tracking-[0.2em]">{room.bathType} BATHROOM</span>
-              </li>
-              <li className="flex items-center gap-4 text-white/80 animate-fade-in">
-                <div className="w-1.5 h-1.5 rounded-full bg-aqua-primary shadow-[0_0_8px_rgba(79,209,197,0.8)]" />
-                <span className="text-[11px] font-black uppercase tracking-[0.2em]">{room.location.toUpperCase()}</span>
-              </li>
-
               {room.facilities && room.facilities.length > 0 && room.facilities.map((fac, i) => fac.trim() && (
                 <li key={`fac-${i}`} className="flex items-center gap-4 text-white/80 animate-fade-in">
                   <div className="w-1.5 h-1.5 rounded-full bg-aqua-primary shadow-[0_0_8px_rgba(79,209,197,0.8)]" />
@@ -237,15 +224,15 @@ export const ApplyModal: React.FC<ApplyModalProps> = ({ sessions, rooms, initial
                 <label className="text-[10px] font-black uppercase tracking-[0.2em] text-stone/20 px-1">Guest Registry</label>
                 <div className="space-y-6">
                   <div className="space-y-2">
-                    <input placeholder="FULL NAME" value={form.guestName} onChange={e => setForm({...form, guestName: e.target.value})} className={`w-full bg-white rounded-2xl px-8 py-6 border ${errors.guestName ? 'border-red-400' : 'border-stone/10'} text-[13px] font-black uppercase tracking-tight outline-none focus:border-stone/20 shadow-sm`} />
+                    <input placeholder="FULL NAME" value={form.guestName} onChange={e => setForm({ ...form, guestName: e.target.value })} className={`w-full bg-white rounded-2xl px-8 py-6 border ${errors.guestName ? 'border-red-400' : 'border-stone/10'} text-[13px] font-black uppercase tracking-tight outline-none focus:border-stone/20 shadow-sm`} />
                     {errors.guestName && <p className="text-[10px] text-red-500 font-bold uppercase">{errors.guestName}</p>}
                   </div>
                   <div className="space-y-2">
-                    <input placeholder="EMAIL ADDRESS" type="email" value={form.guestEmail} onChange={e => setForm({...form, guestEmail: e.target.value})} className={`w-full bg-white rounded-2xl px-8 py-6 border ${errors.guestEmail ? 'border-red-400' : 'border-stone/10'} text-[13px] font-black uppercase tracking-tight outline-none focus:border-stone/20 shadow-sm`} />
+                    <input placeholder="EMAIL ADDRESS" type="email" value={form.guestEmail} onChange={e => setForm({ ...form, guestEmail: e.target.value })} className={`w-full bg-white rounded-2xl px-8 py-6 border ${errors.guestEmail ? 'border-red-400' : 'border-stone/10'} text-[13px] font-black uppercase tracking-tight outline-none focus:border-stone/20 shadow-sm`} />
                     {errors.guestEmail && <p className="text-[10px] text-red-500 font-bold uppercase">{errors.guestEmail}</p>}
                   </div>
                   <div className="space-y-2">
-                    <input placeholder="PHONE / WHATSAPP" value={form.guestPhone} onChange={e => setForm({...form, guestPhone: e.target.value})} className={`w-full bg-white rounded-2xl px-8 py-6 border ${errors.guestPhone ? 'border-red-400' : 'border-stone/10'} text-[13px] font-black uppercase tracking-tight outline-none focus:border-stone/20 shadow-sm`} />
+                    <input placeholder="PHONE / WHATSAPP" value={form.guestPhone} onChange={e => setForm({ ...form, guestPhone: e.target.value })} className={`w-full bg-white rounded-2xl px-8 py-6 border ${errors.guestPhone ? 'border-red-400' : 'border-stone/10'} text-[13px] font-black uppercase tracking-tight outline-none focus:border-stone/20 shadow-sm`} />
                     {errors.guestPhone && <p className="text-[10px] text-red-500 font-bold uppercase">{errors.guestPhone}</p>}
                   </div>
                 </div>
@@ -260,7 +247,7 @@ export const ApplyModal: React.FC<ApplyModalProps> = ({ sessions, rooms, initial
                 <p className="text-[10px] font-black uppercase tracking-[0.2em] text-stone/30 text-center">Residency Window</p>
                 <div className="space-y-4">
                   {availableSessions.map(s => (
-                    <button key={s.id} onClick={() => setForm({...form, sessionId: s.id})} className={`w-full p-8 rounded-[2rem] border transition-all text-left flex justify-between items-center ${form.sessionId === s.id ? 'bg-aqua-primary/5 border-aqua-primary' : 'bg-white border-stone/10'}`}>
+                    <button key={s.id} onClick={() => setForm({ ...form, sessionId: s.id })} className={`w-full p-8 rounded-[2rem] border transition-all text-left flex justify-between items-center ${form.sessionId === s.id ? 'bg-aqua-primary/5 border-aqua-primary' : 'bg-white border-stone/10'}`}>
                       <div className="space-y-1">
                         <p className="text-[14px] font-black uppercase text-stone">{new Date(s.startDate).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}</p>
                         <p className="text-[11px] font-serif italic text-stone/30">{new Date(s.startDate).toLocaleDateString()} — {new Date(s.endDate).toLocaleDateString()}</p>
@@ -274,7 +261,7 @@ export const ApplyModal: React.FC<ApplyModalProps> = ({ sessions, rooms, initial
                 <p className="text-[10px] font-black uppercase tracking-[0.2em] text-stone/30 text-center">Sanctuary Selection</p>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {rooms.map(r => (
-                    <button key={r.id} onClick={() => setForm({...form, roomPreferenceId: r.id})} className={`relative p-10 rounded-[2.5rem] border transition-all text-left flex flex-col justify-between aspect-square ${form.roomPreferenceId === r.id ? 'bg-aqua-primary/5 border-aqua-primary' : 'bg-white border-stone/10'}`}>
+                    <button key={r.id} onClick={() => setForm({ ...form, roomPreferenceId: r.id })} className={`relative p-10 rounded-[2.5rem] border transition-all text-left flex flex-col justify-between aspect-square ${form.roomPreferenceId === r.id ? 'bg-aqua-primary/5 border-aqua-primary' : 'bg-white border-stone/10'}`}>
                       <div className="space-y-1">
                         <p className="text-[12px] font-black uppercase text-stone">{r.name}</p>
                         <p className="text-[11px] font-serif italic text-stone/30">{r.bedType}</p>
@@ -298,11 +285,11 @@ export const ApplyModal: React.FC<ApplyModalProps> = ({ sessions, rooms, initial
                 <label className="text-[10px] font-black text-stone/20 uppercase tracking-[0.2em] px-1">Commitment Protocols</label>
                 <div className="space-y-4">
                   <label className="flex items-center gap-5 p-6 border border-stone/10 bg-white rounded-[2rem] cursor-pointer">
-                    <input type="checkbox" checked={form.bathroomConsent} onChange={e => setForm({...form, bathroomConsent: e.target.checked})} className="w-5 h-5 accent-aqua-primary" />
+                    <input type="checkbox" checked={form.bathroomConsent} onChange={e => setForm({ ...form, bathroomConsent: e.target.checked })} className="w-5 h-5 accent-aqua-primary" />
                     <span className="text-[11px] font-black uppercase tracking-widest text-stone/60">Accept Shared Bathroom protocol</span>
                   </label>
                   <label className="flex items-center gap-5 p-6 border border-stone/10 bg-white rounded-[2rem] cursor-pointer">
-                    <input type="checkbox" checked={form.alcoholConsent} onChange={e => setForm({...form, alcoholConsent: e.target.checked})} className="w-5 h-5 accent-aqua-primary" />
+                    <input type="checkbox" checked={form.alcoholConsent} onChange={e => setForm({ ...form, alcoholConsent: e.target.checked })} className="w-5 h-5 accent-aqua-primary" />
                     <span className="text-[11px] font-black uppercase tracking-widest text-stone/60">Accept Alcohol-Free commitment</span>
                   </label>
                 </div>
@@ -318,7 +305,7 @@ export const ApplyModal: React.FC<ApplyModalProps> = ({ sessions, rooms, initial
             <div className="space-y-8 animate-fade-in">
               <div className="space-y-4">
                 <label className="text-[10px] font-black text-stone/20 uppercase tracking-[0.2em] px-1">Technical Narrative</label>
-                <textarea placeholder="Movement background, goals..." value={form.healthNotes} disabled={isSubmitting} onChange={e => setForm({...form, healthNotes: e.target.value})} className="w-full bg-white rounded-[2rem] p-8 border border-stone/10 text-[14px] font-serif italic min-h-[160px] outline-none shadow-sm disabled:opacity-50" />
+                <textarea placeholder="Movement background, goals..." value={form.healthNotes} disabled={isSubmitting} onChange={e => setForm({ ...form, healthNotes: e.target.value })} className="w-full bg-white rounded-[2rem] p-8 border border-stone/10 text-[14px] font-serif italic min-h-[160px] outline-none shadow-sm disabled:opacity-50" />
               </div>
               <div className="flex gap-4">
                 <button onClick={() => setStep(3)} disabled={isSubmitting} className="flex-1 bg-[#faf9f6] text-stone py-6 rounded-full text-[12px] font-black uppercase flex items-center justify-center gap-2"><ChevronLeft size={16} /> Back</button>
