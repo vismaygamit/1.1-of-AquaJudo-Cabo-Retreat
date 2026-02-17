@@ -278,9 +278,9 @@ export const AdminPage: React.FC<AdminPageProps> = ({
       data.append('price', room.basePrice.toString());
       data.append('description', room.description);
       
-      const cleanFacilities = Array.from(new Set((room.facilities || []).map(f => f.trim()).filter(f => f.length > 0)));
+      const cleanFacilities = (room.facilities || []).map(f => f.trim()).filter(f => f.length > 0);
       
-      // Changed to append each facility individually with 'facilities[]' key per user request snippet
+      // Append each facility individually with 'facilities[]' key to match the requested API pattern
       cleanFacilities.forEach(facility => {
         data.append('facilities[]', facility);
       });
@@ -368,6 +368,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({
     } catch (e: any) {
       showToast('Failed to synchronize portal settings.', 'error');
     } finally {
+      // Fix: Removed reference to non-existent setIsFetchingPortal.current
       setIsSaving(prev => ({ ...prev, portal: false }));
     }
   };
@@ -586,7 +587,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                           />
                         </div>
 
-                        {/* Facilities Management Section - Dynamic Side-by-Side Textboxes */}
+                        {/* Facilities Management Section - Updated Dynamic Side-by-Side Textboxes */}
                         <div className="space-y-6">
                           <div className="flex items-center justify-between border-b border-stone/5 pb-3">
                             <div className="space-y-1">
@@ -640,7 +641,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                               </div>
                             ))}
                             {(room.facilities || []).length === 0 && (
-                              <p className="col-span-full text-[11px] font-serif italic text-stone/20 py-8 text-center border border-dashed border-stone/5 rounded-[2rem]">No facility definitions found.</p>
+                              <p className="col-span-full text-[11px] font-serif italic text-stone/20 py-8 text-center border border-dashed border-stone/5 rounded-[2rem]">No facility definitions assigned.</p>
                             )}
                           </div>
                         </div>
