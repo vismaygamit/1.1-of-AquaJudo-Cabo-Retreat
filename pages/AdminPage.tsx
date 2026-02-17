@@ -320,9 +320,10 @@ export const AdminPage: React.FC<AdminPageProps> = ({
       data.append('price', room.basePrice.toString());
       data.append('description', room.description);
       
-      // Clean features: remove empty strings and duplicates
-      const cleanedFeatures = Array.from(new Set((room.features || []).map(f => f.trim()).filter(f => f.length > 0)));
-      data.append('features', JSON.stringify(cleanedFeatures));
+      const cleanArray = (arr?: string[]) => Array.from(new Set((arr || []).map(f => f.trim()).filter(f => f.length > 0)));
+      
+      data.append('features', JSON.stringify(cleanArray(room.features)));
+      data.append('facilities', JSON.stringify(cleanArray(room.facilities)));
       
       const file = roomFiles[room.id];
       if (file) {
@@ -610,7 +611,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({
         {tab === 'rooms' && (
           <div className="space-y-10 animate-fade-in">
             <AdminSectionHeader title="Sanctuaries" onAdd={() => {
-              const next = [...rooms, { id: `room-${Date.now()}`, name: "", basePrice: 0, description: "", image: "", location: "Estate Wing", bedType: "Restorative Sanctuary", maxOccupancy: 2, bathType: 'private', features: [] }];
+              const next = [...rooms, { id: `room-${Date.now()}`, name: "", basePrice: 0, description: "", image: "", location: "Estate Wing", bedType: "Restorative Sanctuary", maxOccupancy: 2, bathType: 'private', features: [], facilities: [] }];
               setRooms(next);
               showToast('Draft sanctuary added.', 'info');
             }} />
@@ -664,6 +665,60 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                           />
                         </div>
 
+                        {/* Facilities Management Section */}
+                        <div className="space-y-6">
+                          <div className="flex items-center justify-between border-b border-stone/5 pb-2">
+                            <p className="text-[10px] font-black uppercase tracking-[0.4em] text-aqua-primary">SANCTUARY FACILITIES</p>
+                            <button 
+                              disabled={isRoomSaving}
+                              onClick={() => {
+                                const next = [...rooms];
+                                next[idx].facilities = [...(next[idx].facilities || []), ""];
+                                setRooms(next);
+                                showToast('Facility anchor added.', 'info');
+                              }}
+                              className="text-[10px] font-black uppercase text-aqua-primary hover:text-aqua-deep transition-all flex items-center gap-2"
+                            >
+                              <Plus size={12} /> ADD FACILITY
+                            </button>
+                          </div>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {(room.facilities || []).map((fac, fIdx) => (
+                              <div key={`fac-${fIdx}`} className="flex items-center gap-2 group/fac animate-fade-in">
+                                <div className="flex-1">
+                                  <input 
+                                    value={fac}
+                                    disabled={isRoomSaving}
+                                    onChange={e => {
+                                      const next = [...rooms];
+                                      const nextFacs = [...(next[idx].facilities || [])];
+                                      nextFacs[fIdx] = e.target.value;
+                                      next[idx].facilities = nextFacs;
+                                      setRooms(next);
+                                    }}
+                                    placeholder="e.g. Panoramic Ocean Balcony"
+                                    className="w-full bg-[#faf9f6] px-5 py-3 rounded-xl border border-stone/5 text-[11px] font-bold uppercase tracking-widest text-stone outline-none focus:border-aqua-primary/30 transition-all shadow-sm"
+                                  />
+                                </div>
+                                <button 
+                                  disabled={isRoomSaving}
+                                  onClick={() => {
+                                    const next = [...rooms];
+                                    next[idx].facilities = next[idx].facilities?.filter((_, i) => i !== fIdx);
+                                    setRooms(next);
+                                  }}
+                                  className="p-3 text-stone/10 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all"
+                                >
+                                  <Trash2 size={16} />
+                                </button>
+                              </div>
+                            ))}
+                            {(room.facilities || []).length === 0 && (
+                              <p className="col-span-full text-[10px] font-serif italic text-stone/20 py-4 text-center border border-dashed border-stone/5 rounded-xl">No specific facilities added.</p>
+                            )}
+                          </div>
+                        </div>
+
                         {/* Features Management Section */}
                         <div className="space-y-6">
                           <div className="flex items-center justify-between border-b border-stone/5 pb-2">
@@ -683,7 +738,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                           </div>
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             {(room.features || []).map((feat, fIdx) => (
-                              <div key={fIdx} className="flex items-center gap-2 group/feat animate-fade-in">
+                              <div key={`feat-${fIdx}`} className="flex items-center gap-2 group/feat animate-fade-in">
                                 <div className="flex-1">
                                   <input 
                                     value={feat}
@@ -695,7 +750,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                                       next[idx].features = nextFeats;
                                       setRooms(next);
                                     }}
-                                    placeholder="e.g. Panoramic Ocean Balcony"
+                                    placeholder="e.g. Ergonomic Recovery Mat"
                                     className="w-full bg-[#faf9f6] px-5 py-3 rounded-xl border border-stone/5 text-[11px] font-bold uppercase tracking-widest text-stone outline-none focus:border-aqua-primary/30 transition-all shadow-sm"
                                   />
                                 </div>
@@ -705,7 +760,6 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                                     const next = [...rooms];
                                     next[idx].features = next[idx].features?.filter((_, i) => i !== fIdx);
                                     setRooms(next);
-                                    showToast('Feature removed.', 'info');
                                   }}
                                   className="p-3 text-stone/10 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all"
                                 >
@@ -714,7 +768,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                               </div>
                             ))}
                             {(room.features || []).length === 0 && (
-                              <p className="col-span-full text-[10px] font-serif italic text-stone/20 py-4 text-center border border-dashed border-stone/5 rounded-xl">No distinctive features added to this registry entry.</p>
+                              <p className="col-span-full text-[10px] font-serif italic text-stone/20 py-4 text-center border border-dashed border-stone/5 rounded-xl">No distinctive technical features added.</p>
                             )}
                           </div>
                         </div>

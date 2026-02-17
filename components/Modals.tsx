@@ -125,11 +125,18 @@ export const RoomDetailModal: React.FC<{
                 <div className="w-1 h-1 rounded-full bg-aqua-primary/50" />
                 <span className="text-[10px] font-black uppercase tracking-widest">{room.location.toUpperCase()}</span>
               </li>
-              {/* Added dynamic features list */}
+              {/* Dynamic Facilities List - Highlighting integration */}
+              {room.facilities && room.facilities.length > 0 && room.facilities.map((fac, i) => fac.trim() && (
+                <li key={`fac-${i}`} className="flex items-center gap-3 text-white/60 animate-fade-in">
+                  <div className="w-1 h-1 rounded-full bg-aqua-primary/80 shadow-[0_0_8px_rgba(79,209,197,0.4)]" />
+                  <span className="text-[10px] font-black uppercase tracking-widest text-white/80">{fac}</span>
+                </li>
+              ))}
+              {/* Dynamic Features List */}
               {room.features && room.features.length > 0 && room.features.map((feat, i) => feat.trim() && (
-                <li key={i} className="flex items-center gap-3 text-white/60">
-                  <div className="w-1 h-1 rounded-full bg-aqua-primary/80" />
-                  <span className="text-[10px] font-black uppercase tracking-widest text-aqua-primary/80">{feat}</span>
+                <li key={`feat-${i}`} className="flex items-center gap-3 text-white/60 opacity-60">
+                  <div className="w-1 h-1 rounded-full bg-aqua-primary/40" />
+                  <span className="text-[10px] font-black uppercase tracking-widest">{feat}</span>
                 </li>
               ))}
             </ul>

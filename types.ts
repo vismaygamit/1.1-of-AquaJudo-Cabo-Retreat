@@ -37,7 +37,7 @@ export interface Application {
   notes?: string;
 }
 
-// Added video property to support room video previews in Modals.tsx
+// Added facilities and features to support dynamic sanctuary highlights
 export interface Room {
   id: string;
   name: string;
@@ -50,6 +50,7 @@ export interface Room {
   maxOccupancy: number;
   bathType: 'private' | 'shared';
   features?: string[];
+  facilities?: string[];
 }
 
 export interface MediaAsset {

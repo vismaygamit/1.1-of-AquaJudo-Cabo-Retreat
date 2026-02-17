@@ -148,16 +148,17 @@ export const useAppState = () => {
       if (result.success && Array.isArray(result.data)) {
         const t = Date.now();
         const mappedRooms: Room[] = result.data.map((apiRoom: any) => {
-          let parsedFeatures: string[] = [];
-          if (Array.isArray(apiRoom.features)) {
-            parsedFeatures = apiRoom.features;
-          } else if (typeof apiRoom.features === 'string' && apiRoom.features.trim()) {
-            try {
-              parsedFeatures = JSON.parse(apiRoom.features);
-            } catch (e) {
-              parsedFeatures = apiRoom.features.split(',').map((s: string) => s.trim());
+          const parseArrayField = (field: any) => {
+            if (Array.isArray(field)) return field;
+            if (typeof field === 'string' && field.trim()) {
+              try {
+                return JSON.parse(field);
+              } catch (e) {
+                return field.split(',').map((s: string) => s.trim());
+              }
             }
-          }
+            return [];
+          };
 
           return {
             id: apiRoom._id,
@@ -170,7 +171,8 @@ export const useAppState = () => {
             video: apiRoom.videoPath ? (apiRoom.videoPath.startsWith('http') ? apiRoom.videoPath : `${API_ROOT}${apiRoom.videoPath}`) + `?t=${t}` : undefined,
             maxOccupancy: apiRoom.maxOccupancy || 2,
             bathType: apiRoom.bathRoomType?.toLowerCase().includes('shared') ? 'shared' : 'private',
-            features: parsedFeatures
+            features: parseArrayField(apiRoom.features),
+            facilities: parseArrayField(apiRoom.facilities)
           };
         });
         setRooms(mappedRooms);
