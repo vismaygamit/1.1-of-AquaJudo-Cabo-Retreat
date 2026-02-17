@@ -125,6 +125,13 @@ export const RoomDetailModal: React.FC<{
                 <div className="w-1 h-1 rounded-full bg-aqua-primary/50" />
                 <span className="text-[10px] font-black uppercase tracking-widest">{room.location.toUpperCase()}</span>
               </li>
+              {/* Added dynamic features list */}
+              {room.features && room.features.length > 0 && room.features.map((feat, i) => feat.trim() && (
+                <li key={i} className="flex items-center gap-3 text-white/60">
+                  <div className="w-1 h-1 rounded-full bg-aqua-primary/80" />
+                  <span className="text-[10px] font-black uppercase tracking-widest text-aqua-primary/80">{feat}</span>
+                </li>
+              ))}
             </ul>
           </div>
 

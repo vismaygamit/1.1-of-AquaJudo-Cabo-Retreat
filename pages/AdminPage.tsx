@@ -1,6 +1,6 @@
 
 import React, { useState, useRef, useEffect } from 'react';
-import { LogOut, Plus, Trash2, Copy, Image as ImageIcon, CheckCircle2, XCircle, Clock, Upload, Film, MessageSquare, MapPin, Package, ShieldCheck, RefreshCw, Calendar, Home, Quote, ChevronLeft, ChevronRight, Save, AlertCircle, Loader2, Video } from 'lucide-react';
+import { LogOut, Plus, Trash2, Copy, Image as ImageIcon, CheckCircle2, XCircle, Clock, Upload, Film, MessageSquare, MapPin, Package, ShieldCheck, RefreshCw, Calendar, Home, Quote, ChevronLeft, ChevronRight, Save, AlertCircle, Loader2, Video, X } from 'lucide-react';
 import { DateTime } from 'luxon';
 import { AdminSectionHeader, Logo } from '../components/Shared';
 import { DeleteConfirmModal } from '../components/Modals';
@@ -320,6 +320,10 @@ export const AdminPage: React.FC<AdminPageProps> = ({
       data.append('price', room.basePrice.toString());
       data.append('description', room.description);
       
+      // Clean features: remove empty strings and duplicates
+      const cleanedFeatures = Array.from(new Set((room.features || []).map(f => f.trim()).filter(f => f.length > 0)));
+      data.append('features', JSON.stringify(cleanedFeatures));
+      
       const file = roomFiles[room.id];
       if (file) {
         data.append('image', file);
@@ -606,7 +610,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({
         {tab === 'rooms' && (
           <div className="space-y-10 animate-fade-in">
             <AdminSectionHeader title="Sanctuaries" onAdd={() => {
-              const next = [...rooms, { id: `room-${Date.now()}`, name: "", basePrice: 0, description: "", image: "", location: "Estate Wing", bedType: "Restorative Sanctuary", maxOccupancy: 2, bathType: 'private' }];
+              const next = [...rooms, { id: `room-${Date.now()}`, name: "", basePrice: 0, description: "", image: "", location: "Estate Wing", bedType: "Restorative Sanctuary", maxOccupancy: 2, bathType: 'private', features: [] }];
               setRooms(next);
               showToast('Draft sanctuary added.', 'info');
             }} />
@@ -621,43 +625,101 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                 return (
                   <div key={room.id} className="bg-white p-10 md:p-14 rounded-[3.5rem] border border-stone/5 shadow-2xl space-y-12 group transition-all hover:shadow-aqua-primary/5">
                     <div className="flex flex-col md:flex-row justify-between items-start gap-8">
-                      <div className="flex-1 space-y-4">
-                        <div className="flex items-center gap-4">
-                          <input 
-                            value={room.name} 
+                      <div className="flex-1 space-y-8">
+                        <div className="space-y-4">
+                          <div className="flex items-center gap-4">
+                            <input 
+                              value={room.name} 
+                              disabled={isRoomSaving}
+                              onChange={e => { 
+                                const next = [...rooms]; 
+                                next[idx].name = e.target.value; 
+                                setRooms(next);
+                                if (e.target.value.trim()) setRoomErrors(prev => ({ ...prev, [`${room.id}-name`]: false }));
+                              }} 
+                              className={`text-3xl md:text-4xl font-black uppercase tracking-tight text-stone w-full bg-transparent border-b-2 outline-none focus:text-aqua-primary transition-colors ${hasNameError ? 'border-red-400 text-red-500' : 'border-transparent'}`} 
+                              placeholder="Sanctuary Name *"
+                              required
+                            />
+                            <button 
+                              disabled={isRoomSaving}
+                              onClick={() => setDeleteTarget({ id: room.id, type: 'rooms', label: room.name || 'Unnamed Sanctuary' })} 
+                              className="p-3 text-stone/10 hover:text-red-500 hover:bg-red-50 rounded-full transition-all disabled:opacity-30"
+                            >
+                              <Trash2 size={22}/>
+                            </button>
+                          </div>
+                          <textarea 
+                            value={room.description} 
                             disabled={isRoomSaving}
                             onChange={e => { 
                               const next = [...rooms]; 
-                              next[idx].name = e.target.value; 
+                              next[idx].description = e.target.value; 
                               setRooms(next);
-                              if (e.target.value.trim()) setRoomErrors(prev => ({ ...prev, [`${room.id}-name`]: false }));
+                              if (e.target.value.trim()) setRoomErrors(prev => ({ ...prev, [`${room.id}-description`]: false }));
                             }} 
-                            className={`text-3xl md:text-4xl font-black uppercase tracking-tight text-stone w-full bg-transparent border-b-2 outline-none focus:text-aqua-primary transition-colors ${hasNameError ? 'border-red-400 text-red-500' : 'border-transparent'}`} 
-                            placeholder="Sanctuary Name *"
+                            className={`w-full bg-[#faf9f6] p-8 rounded-[2rem] border text-[15px] font-serif italic text-stone/60 outline-none resize-none min-h-[140px] leading-relaxed ${hasDescError ? 'border-red-400 bg-red-50/10' : 'border-stone/5'}`} 
+                            placeholder="Provide a technical description of this sanctuary space... *"
                             required
                           />
-                          <button 
-                            disabled={isRoomSaving}
-                            onClick={() => setDeleteTarget({ id: room.id, type: 'rooms', label: room.name || 'Unnamed Sanctuary' })} 
-                            className="p-3 text-stone/10 hover:text-red-500 hover:bg-red-50 rounded-full transition-all disabled:opacity-30"
-                          >
-                            <Trash2 size={22}/>
-                          </button>
                         </div>
-                        <textarea 
-                          value={room.description} 
-                          disabled={isRoomSaving}
-                          onChange={e => { 
-                            const next = [...rooms]; 
-                            next[idx].description = e.target.value; 
-                            setRooms(next);
-                            if (e.target.value.trim()) setRoomErrors(prev => ({ ...prev, [`${room.id}-description`]: false }));
-                          }} 
-                          className={`w-full bg-[#faf9f6] p-8 rounded-[2rem] border text-[15px] font-serif italic text-stone/60 outline-none resize-none min-h-[140px] leading-relaxed ${hasDescError ? 'border-red-400 bg-red-50/10' : 'border-stone/5'}`} 
-                          placeholder="Provide a technical description of this sanctuary space... *"
-                          required
-                        />
+
+                        {/* Features Management Section */}
+                        <div className="space-y-6">
+                          <div className="flex items-center justify-between border-b border-stone/5 pb-2">
+                            <p className="text-[10px] font-black uppercase tracking-[0.4em] text-stone/20">TECHNICAL FEATURES</p>
+                            <button 
+                              disabled={isRoomSaving}
+                              onClick={() => {
+                                const next = [...rooms];
+                                next[idx].features = [...(next[idx].features || []), ""];
+                                setRooms(next);
+                                showToast('Feature field added.', 'info');
+                              }}
+                              className="text-[10px] font-black uppercase text-aqua-primary hover:text-aqua-deep transition-all flex items-center gap-2"
+                            >
+                              <Plus size={12} /> ADD FEATURE
+                            </button>
+                          </div>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {(room.features || []).map((feat, fIdx) => (
+                              <div key={fIdx} className="flex items-center gap-2 group/feat animate-fade-in">
+                                <div className="flex-1">
+                                  <input 
+                                    value={feat}
+                                    disabled={isRoomSaving}
+                                    onChange={e => {
+                                      const next = [...rooms];
+                                      const nextFeats = [...(next[idx].features || [])];
+                                      nextFeats[fIdx] = e.target.value;
+                                      next[idx].features = nextFeats;
+                                      setRooms(next);
+                                    }}
+                                    placeholder="e.g. Panoramic Ocean Balcony"
+                                    className="w-full bg-[#faf9f6] px-5 py-3 rounded-xl border border-stone/5 text-[11px] font-bold uppercase tracking-widest text-stone outline-none focus:border-aqua-primary/30 transition-all shadow-sm"
+                                  />
+                                </div>
+                                <button 
+                                  disabled={isRoomSaving}
+                                  onClick={() => {
+                                    const next = [...rooms];
+                                    next[idx].features = next[idx].features?.filter((_, i) => i !== fIdx);
+                                    setRooms(next);
+                                    showToast('Feature removed.', 'info');
+                                  }}
+                                  className="p-3 text-stone/10 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all"
+                                >
+                                  <Trash2 size={16} />
+                                </button>
+                              </div>
+                            ))}
+                            {(room.features || []).length === 0 && (
+                              <p className="col-span-full text-[10px] font-serif italic text-stone/20 py-4 text-center border border-dashed border-stone/5 rounded-xl">No distinctive features added to this registry entry.</p>
+                            )}
+                          </div>
+                        </div>
                       </div>
+
                       <div className="w-full md:w-80 space-y-6">
                         <div className="space-y-2">
                           <p className="text-[8px] font-black uppercase tracking-widest text-stone/10 px-1">Image Asset *</p>

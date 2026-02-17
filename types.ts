@@ -49,6 +49,7 @@ export interface Room {
   video?: string;
   maxOccupancy: number;
   bathType: 'private' | 'shared';
+  features?: string[];
 }
 
 export interface MediaAsset {
