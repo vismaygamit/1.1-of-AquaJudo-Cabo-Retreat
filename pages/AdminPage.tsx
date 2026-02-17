@@ -107,12 +107,9 @@ export const AdminPage: React.FC<AdminPageProps> = ({
     }
   }, []);
 
-  const updateStorage = (key: string, val: any) => localStorage.setItem(key, JSON.stringify(val));
-
   const handleStatusChange = (id: string, newStatus: ApplicationStatus) => {
     const next = applications.map(a => a.id === id ? { ...a, status: newStatus } : a);
     setApplications(next);
-    updateStorage('aj_apps', next);
     showToast(`Inquiry status updated to ${newStatus.toUpperCase()}.`, 'success');
   };
 
@@ -368,7 +365,6 @@ export const AdminPage: React.FC<AdminPageProps> = ({
     } catch (e: any) {
       showToast('Failed to synchronize portal settings.', 'error');
     } finally {
-      // Fix: Removed reference to non-existent setIsFetchingPortal.current
       setIsSaving(prev => ({ ...prev, portal: false }));
     }
   };

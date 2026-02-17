@@ -80,10 +80,6 @@ export const useAppState = () => {
   const lastFaqFetch = useRef(0);
   const lastPortalFetch = useRef(0);
 
-  const saveToStorage = (key: string, data: any) => {
-    localStorage.setItem(key, JSON.stringify(data));
-  };
-
   const fetchInquiriesFromApi = useCallback(async (page = 1, limit = 5, force = false) => {
     const now = Date.now();
     if (isFetchingInquiries.current) return;
@@ -99,7 +95,6 @@ export const useAppState = () => {
       if (result.success && result.data) {
         const inquiriesData = result.data.inquiries || [];
         const mappedInquiries: Application[] = inquiriesData.map((apiInquiry: any) => {
-          // Robust session date extraction from API response
           const sStart = apiInquiry.sessionStartDate || apiInquiry.startDate || (apiInquiry.session && (apiInquiry.session.startDate || apiInquiry.session.start_date));
           const sEnd = apiInquiry.sessionEndDate || apiInquiry.endDate || (apiInquiry.session && (apiInquiry.session.endDate || apiInquiry.session.end_date));
           
@@ -127,7 +122,14 @@ export const useAppState = () => {
         });
         setApplications(mappedInquiries);
         setPagination(result.data.pagination || null);
-        if (page === 1) saveToStorage('aj_apps', mappedInquiries);
+        
+        // If searching for a portalId on initial load
+        const urlParams = new URLSearchParams(window.location.search);
+        const portalId = urlParams.get('portal');
+        if (portalId) {
+          const found = mappedInquiries.find(a => a.id === portalId);
+          if (found) setActivePortalGuest(found);
+        }
       }
     } catch (error) {
       console.warn("Inquiries API unavailable:", error);
@@ -196,7 +198,7 @@ export const useAppState = () => {
       if (result.success && Array.isArray(result.data)) {
         const mappedSessions: ResidencySession[] = result.data.map((apiSession: any) => ({
           id: apiSession._id,
-          startDate: apiSession.startDate, // Keep raw ISO for UI localization
+          startDate: apiSession.startDate,
           endDate: apiSession.endDate,
           status: 'Open',
           maxGuests: apiSession.maxGuests
@@ -245,7 +247,6 @@ export const useAppState = () => {
           a: apiFaq.ans
         }));
         setFaqs(mappedFaqs);
-        saveToStorage('aj_faqs', mappedFaqs);
       }
     } catch (error) {
       console.warn("FAQ API unavailable:", error);
@@ -288,7 +289,6 @@ export const useAppState = () => {
             : DEFAULT_PORTAL_CONFIG.promoVideoUrl
         };
         setPortalConfig(mappedPortal);
-        saveToStorage('aj_portal_config', mappedPortal);
       }
     } catch (error) {
       console.warn("Portal API fetch failed:", error);
@@ -299,9 +299,7 @@ export const useAppState = () => {
 
   const savePortalConfigToApi = async (config: typeof DEFAULT_PORTAL_CONFIG, videoFile?: File) => {
     const formData = new FormData();
-    if (videoFile) {
-      formData.append('estateNarrativeVideo', videoFile);
-    }
+    if (videoFile) formData.append('estateNarrativeVideo', videoFile);
     formData.append('welcomeMessage', config.welcomeParagraph);
     formData.append('arrivalLogistics', JSON.stringify({
       estateAddress: config.logistics.address,
@@ -319,17 +317,9 @@ export const useAppState = () => {
       body: formData
     });
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(`Registry refused sync: ${response.status} ${errorText || ''}`);
-    }
-
+    if (!response.ok) throw new Error(`Registry refused sync: ${response.status}`);
     const result = await response.json();
-    if (result.success) {
-      await fetchPortalConfigFromApi(true);
-    } else {
-      throw new Error(result.message || "Portal update failed on server.");
-    }
+    if (result.success) await fetchPortalConfigFromApi(true);
     return result;
   };
 
@@ -361,10 +351,7 @@ export const useAppState = () => {
       body: JSON.stringify({ days })
     });
     const result = await response.json();
-    if (result.success) {
-      setItinerary(result.data);
-      saveToStorage('aj_itinerary', result.data);
-    }
+    if (result.success) setItinerary(result.data);
     return result;
   };
 
@@ -410,29 +397,19 @@ export const useAppState = () => {
   };
 
   useEffect(() => {
-    const get = (key: string) => localStorage.getItem(key);
-    const storedApps = JSON.parse(get('aj_apps') || '[]');
-    setApplications(storedApps);
-
     fetchRoomsFromApi();
     fetchSessionsFromApi();
     fetchItineraryFromApi();
     fetchFaqsFromApi();
     fetchPortalConfigFromApi();
 
-    const storedFaqs = JSON.parse(get('aj_faqs') || 'null');
-    if (storedFaqs) setFaqs(storedFaqs);
-
-    const storedPortal = JSON.parse(get('aj_portal_config') || 'null');
-    if (storedPortal) setPortalConfig(storedPortal);
-
     const urlParams = new URLSearchParams(window.location.search);
     const portalId = urlParams.get('portal');
     if (portalId) {
-      const found = storedApps.find((a: Application) => a.id === portalId);
-      if (found) setActivePortalGuest(found);
+      // If we are looking for a portal ID, we should try to fetch inquiries as well
+      fetchInquiriesFromApi(1, 50); // Higher limit to increase chances of finding it
     }
-  }, [fetchRoomsFromApi, fetchSessionsFromApi, fetchItineraryFromApi, fetchFaqsFromApi, fetchPortalConfigFromApi]);
+  }, [fetchRoomsFromApi, fetchSessionsFromApi, fetchItineraryFromApi, fetchFaqsFromApi, fetchPortalConfigFromApi, fetchInquiriesFromApi]);
 
   return {
     applications,
