@@ -31,11 +31,18 @@ export const LandingPage: React.FC<LandingPageProps> = ({ sessions, rooms, itine
     <main>
       {/* HERO */}
       <header className="relative min-h-[70vh] flex flex-col items-center justify-center text-center px-6 overflow-hidden">
-        <video autoPlay loop muted playsInline className="absolute inset-0 w-full h-full object-cover opacity-10 pointer-events-none scale-100">
+        <video 
+          autoPlay 
+          loop 
+          muted 
+          playsInline 
+          controls 
+          className="absolute inset-0 w-full h-full object-cover opacity-20 transition-opacity duration-700 scale-100"
+        >
           <source src={HERO_VIDEO_URL} type="video/mp4" />
         </video>
-        <div className="absolute inset-0 bg-gradient-to-b from-[#faf9f6]/80 via-transparent to-[#faf9f6]"></div>
-        <div className="relative z-10 space-y-8 max-w-4xl animate-fade-in pt-24 md:pt-32">
+        <div className="absolute inset-0 bg-gradient-to-b from-[#faf9f6]/80 via-transparent to-[#faf9f6] pointer-events-none"></div>
+        <div className="relative z-10 space-y-8 max-w-4xl animate-fade-in pt-24 md:pt-32 pointer-events-none">
           <div className="space-y-4">
             <p className="text-[14px] md:text-[16px] tracking-[0.4em] text-stone font-black uppercase">CABO SAN LUCAS • MEXICO</p>
             <h1 className="text-5xl md:text-7xl font-display font-light uppercase tracking-tighter leading-tight text-stone">
@@ -46,7 +53,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ sessions, rooms, itine
           <p className="text-lg md:text-xl text-stone-light/60 font-serif italic max-w-xl mx-auto leading-relaxed">
             Restorative movement and coastal exploration in a founder-led, alcohol-free estate.
           </p>
-          <div className="pt-6">
+          <div className="pt-6 pointer-events-auto">
              <button onClick={() => onApplyClick()} className="bg-[#111] text-white px-10 py-4 rounded-full text-[12px] tracking-[0.3em] font-black uppercase shadow-2xl hover:scale-105 active:scale-95 transition-all flex items-center gap-4 group mx-auto">
                APPLY FOR RESIDENCY <Zap size={16} className="text-aqua-primary group-hover:rotate-12 transition-transform" />
              </button>
@@ -69,6 +76,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ sessions, rooms, itine
               loop 
               muted 
               playsInline 
+              controls
               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000 opacity-90"
             />
             <div className="absolute inset-0 flex items-center justify-center bg-black/5 group-hover:bg-transparent transition-colors pointer-events-none">
@@ -142,7 +150,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ sessions, rooms, itine
                       <p className="text-[10px] font-black uppercase tracking-[0.3em] text-aqua-primary">{new Date(s.startDate).getFullYear()}</p>
                       <span className="px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest bg-stone/5">{s.status}</span>
                     </div>
-                    <h4 className="text-3xl font-black uppercase tracking-tighter text-stone">{new Date(s.startDate).toLocaleDateString('en-US', { month: 'long' })}</h4>
+                    <h4 className="text-3xl font-black uppercase tracking-tighter text-stone">{new Date(s.startDate).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}</h4>
                     <p className="text-sm font-serif italic text-stone/40">{new Date(s.startDate).toLocaleDateString()} — {new Date(s.endDate).toLocaleDateString()}</p>
                   </div>
                   <button 
