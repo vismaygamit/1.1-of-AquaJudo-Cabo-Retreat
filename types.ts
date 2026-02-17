@@ -37,19 +37,14 @@ export interface Application {
   notes?: string;
 }
 
-// Added facilities and features to support dynamic sanctuary highlights
 export interface Room {
   id: string;
   name: string;
   description: string;
-  location: string;
-  bedType: string;
   basePrice: number;
   image?: string;
   video?: string;
   maxOccupancy: number;
-  bathType: 'private' | 'shared';
-  features?: string[];
   facilities?: string[];
 }
 

@@ -192,9 +192,6 @@ export const LandingPage: React.FC<LandingPageProps> = ({ sessions, rooms, itine
               >
                 <div className="space-y-1">
                   <h4 className="text-2xl md:text-3xl font-bold uppercase tracking-tight text-stone">{room.name}</h4>
-                  <p className="text-sm md:text-base font-serif italic text-stone/30">
-                    {room.bedType} • <span className="lowercase">{room.bathType} Bath</span>
-                  </p>
                 </div>
                 <div className="flex items-baseline gap-1">
                   <span className="text-lg font-light text-stone/40">$</span>

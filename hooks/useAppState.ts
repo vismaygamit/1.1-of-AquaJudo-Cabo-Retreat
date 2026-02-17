@@ -166,14 +166,10 @@ export const useAppState = () => {
             id: apiRoom._id,
             name: apiRoom.name,
             description: apiRoom.description,
-            location: apiRoom.location || "Estate Wing",
-            bedType: apiRoom.bedType || 'Restorative Sanctuary',
             basePrice: apiRoom.price,
             image: apiRoom.imgPath ? (apiRoom.imgPath.startsWith('http') ? apiRoom.imgPath : `${API_ROOT}${apiRoom.imgPath}`) + `?t=${t}` : undefined,
             video: apiRoom.videoPath ? (apiRoom.videoPath.startsWith('http') ? apiRoom.videoPath : `${API_ROOT}${apiRoom.videoPath}`) + `?t=${t}` : undefined,
             maxOccupancy: apiRoom.maxOccupancy || 2,
-            bathType: apiRoom.bathRoomType?.toLowerCase().includes('shared') ? 'shared' : 'private',
-            features: parseArrayField(apiRoom.features),
             facilities: parseArrayField(apiRoom.facilities)
           };
         });

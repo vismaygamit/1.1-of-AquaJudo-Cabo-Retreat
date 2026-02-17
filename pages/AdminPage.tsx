@@ -533,7 +533,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({
         {tab === 'rooms' && (
           <div className="space-y-10 animate-fade-in">
             <AdminSectionHeader title="Sanctuaries" onAdd={() => {
-              const next = [...rooms, { id: `room-${Date.now()}`, name: "", basePrice: 0, description: "", image: "", location: "Estate Wing", bedType: "Restorative Sanctuary", maxOccupancy: 2, bathType: 'private', facilities: [] }];
+              const next = [...rooms, { id: `room-${Date.now()}`, name: "", basePrice: 0, description: "", image: "", maxOccupancy: 2, facilities: [] }];
               setRooms(next);
               showToast('Draft sanctuary added.', 'info');
             }} />
