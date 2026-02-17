@@ -71,22 +71,23 @@ export const RoomDetailModal: React.FC<{
   onRequestAccess: (roomId: string) => void;
 }> = ({ room, onClose, onRequestAccess }) => {
   return (
-    <div className="fixed inset-0 z-[1200] bg-[#111]/90 backdrop-blur-sm flex items-center justify-center p-4 animate-fade-in">
-      <div className="bg-[#1a1a1a] w-full max-w-4xl max-h-[90vh] rounded-[4rem] overflow-hidden flex flex-col relative shadow-[0_0_100px_rgba(0,0,0,0.8)] border border-white/5 no-scrollbar">
-        {/* Close button - Top right circular */}
+    <div className="fixed inset-0 z-[1200] bg-black/80 backdrop-blur-md flex items-center justify-center p-4 animate-fade-in">
+      <div className="bg-[#1a1a1a] w-full max-w-4xl max-h-[95vh] rounded-[3.5rem] overflow-hidden flex flex-col relative shadow-2xl border border-white/5">
+        
+        {/* Close button - Top right floating */}
         <button 
           onClick={onClose} 
-          className="absolute top-6 right-6 z-[1300] w-10 h-10 bg-white/10 hover:bg-white/20 text-white rounded-full flex items-center justify-center transition-all backdrop-blur-md"
+          className="absolute top-6 right-6 z-[1350] w-10 h-10 bg-white/10 hover:bg-white/20 text-white rounded-full flex items-center justify-center transition-all backdrop-blur-md border border-white/10"
         >
           <X size={20} />
         </button>
 
-        {/* Top Media Area - Fixed aspect ratio or flexible with minimums to prevent "cut" issues */}
-        <div className="w-full relative bg-stone/40 min-h-[40%] md:min-h-[350px]">
+        {/* Media Container - Improved for responsiveness */}
+        <div className="w-full relative bg-stone/40 flex-shrink-0 aspect-[4/3] sm:aspect-video md:aspect-auto md:h-[45%]">
           {room.video ? (
             <video
               src={room.video}
-              className="w-full h-full absolute inset-0 object-cover opacity-90"
+              className="w-full h-full object-cover"
               controls
               autoPlay
               loop
@@ -94,62 +95,63 @@ export const RoomDetailModal: React.FC<{
               playsInline
             />
           ) : room.image ? (
-            <img src={room.image} className="w-full h-full absolute inset-0 object-cover opacity-90" alt={room.name} />
+            <img src={room.image} className="w-full h-full object-cover" alt={room.name} />
           ) : (
             <div className="absolute inset-0 flex flex-col items-center justify-center text-white/20 gap-2">
               <Loader2 className="animate-spin" size={32} />
-              <span className="text-[10px] uppercase font-black tracking-widest">Loading Asset</span>
+              <span className="text-[10px] uppercase font-black tracking-widest">Asset Loading</span>
             </div>
           )}
         </div>
 
-        {/* Bottom Content Area - Matches Screenshot Styling */}
-        <div className="flex-1 p-8 md:p-14 flex flex-col justify-between overflow-y-auto custom-scrollbar">
-          <div className="space-y-10">
-            <div className="space-y-3">
-              <p className="text-[10px] font-black uppercase tracking-[0.4em] text-aqua-primary">SANCTUARY OVERVIEW</p>
-              <h2 className="text-4xl md:text-5xl font-bold uppercase tracking-tighter text-white leading-none">
+        {/* Content Area - Matches User Screenshot Aesthetic */}
+        <div className="flex-1 flex flex-col p-8 sm:p-12 overflow-y-auto no-scrollbar relative">
+          <div className="space-y-10 pb-20">
+            <div className="space-y-4">
+              <p className="text-[11px] font-black uppercase tracking-[0.4em] text-aqua-primary">SANCTUARY OVERVIEW</p>
+              <h2 className="text-4xl sm:text-6xl font-bold uppercase tracking-tighter text-white leading-none">
                 {room.name}
               </h2>
             </div>
 
-            <p className="text-base md:text-lg font-serif italic text-white/40 leading-relaxed">
+            <p className="text-base sm:text-lg font-serif italic text-white/50 leading-relaxed max-w-2xl">
               {room.description}
             </p>
 
-            <ul className="space-y-5">
+            <ul className="space-y-4 pt-2">
               <li className="flex items-center gap-4 text-white/80 animate-fade-in">
-                <div className="w-1.5 h-1.5 rounded-full bg-aqua-primary shadow-[0_0_8px_rgba(79,209,197,0.6)]" />
+                <div className="w-1.5 h-1.5 rounded-full bg-aqua-primary shadow-[0_0_8px_rgba(79,209,197,0.8)]" />
                 <span className="text-[11px] font-black uppercase tracking-[0.2em]">{room.bedType}</span>
               </li>
               <li className="flex items-center gap-4 text-white/80 animate-fade-in">
-                <div className="w-1.5 h-1.5 rounded-full bg-aqua-primary shadow-[0_0_8px_rgba(79,209,197,0.6)]" />
+                <div className="w-1.5 h-1.5 rounded-full bg-aqua-primary shadow-[0_0_8px_rgba(79,209,197,0.8)]" />
                 <span className="text-[11px] font-black uppercase tracking-[0.2em]">{room.bathType} BATHROOM</span>
               </li>
               <li className="flex items-center gap-4 text-white/80 animate-fade-in">
-                <div className="w-1.5 h-1.5 rounded-full bg-aqua-primary shadow-[0_0_8px_rgba(79,209,197,0.6)]" />
+                <div className="w-1.5 h-1.5 rounded-full bg-aqua-primary shadow-[0_0_8px_rgba(79,209,197,0.8)]" />
                 <span className="text-[11px] font-black uppercase tracking-[0.2em]">{room.location.toUpperCase()}</span>
               </li>
 
               {room.facilities && room.facilities.length > 0 && room.facilities.map((fac, i) => fac.trim() && (
                 <li key={`fac-${i}`} className="flex items-center gap-4 text-white/80 animate-fade-in">
-                  <div className="w-1.5 h-1.5 rounded-full bg-aqua-primary shadow-[0_0_8px_rgba(79,209,197,0.6)]" />
+                  <div className="w-1.5 h-1.5 rounded-full bg-aqua-primary shadow-[0_0_8px_rgba(79,209,197,0.8)]" />
                   <span className="text-[11px] font-black uppercase tracking-[0.2em]">{fac}</span>
                 </li>
               ))}
             </ul>
           </div>
 
-          <div className="pt-12 flex flex-col md:flex-row md:items-end justify-between gap-8">
-            <div className="flex items-baseline gap-2">
-              <span className="text-xl font-light text-white/20">$</span>
-              <span className="text-5xl md:text-6xl font-bold tracking-tighter text-white leading-none">
+          {/* Footer with Price and Apply Action */}
+          <div className="sticky bottom-0 left-0 w-full pt-8 pb-2 flex items-end justify-between bg-gradient-to-t from-[#1a1a1a] via-[#1a1a1a] to-transparent">
+            <div className="flex items-baseline gap-1.5 group">
+              <span className="text-xl font-light text-white/30">$</span>
+              <span className="text-5xl sm:text-7xl font-bold tracking-tighter text-white leading-none">
                 {room.basePrice.toLocaleString()}
               </span>
             </div>
             <button
               onClick={() => onRequestAccess(room.id)}
-              className="w-full md:w-auto md:px-16 bg-white text-[#1a1a1a] py-5 rounded-2xl text-[12px] font-black uppercase tracking-[0.3em] shadow-2xl hover:bg-aqua-primary transition-all active:scale-[0.98] mt-2"
+              className="bg-white text-[#1a1a1a] px-8 sm:px-12 py-4 sm:py-5 rounded-2xl text-[12px] font-black uppercase tracking-[0.3em] shadow-xl hover:bg-aqua-primary transition-all active:scale-[0.98]"
             >
               REQUEST ACCESS
             </button>
@@ -212,8 +214,6 @@ export const ApplyModal: React.FC<ApplyModalProps> = ({ sessions, rooms, initial
 
   const today = new Date().toISOString().split('T')[0];
   const availableSessions = sessions.filter(s => s.startDate >= today);
-  const selectedSession = sessions.find(s => s.id === form.sessionId);
-  const selectedRoom = rooms.find(r => r.id === form.roomPreferenceId);
 
   return (
     <div className="fixed inset-0 z-[1500] bg-stone/20 backdrop-blur-sm flex items-center justify-center p-4">
