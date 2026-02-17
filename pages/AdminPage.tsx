@@ -42,10 +42,6 @@ type TabType = 'applications' | 'sessions' | 'rooms' | 'itinerary' | 'faqs' | 'p
 
 const ITEMS_PER_PAGE = 5;
 
-/**
- * Standardized Date Formatter
- * Displays dates as stored in the registry (UTC) without local timezone shifting.
- */
 const formatRegistryDateText = (iso?: string) => {
   if (!iso) return 'TBD';
   try {
@@ -57,10 +53,6 @@ const formatRegistryDateText = (iso?: string) => {
   }
 };
 
-/**
- * Standardized Date Input Formatter
- * Extracts yyyy-MM-dd from ISO strings for HTML5 date inputs.
- */
 const formatRegistryDateForInput = (iso?: string) => {
   if (!iso) return '';
   try {
@@ -93,32 +85,20 @@ export const AdminPage: React.FC<AdminPageProps> = ({
 
   const handleTabClick = (t: TabType) => {
     setTab(t);
-    
     if (t === 'applications') {
       fetchInquiriesFromApi(1, ITEMS_PER_PAGE, true);
-      initialLoadDone.current[t] = true;
     } else if (t === 'sessions') {
       fetchSessionsFromApi(true);
-      initialLoadDone.current[t] = true;
     } else if (t === 'rooms') {
       fetchRoomsFromApi(true);
-      initialLoadDone.current[t] = true;
     } else if (t === 'itinerary') {
       fetchItineraryFromApi(true);
-      initialLoadDone.current[t] = true;
     } else if (t === 'faqs') {
       fetchFaqsFromApi(true);
-      initialLoadDone.current[t] = true;
     } else if (t === 'portal') {
-      if (typeof fetchPortalConfigFromApi === 'function') {
-        fetchPortalConfigFromApi(true);
-      } else {
-        console.error("fetchPortalConfigFromApi is not provided as a function to AdminPage");
-      }
-      initialLoadDone.current[t] = true;
-    } else if (!initialLoadDone.current[t]) {
-      initialLoadDone.current[t] = true;
+      fetchPortalConfigFromApi(true);
     }
+    initialLoadDone.current[t] = true;
   };
 
   useEffect(() => {
@@ -172,7 +152,6 @@ export const AdminPage: React.FC<AdminPageProps> = ({
         setDeleteTarget(null);
         return;
       }
-
       setIsSaving(prev => ({ ...prev, [id]: true }));
       try {
         await deleteSessionFromApi(id);
@@ -192,12 +171,9 @@ export const AdminPage: React.FC<AdminPageProps> = ({
         setDeleteTarget(null);
         return;
       }
-
       setIsSaving(prev => ({ ...prev, [id]: true }));
       try {
-        const response = await fetch(`${API_BASE_URL}/deleteRoom/${id}`, {
-          method: 'DELETE'
-        });
+        const response = await fetch(`${API_BASE_URL}/deleteRoom/${id}`, { method: 'DELETE' });
         const result = await response.json();
         if (result.success) {
           showToast(result.message || 'Sanctuary purged from registry.', 'success');
@@ -206,7 +182,6 @@ export const AdminPage: React.FC<AdminPageProps> = ({
           throw new Error(result.message || 'Purge failed');
         }
       } catch (e) {
-        console.error("Delete Room Error:", e);
         showToast('Purge failed: Registry unreachable.', 'error');
       } finally {
         setIsSaving(prev => ({ ...prev, [id]: false }));
@@ -221,7 +196,6 @@ export const AdminPage: React.FC<AdminPageProps> = ({
         setDeleteTarget(null);
         return;
       }
-
       setIsSaving(prev => ({ ...prev, [id]: true }));
       try {
         await deleteFaqFromApi(id);
@@ -236,13 +210,10 @@ export const AdminPage: React.FC<AdminPageProps> = ({
   };
 
   const handleSaveSession = async (s: any) => {
-    const errors: any = {};
-    if (!s.startDate || !s.endDate) errors.dates = true;
-    if (Object.keys(errors).length > 0) {
+    if (!s.startDate || !s.endDate) {
       showToast('Please verify all fields.', 'error');
       return;
     }
-
     setIsSaving(prev => ({ ...prev, [s.id]: true }));
     try {
       await saveSessionToApi(s);
@@ -259,13 +230,11 @@ export const AdminPage: React.FC<AdminPageProps> = ({
       showToast('Both question and answer are required.', 'error');
       return;
     }
-
     setIsSaving(prev => ({ ...prev, [faq.id]: true }));
     try {
       await saveFaqToApi({ id: faq.id, q: faq.q, a: faq.a });
       showToast('Intelligence entry synchronized.', 'success');
     } catch (e) {
-      console.error("Save FAQ Error:", e);
       showToast('Failed to synchronize intelligence.', 'error');
     } finally {
       setIsSaving(prev => ({ ...prev, [faq.id]: false }));
@@ -282,32 +251,21 @@ export const AdminPage: React.FC<AdminPageProps> = ({
       showToast('SANCTUARY NAME IS REQUIRED.', 'error');
       newErrors[`${room.id}-name`] = true;
       hasError = true;
-    } else {
-      newErrors[`${room.id}-name`] = false;
     }
-
     if (!room.description || !room.description.trim()) {
       if (!hasError) showToast('TECHNICAL DESCRIPTION IS REQUIRED.', 'error');
       newErrors[`${room.id}-description`] = true;
       hasError = true;
-    } else {
-      newErrors[`${room.id}-description`] = false;
     }
-
     if (!room.basePrice || room.basePrice <= 0) {
       if (!hasError) showToast('A VALID BASE PRICE IS REQUIRED.', 'error');
       newErrors[`${room.id}-basePrice`] = true;
       hasError = true;
-    } else {
-      newErrors[`${room.id}-basePrice`] = false;
     }
-
     if (isNew && !roomFiles[room.id]) {
       if (!hasError) showToast('A VISUAL ASSET (IMAGE) IS REQUIRED.', 'error');
       newErrors[`${room.id}-image`] = true;
       hasError = true;
-    } else {
-      newErrors[`${room.id}-image`] = false;
     }
 
     setRoomErrors(newErrors);
@@ -321,18 +279,12 @@ export const AdminPage: React.FC<AdminPageProps> = ({
       data.append('description', room.description);
       
       const cleanArray = (arr?: string[]) => Array.from(new Set((arr || []).map(f => f.trim()).filter(f => f.length > 0)));
-      
       data.append('facilities', JSON.stringify(cleanArray(room.facilities)));
       
       const file = roomFiles[room.id];
-      if (file) {
-        data.append('image', file);
-      }
-
+      if (file) data.append('image', file);
       const videoFile = roomVideoFiles[room.id];
-      if (videoFile) {
-        data.append('video', videoFile);
-      }
+      if (videoFile) data.append('video', videoFile);
 
       const url = isNew ? `${API_BASE_URL}/createRoom` : `${API_BASE_URL}/updateRoom/${room.id}`;
       const method = isNew ? 'POST' : 'PUT';
@@ -341,23 +293,15 @@ export const AdminPage: React.FC<AdminPageProps> = ({
       const result = await response.json();
 
       if (result.success) {
-        showToast(result.message || (isNew ? 'Sanctuary created successfully' : 'Sanctuary updated successfully'), 'success');
-        
-        const nextFiles = { ...roomFiles };
-        delete nextFiles[room.id];
-        setRoomFiles(nextFiles);
-
-        const nextVideoFiles = { ...roomVideoFiles };
-        delete nextVideoFiles[room.id];
-        setRoomVideoFiles(nextVideoFiles);
-
+        showToast(result.message || (isNew ? 'Sanctuary created' : 'Sanctuary updated'), 'success');
+        setRoomFiles(prev => { const n = {...prev}; delete n[room.id]; return n; });
+        setRoomVideoFiles(prev => { const n = {...prev}; delete n[room.id]; return n; });
         await fetchRoomsFromApi(true);
       } else {
-        throw new Error(result.message || 'Operation failed on registry server.');
+        throw new Error(result.message || 'Registry error');
       }
     } catch (e: any) {
-      console.error("Save Room Error:", e);
-      showToast(e.message || 'Synchronization failed: Registry unreachable.', 'error');
+      showToast(e.message || 'Sync failed.', 'error');
     } finally {
       setIsSaving(prev => ({ ...prev, [room.id]: false }));
     }
@@ -367,9 +311,8 @@ export const AdminPage: React.FC<AdminPageProps> = ({
     setIsSaving(prev => ({ ...prev, itinerary: true }));
     try {
       await saveItineraryToApi(itinerary);
-      showToast('Technical Pathway synchronized with registry.', 'success');
+      showToast('Technical Pathway synchronized.', 'success');
     } catch (e) {
-      console.error("Itinerary Sync Error:", e);
       showToast('Failed to synchronize pathway.', 'error');
     } finally {
       setIsSaving(prev => ({ ...prev, itinerary: false }));
@@ -378,13 +321,8 @@ export const AdminPage: React.FC<AdminPageProps> = ({
 
   const handleImageUpload = (roomId: string, file: File) => {
     const validTypes = ['image/jpeg', 'image/jpg', 'image/png'];
-    const maxSize = 2 * 1024 * 1024; 
     if (!validTypes.includes(file.type)) {
-      showToast('INVALID FORMAT. ONLY JPG, JPEG, AND PNG ARE PERMITTED.', 'error');
-      return;
-    }
-    if (file.size > maxSize) {
-      showToast('FILE TOO LARGE. MAXIMUM SIZE IS 2MB.', 'error');
+      showToast('INVALID FORMAT.', 'error');
       return;
     }
     setRoomFiles(prev => ({ ...prev, [roomId]: file }));
@@ -394,50 +332,36 @@ export const AdminPage: React.FC<AdminPageProps> = ({
       const next = rooms.map(r => r.id === roomId ? { ...r, image: base64String } : r);
       setRooms(next);
       setRoomErrors(prev => ({ ...prev, [`${roomId}-image`]: false }));
-      showToast('Asset staged for sync.', 'info');
+      showToast('Asset staged.', 'info');
     };
     reader.readAsDataURL(file);
   };
 
   const handleRoomVideoUpload = (roomId: string, file: File) => {
-    const maxSize = 50 * 1024 * 1024; 
-    if (file.size > maxSize) {
-      showToast('FILE TOO LARGE. MAXIMUM SIZE IS 50MB.', 'error');
-      return;
-    }
     setRoomVideoFiles(prev => ({ ...prev, [roomId]: file }));
     const objectUrl = URL.createObjectURL(file);
     const next = rooms.map(r => r.id === roomId ? { ...r, video: objectUrl } : r);
     setRooms(next);
-    showToast('Video staged for sync.', 'info');
+    showToast('Video staged.', 'info');
   };
 
   const handleVideoFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      if (file.size > 100 * 1024 * 1024) {
-        showToast("FILE EXCEEDS 100MB LIMIT.", "error");
-        return;
-      }
       setStagedVideoFile(file);
       const objectUrl = URL.createObjectURL(file);
       setPortalConfig({ ...portalConfig, promoVideoUrl: objectUrl });
-      showToast("Local video staged for preview. Remember to synchronize.", "info");
+      showToast("Local video staged.", "info");
     }
   };
 
   const handleSavePortalConfig = async () => {
     setIsSaving(prev => ({ ...prev, portal: true }));
     try {
-      if (typeof savePortalConfigToApi === 'function') {
-        await savePortalConfigToApi(portalConfig, stagedVideoFile || undefined);
-        setStagedVideoFile(null);
-        showToast('Portal settings synchronized with registry.', 'success');
-      } else {
-        throw new Error("savePortalConfigToApi is not available");
-      }
+      await savePortalConfigToApi(portalConfig, stagedVideoFile || undefined);
+      setStagedVideoFile(null);
+      showToast('Portal settings synchronized.', 'success');
     } catch (e: any) {
-      console.error("Portal Save Error:", e);
       showToast('Failed to synchronize portal settings.', 'error');
     } finally {
       setIsSaving(prev => ({ ...prev, portal: false }));
@@ -497,7 +421,6 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                   const sLabel = formatRegistryDateText(app.sessionStartDate);
                   const eLabel = formatRegistryDateText(app.sessionEndDate);
                   const sessionRange = (sLabel !== 'TBD' && eLabel !== 'TBD') ? `${sLabel} — ${eLabel}` : 'DATES PENDING';
-
                   return (
                     <div key={app.id} className="bg-white p-10 md:p-14 rounded-[3.5rem] border border-stone/5 flex flex-col gap-10 shadow-sm hover:shadow-xl transition-all">
                       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-10">
@@ -554,7 +477,6 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                 const sLabelText = formatRegistryDateText(s.startDate);
                 const eLabelText = formatRegistryDateText(s.endDate);
                 const localizedRangeText = (sLabelText !== 'TBD' && eLabelText !== 'TBD') ? `${sLabelText} — ${eLabelText}` : 'RESIDENCY WINDOW DRAFT';
-
                 return (
                   <div key={s.id} className="bg-white p-10 rounded-[3rem] border border-stone/5 shadow-xl flex flex-col gap-8 group">
                     <div className="flex items-center gap-3 pb-4 border-b border-stone/5">
@@ -563,21 +485,21 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                       <div className="space-y-2">
-                        <label className="text-[8px] font-black uppercase tracking-widest text-stone/20 px-1">Start Date (Registry/UTC)</label>
+                        <label className="text-[8px] font-black uppercase tracking-widest text-stone/20 px-1">Start Date</label>
                         <input 
                           type="date" 
                           value={formatRegistryDateForInput(s.startDate)} 
-                          onChange={e => { const next = [...sessions]; next[idx].startDate = e.target.value; setSessions(next); }} 
-                          className="w-full bg-[#faf9f6] p-5 rounded-2xl border border-stone/5 text-xs outline-none focus:border-aqua-primary/40 transition-all shadow-inner font-sans" 
+                          onChange={e => { const n = [...sessions]; n[idx].startDate = e.target.value; setSessions(n); }} 
+                          className="w-full bg-[#faf9f6] p-5 rounded-2xl border border-stone/5 text-xs outline-none focus:border-aqua-primary/40 transition-all font-sans" 
                         />
                       </div>
                       <div className="space-y-2">
-                        <label className="text-[8px] font-black uppercase tracking-widest text-stone/20 px-1">End Date (Registry/UTC)</label>
+                        <label className="text-[8px] font-black uppercase tracking-widest text-stone/20 px-1">End Date</label>
                         <input 
                           type="date" 
                           value={formatRegistryDateForInput(s.endDate)} 
-                          onChange={e => { const next = [...sessions]; next[idx].endDate = e.target.value; setSessions(next); }} 
-                          className="w-full bg-[#faf9f6] p-5 rounded-2xl border border-stone/5 text-xs outline-none focus:border-aqua-primary/40 transition-all shadow-inner font-sans" 
+                          onChange={e => { const n = [...sessions]; n[idx].endDate = e.target.value; setSessions(n); }} 
+                          className="w-full bg-[#faf9f6] p-5 rounded-2xl border border-stone/5 text-xs outline-none focus:border-aqua-primary/40 transition-all font-sans" 
                         />
                       </div>
                       <div className="space-y-2">
@@ -586,8 +508,8 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                           type="number" 
                           min="1" 
                           value={s.maxGuests} 
-                          onChange={e => { const next = [...sessions]; next[idx].maxGuests = parseInt(e.target.value) || 0; setSessions(next); }} 
-                          className="w-full bg-[#faf9f6] p-5 rounded-2xl border border-stone/5 text-xs outline-none text-center focus:border-aqua-primary/40 transition-all shadow-inner font-sans" 
+                          onChange={e => { const n = [...sessions]; n[idx].maxGuests = parseInt(e.target.value) || 0; setSessions(n); }} 
+                          className="w-full bg-[#faf9f6] p-5 rounded-2xl border border-stone/5 text-xs outline-none text-center focus:border-aqua-primary/40 transition-all font-sans" 
                         />
                       </div>
                     </div>
@@ -632,10 +554,8 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                               value={room.name} 
                               disabled={isRoomSaving}
                               onChange={e => { 
-                                const next = [...rooms]; 
-                                next[idx].name = e.target.value; 
-                                setRooms(next);
-                                if (e.target.value.trim()) setRoomErrors(prev => ({ ...prev, [`${room.id}-name`]: false }));
+                                const n = [...rooms]; n[idx].name = e.target.value; setRooms(n);
+                                if (e.target.value.trim()) setRoomErrors(p => ({ ...p, [`${room.id}-name`]: false }));
                               }} 
                               className={`text-3xl md:text-4xl font-black uppercase tracking-tight text-stone w-full bg-transparent border-b-2 outline-none focus:text-aqua-primary transition-colors ${hasNameError ? 'border-red-400 text-red-500' : 'border-transparent'}`} 
                               placeholder="Sanctuary Name *"
@@ -653,28 +573,26 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                             value={room.description} 
                             disabled={isRoomSaving}
                             onChange={e => { 
-                              const next = [...rooms]; 
-                              next[idx].description = e.target.value; 
-                              setRooms(next);
-                              if (e.target.value.trim()) setRoomErrors(prev => ({ ...prev, [`${room.id}-description`]: false }));
+                              const n = [...rooms]; n[idx].description = e.target.value; setRooms(n);
+                              if (e.target.value.trim()) setRoomErrors(p => ({ ...p, [`${room.id}-description`]: false }));
                             }} 
                             className={`w-full bg-[#faf9f6] p-8 rounded-[2rem] border text-[15px] font-serif italic text-stone/60 outline-none resize-none min-h-[140px] leading-relaxed ${hasDescError ? 'border-red-400 bg-red-50/10' : 'border-stone/5'}`} 
-                            placeholder="Provide a technical description of this sanctuary space... *"
+                            placeholder="Provide a technical description... *"
                             required
                           />
                         </div>
 
-                        {/* Facilities Management Section */}
+                        {/* Facilities Management Section - Dynamic Array textboxes */}
                         <div className="space-y-6">
                           <div className="flex items-center justify-between border-b border-stone/5 pb-2">
-                            <p className="text-[10px] font-black uppercase tracking-[0.4em] text-aqua-primary">SANCTUARY FACILITIES</p>
+                            <p className="text-[10px] font-black uppercase tracking-[0.4em] text-aqua-primary">SANCTUARY HIGHLIGHTS (FACILITIES)</p>
                             <button 
                               disabled={isRoomSaving}
                               onClick={() => {
-                                const next = [...rooms];
-                                next[idx].facilities = [...(next[idx].facilities || []), ""];
-                                setRooms(next);
-                                showToast('Facility anchor added.', 'info');
+                                const n = [...rooms];
+                                n[idx].facilities = [...(n[idx].facilities || []), ""];
+                                setRooms(n);
+                                showToast('New facility textbox added.', 'info');
                               }}
                               className="text-[10px] font-black uppercase text-aqua-primary hover:text-aqua-deep transition-all flex items-center gap-2"
                             >
@@ -689,22 +607,23 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                                     value={fac}
                                     disabled={isRoomSaving}
                                     onChange={e => {
-                                      const next = [...rooms];
-                                      const nextFacs = [...(next[idx].facilities || [])];
-                                      nextFacs[fIdx] = e.target.value;
-                                      next[idx].facilities = nextFacs;
-                                      setRooms(next);
+                                      const n = [...rooms];
+                                      const nFacs = [...(n[idx].facilities || [])];
+                                      nFacs[fIdx] = e.target.value;
+                                      n[idx].facilities = nFacs;
+                                      setRooms(n);
                                     }}
-                                    placeholder="e.g. Panoramic Ocean Balcony"
+                                    placeholder={`Facility Item ${fIdx + 1}`}
                                     className="w-full bg-[#faf9f6] px-5 py-3 rounded-xl border border-stone/5 text-[11px] font-bold uppercase tracking-widest text-stone outline-none focus:border-aqua-primary/30 transition-all shadow-sm"
                                   />
                                 </div>
                                 <button 
                                   disabled={isRoomSaving}
                                   onClick={() => {
-                                    const next = [...rooms];
-                                    next[idx].facilities = next[idx].facilities?.filter((_, i) => i !== fIdx);
-                                    setRooms(next);
+                                    const n = [...rooms];
+                                    n[idx].facilities = n[idx].facilities?.filter((_, i) => i !== fIdx);
+                                    setRooms(n);
+                                    showToast('Facility textbox removed.', 'info');
                                   }}
                                   className="p-3 text-stone/10 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all"
                                 >
@@ -713,7 +632,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                               </div>
                             ))}
                             {(room.facilities || []).length === 0 && (
-                              <p className="col-span-full text-[10px] font-serif italic text-stone/20 py-4 text-center border border-dashed border-stone/5 rounded-xl">No specific facilities added.</p>
+                              <p className="col-span-full text-[10px] font-serif italic text-stone/20 py-4 text-center border border-dashed border-stone/5 rounded-xl">No facilities added (length wise textboxes will appear here).</p>
                             )}
                           </div>
                         </div>
@@ -753,10 +672,9 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                             </button>
                           </div>
                         </div>
-
                         <div className="space-y-2">
-                          <p className="text-[8px] font-black uppercase tracking-widest text-stone/10 px-1">Video Asset (Optional)</p>
-                          <div className={`aspect-video rounded-[2rem] bg-[#faf9f6] overflow-hidden border relative group/video shadow-inner border-stone/5`}>
+                          <p className="text-[8px] font-black uppercase tracking-widest text-stone/10 px-1">Video Asset</p>
+                          <div className="aspect-video rounded-[2rem] bg-[#faf9f6] overflow-hidden border relative group/video shadow-inner border-stone/5">
                             {room.video ? (
                               <video key={room.video} src={room.video} className="w-full h-full object-cover opacity-80" muted playsInline loop autoPlay />
                             ) : (
@@ -791,7 +709,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div className="space-y-2 max-w-xs">
-                        <label className="text-[9px] font-black uppercase tracking-[0.3em] text-stone/20 px-1">Base Price (USD) <span className="text-red-500">*</span></label>
+                        <label className="text-[9px] font-black uppercase tracking-[0.3em] text-stone/20 px-1">Base Price (USD) *</label>
                         <div className="relative">
                           <span className="absolute left-4 top-1/2 -translate-y-1/2 text-stone/30 font-black">$</span>
                           <input 
@@ -799,8 +717,8 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                             disabled={isRoomSaving}
                             value={room.basePrice} 
                             onChange={e => { 
-                              const next = [...rooms]; next[idx].basePrice = parseInt(e.target.value) || 0; setRooms(next); 
-                              if (parseInt(e.target.value) > 0) setRoomErrors(prev => ({ ...prev, [`${room.id}-basePrice`]: false }));
+                              const n = [...rooms]; n[idx].basePrice = parseInt(e.target.value) || 0; setRooms(n); 
+                              if (parseInt(e.target.value) > 0) setRoomErrors(p => ({ ...p, [`${room.id}-basePrice`]: false }));
                             }} 
                             className={`w-full bg-[#faf9f6] pl-8 pr-4 py-4 rounded-2xl border text-lg font-black text-stone outline-none focus:border-aqua-primary/40 transition-all shadow-sm ${hasPriceError ? 'border-red-400 bg-red-50/10' : 'border-stone/5'}`} 
                             required
@@ -843,8 +761,8 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                      <span className="text-4xl font-black text-stone opacity-10">0{day.day}</span>
                    </div>
                    <div className="flex-1 space-y-4">
-                     <input value={day.title} onChange={e => { const next = [...itinerary]; next[idx].title = e.target.value; setItinerary(next); }} className="text-2xl font-black uppercase text-stone w-full bg-transparent outline-none" />
-                     <textarea value={day.desc} onChange={e => { const next = [...itinerary]; next[idx].desc = e.target.value; setItinerary(next); }} className="w-full bg-[#faf9f6] p-6 rounded-2xl text-[14px] font-serif italic text-stone/60 outline-none resize-none" />
+                     <input value={day.title} onChange={e => { const n = [...itinerary]; n[idx].title = e.target.value; setItinerary(n); }} className="text-2xl font-black uppercase text-stone w-full bg-transparent outline-none" />
+                     <textarea value={day.desc} onChange={e => { const n = [...itinerary]; n[idx].desc = e.target.value; setItinerary(n); }} className="w-full bg-[#faf9f6] p-6 rounded-2xl text-[14px] font-serif italic text-stone/60 outline-none resize-none" />
                    </div>
                  </div>
                ))}
@@ -853,14 +771,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                 disabled={isSaving.itinerary}
                 className="w-full py-6 bg-aqua-primary text-stone rounded-full font-black uppercase tracking-widest shadow-xl flex items-center justify-center gap-3 hover:bg-aqua-deep hover:text-white transition-all disabled:opacity-50"
                >
-                 {isSaving.itinerary ? (
-                   <>
-                     <Loader2 size={18} className="animate-spin" />
-                     Synchronizing Pathway...
-                   </>
-                 ) : (
-                   'SYNCHRONIZE PATHWAY'
-                 )}
+                 {isSaving.itinerary ? <Loader2 size={18} className="animate-spin" /> : 'SYNCHRONIZE PATHWAY'}
                </button>
              </div>
            </div>
@@ -868,7 +779,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({
 
         {tab === 'faqs' && (
           <div className="space-y-8 animate-fade-in">
-            <AdminSectionHeader title="Estate Intelligence" onAdd={() => { const next = [...faqs, { id: Date.now().toString(), q: "Question?", a: "Answer." }]; setFaqs(next); showToast('New FAQ draft added.', 'info'); }} />
+            <AdminSectionHeader title="Estate Intelligence" onAdd={() => { const next = [...faqs, { id: Date.now().toString(), q: "Question?", a: "Answer." }]; setFaqs(next); showToast('Draft added.', 'info'); }} />
             <div className="grid gap-6">
               {faqs.map((faq, idx) => {
                 const isItemSaving = isSaving[faq.id];
@@ -876,29 +787,14 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                 return (
                   <div key={faq.id} className="bg-white p-10 rounded-[2.5rem] border border-stone/5 shadow-lg space-y-6 group">
                     <div className="flex justify-between items-start gap-4">
-                      <input value={faq.q} onChange={e => { const next = [...faqs]; next[idx].q = e.target.value; setFaqs(next); }} className="text-[15px] font-black uppercase text-stone w-full bg-transparent border-b border-stone/5 pb-3 outline-none focus:border-aqua-primary/30" />
-                      <div className="flex items-center gap-2">
-                         <button onClick={() => setDeleteTarget({ id: faq.id, type: 'faqs', label: faq.q })} className="p-2 text-stone/10 hover:text-red-400 transition-colors"><Trash2 size={18}/></button>
-                      </div>
+                      <input value={faq.q} onChange={e => { const n = [...faqs]; n[idx].q = e.target.value; setFaqs(n); }} className="text-[15px] font-black uppercase text-stone w-full bg-transparent border-b border-stone/5 pb-3 outline-none focus:border-aqua-primary/30" />
+                      <button onClick={() => setDeleteTarget({ id: faq.id, type: 'faqs', label: faq.q })} className="p-2 text-stone/10 hover:text-red-400 transition-colors"><Trash2 size={18}/></button>
                     </div>
-                    <textarea value={faq.a} onChange={e => { const next = [...faqs]; next[idx].a = e.target.value; setFaqs(next); }} className="w-full bg-[#faf9f6] p-6 rounded-2xl text-[14px] font-serif italic text-stone/50 outline-none min-h-[80px]" />
+                    <textarea value={faq.a} onChange={e => { const n = [...faqs]; n[idx].a = e.target.value; setFaqs(n); }} className="w-full bg-[#faf9f6] p-6 rounded-2xl text-[14px] font-serif italic text-stone/50 outline-none min-h-[80px]" />
                     <div className="pt-2 flex justify-end">
-                      <button 
-                        onClick={() => handleSaveFaq(faq)} 
-                        disabled={isItemSaving}
-                        className="px-8 py-3 bg-aqua-primary text-stone rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-aqua-deep hover:text-white transition-all shadow-md flex items-center gap-2 disabled:opacity-50"
-                      >
-                        {isItemSaving ? (
-                          <>
-                            <Loader2 size={14} className="animate-spin" />
-                            Syncing...
-                          </>
-                        ) : (
-                          <>
-                            <Save size={14} />
-                            {isNew ? 'Sync to Registry' : 'SAVE CHANGES'}
-                          </>
-                        )}
+                      <button onClick={() => handleSaveFaq(faq)} disabled={isItemSaving} className="px-8 py-3 bg-aqua-primary text-stone rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-aqua-deep hover:text-white transition-all shadow-md flex items-center gap-2 disabled:opacity-50">
+                        {isItemSaving ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />}
+                        {isNew ? 'Sync to Registry' : 'SAVE CHANGES'}
                       </button>
                     </div>
                   </div>
@@ -922,7 +818,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                   <div className="space-y-6">
                     <div className="space-y-2">
                       <label className="text-[8px] font-black uppercase tracking-widest text-stone/10 px-1">VIDEO SOURCE URL</label>
-                      <input value={portalConfig.promoVideoUrl} onChange={e => setPortalConfig({...portalConfig, promoVideoUrl: e.target.value})} className="w-full bg-[#faf9f6] px-6 py-4 rounded-xl border border-stone/5 text-xs font-sans outline-none focus:border-aqua-primary/30 transition-all" placeholder="https://vimeo.com/..." />
+                      <input value={portalConfig.promoVideoUrl} onChange={e => setPortalConfig({...portalConfig, promoVideoUrl: e.target.value})} className="w-full bg-[#faf9f6] px-6 py-4 rounded-xl border border-stone/5 text-xs font-sans outline-none focus:border-aqua-primary/30 transition-all" />
                     </div>
                     <div className="space-y-4">
                       <p className="text-[8px] font-black uppercase tracking-widest text-stone/10 px-1">UPLOAD LOCAL VIDEO</p>
@@ -930,20 +826,16 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                       <button onClick={() => videoFileInputRef.current?.click()} className="w-full py-4 bg-[#111] text-white rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-3 hover:bg-stone-light transition-all">
                         <Upload size={14} /> SELECT VIDEO FILE
                       </button>
-                      <p className="text-[8px] font-serif italic text-stone/20 text-center">Storage limit: 100MB for local files. Use URLs for larger professional videos.</p>
                     </div>
                   </div>
-                  <div className="space-y-2">
-                    <p className="text-[8px] font-black uppercase tracking-widest text-stone/10 px-1">PREVIEW</p>
-                    <div className="aspect-video bg-[#faf9f6] rounded-[2rem] border border-stone/5 overflow-hidden flex items-center justify-center relative">
-                      {portalConfig.promoVideoUrl ? (
-                        <video key={portalConfig.promoVideoUrl} className="w-full h-full object-cover opacity-80" muted playsInline loop autoPlay>
-                          <source src={portalConfig.promoVideoUrl} />
-                        </video>
-                      ) : (
-                        <Video size={32} className="text-stone/5" />
-                      )}
-                    </div>
+                  <div className="aspect-video bg-[#faf9f6] rounded-[2rem] border border-stone/5 overflow-hidden flex items-center justify-center relative">
+                    {portalConfig.promoVideoUrl ? (
+                      <video key={portalConfig.promoVideoUrl} className="w-full h-full object-cover opacity-80" muted playsInline loop autoPlay>
+                        <source src={portalConfig.promoVideoUrl} />
+                      </video>
+                    ) : (
+                      <Video size={32} className="text-stone/5" />
+                    )}
                   </div>
                 </div>
               </div>
@@ -969,10 +861,6 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                     <input value={portalConfig.logistics.checkInWindow} onChange={e => setPortalConfig({...portalConfig, logistics: {...portalConfig.logistics, checkInWindow: e.target.value}})} className="w-full bg-[#faf9f6] px-6 py-4 rounded-xl border border-stone/5 text-xs outline-none focus:border-aqua-primary/30 transition-all" />
                   </div>
                 </div>
-                <div className="space-y-2">
-                  <label className="text-[8px] font-black uppercase tracking-widest text-stone/10 px-1">GATED ACCESS INSTRUCTIONS</label>
-                  <textarea value={portalConfig.logistics.gateInstructions} onChange={e => setPortalConfig({...portalConfig, logistics: {...portalConfig.logistics, gateInstructions: e.target.value}})} className="w-full bg-[#faf9f6] px-8 py-6 rounded-[2rem] border border-stone/5 text-xs outline-none focus:border-aqua-primary/30 transition-all min-h-[100px] resize-none" />
-                </div>
               </div>
               <div className="space-y-8">
                 <div className="flex items-center justify-between">
@@ -988,50 +876,25 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                   {portalConfig.packingList.map((item: string, idx: number) => (
                     <div key={idx} className="flex items-center gap-4 group">
                       <div className="flex-1 bg-[#faf9f6] px-8 py-4 rounded-2xl border border-stone/5 shadow-sm transition-all group-hover:border-stone/10">
-                        <input value={item} onChange={e => { const next = [...portalConfig.packingList]; next[idx] = e.target.value; setPortalConfig({...portalConfig, packingList: next}); }} className="w-full bg-transparent text-[11px] font-black uppercase tracking-widest text-stone outline-none" />
+                        <input value={item} onChange={e => { const n = [...portalConfig.packingList]; n[idx] = e.target.value; setPortalConfig({...portalConfig, packingList: n}); }} className="w-full bg-transparent text-[11px] font-black uppercase tracking-widest text-stone outline-none" />
                       </div>
-                      <button onClick={() => { const next = portalConfig.packingList.filter((_: any, i: number) => i !== idx); setPortalConfig({...portalConfig, packingList: next}); }} className="p-3 text-stone/10 hover:text-red-400 transition-colors">
+                      <button onClick={() => { const n = portalConfig.packingList.filter((_: any, i: number) => i !== idx); setPortalConfig({...portalConfig, packingList: n}); }} className="p-3 text-stone/10 hover:text-red-400 transition-colors">
                         <Trash2 size={16} />
                       </button>
                     </div>
                   ))}
                 </div>
               </div>
-              <div className="space-y-10">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <ShieldCheck size={16} className="text-aqua-primary" />
-                    <h5 className="text-[10px] font-black uppercase tracking-[0.4em] text-stone/20">REGISTRY GUIDELINES</h5>
-                  </div>
-                  <button onClick={() => setPortalConfig({...portalConfig, houseGuidelines: [...portalConfig.houseGuidelines, { title: 'NEW GUIDELINE', desc: '' }]})} className="px-6 py-2 bg-[#111] text-white rounded-full text-[9px] font-black uppercase tracking-widest flex items-center gap-2 hover:scale-105 transition-all shadow-md">
-                    <Plus size={12} /> ADD GUIDELINE
-                  </button>
-                </div>
-                <div className="grid gap-6">
-                  {portalConfig.houseGuidelines.map((g: any, idx: number) => (
-                    <div key={idx} className="bg-[#faf9f6] p-10 rounded-[3rem] border border-stone/5 shadow-inner space-y-8 relative group">
-                      <div className="flex justify-between items-center border-b border-stone/5 pb-6">
-                        <input value={g.title} onChange={e => { const next = [...portalConfig.houseGuidelines]; next[idx].title = e.target.value.toUpperCase(); setPortalConfig({...portalConfig, houseGuidelines: next}); }} placeholder="GUIDELINE TITLE" className="bg-transparent text-[12px] font-black uppercase tracking-widest text-stone outline-none flex-1" />
-                        <button onClick={() => { const next = portalConfig.houseGuidelines.filter((_: any, i: number) => i !== idx); setPortalConfig({...portalConfig, houseGuidelines: next}); }} className="p-2 text-stone/10 hover:text-red-400 transition-colors">
-                          <Trash2 size={18} />
-                        </button>
-                      </div>
-                      <textarea value={g.desc} onChange={e => { const next = [...portalConfig.houseGuidelines]; next[idx].desc = e.target.value; setPortalConfig({...portalConfig, houseGuidelines: next}); }} placeholder="Detailed estate protocol description..." className="w-full bg-white p-8 rounded-[2rem] border border-stone/5 text-xs outline-none focus:border-aqua-primary/20 transition-all min-h-[100px] resize-none leading-relaxed italic" />
-                    </div>
-                  ))}
-                </div>
-              </div>
               <div className="pt-10 flex flex-col items-center gap-6">
                 <button onClick={handleSavePortalConfig} disabled={isSaving.portal} className="w-full max-w-md py-6 bg-aqua-primary text-stone rounded-full font-black uppercase tracking-[0.3em] shadow-2xl hover:bg-aqua-deep hover:text-white transition-all active:scale-[0.98] flex items-center justify-center gap-3">
-                  {isSaving.portal ? <Loader2 className="animate-spin" size={20} /> : 'SYNCHRONIZE ALL PORTAL SETTINGS'}
+                  {isSaving.portal ? <Loader2 className="animate-spin" size={20} /> : 'SYNCHRONIZE PORTAL SETTINGS'}
                 </button>
-                <p className="text-[9px] font-black uppercase tracking-[0.4em] text-stone/10">Registry Version 1.2.4 • Cabo San Lucas</p>
               </div>
             </div>
           </div>
         )}
       </main>
-      <DeleteConfirmModal isOpen={!!deleteTarget} title="Confirm Purge" description={`Are you sure you want to permanently remove "${deleteTarget?.label}"? This action cannot be reversed within the estate registry.`} isLoading={deleteTarget ? isSaving[deleteTarget.id] : false} onConfirm={handleConfirmedDelete} onCancel={() => setDeleteTarget(null)} />
+      <DeleteConfirmModal isOpen={!!deleteTarget} title="Confirm Purge" description={`Are you sure you want to permanently remove "${deleteTarget?.label}"?`} isLoading={deleteTarget ? isSaving[deleteTarget.id] : false} onConfirm={handleConfirmedDelete} onCancel={() => setDeleteTarget(null)} />
     </div>
   );
 };
