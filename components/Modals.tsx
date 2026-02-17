@@ -113,18 +113,6 @@ export const RoomDetailModal: React.FC<{
             </p>
 
             <ul className="space-y-4">
-              <li className="flex items-center gap-3 text-white/60">
-                <div className="w-1 h-1 rounded-full bg-aqua-primary/50" />
-                <span className="text-[10px] font-black uppercase tracking-widest">{room.bedType}</span>
-              </li>
-              <li className="flex items-center gap-3 text-white/60">
-                <div className="w-1 h-1 rounded-full bg-aqua-primary/50" />
-                <span className="text-[10px] font-black uppercase tracking-widest">{room.bathType} BATHROOM</span>
-              </li>
-              <li className="flex items-center gap-3 text-white/60">
-                <div className="w-1 h-1 rounded-full bg-aqua-primary/50" />
-                <span className="text-[10px] font-black uppercase tracking-widest">{room.location.toUpperCase()}</span>
-              </li>
               {/* Dynamic Facilities List - Highlighting integration */}
               {room.facilities && room.facilities.length > 0 && room.facilities.map((fac, i) => fac.trim() && (
                 <li key={`fac-${i}`} className="flex items-center gap-3 text-white/60 animate-fade-in">
