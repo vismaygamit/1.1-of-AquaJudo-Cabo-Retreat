@@ -1,6 +1,6 @@
 
-import React, { useState } from 'react';
-import { Zap, Play, ChevronDown } from 'lucide-react';
+import React, { useState, useRef } from 'react';
+import { Zap, Play, ChevronDown, Pause } from 'lucide-react';
 import { RoomDetailModal } from '../components/Modals';
 import { Room } from '../types';
 
@@ -18,6 +18,21 @@ interface LandingPageProps {
 export const LandingPage: React.FC<LandingPageProps> = ({ sessions, rooms, itinerary, faqs, promoVideoUrl, onApplyClick }) => {
   const [openFaqId, setOpenFaqId] = useState<string | null>(null);
   const [selectedRoomDetail, setSelectedRoomDetail] = useState<Room | null>(null);
+  const [isPromoPlaying, setIsPromoPlaying] = useState(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  const togglePromoPlay = () => {
+    if (videoRef.current) {
+      if (videoRef.current.paused) {
+        videoRef.current.play();
+        videoRef.current.muted = false; // Unmute when user explicitly plays
+        setIsPromoPlaying(true);
+      } else {
+        videoRef.current.pause();
+        setIsPromoPlaying(false);
+      }
+    }
+  };
 
   const today = new Date().toISOString().split('T')[0];
   const activeSessions = sessions.filter(s => s.startDate >= today);
@@ -77,22 +92,30 @@ export const LandingPage: React.FC<LandingPageProps> = ({ sessions, rooms, itine
             <p className="text-[11px] tracking-[0.5em] text-aqua-deep font-black uppercase opacity-40">ESTATE NARRATIVE</p>
             <h2 className="text-3xl md:text-5xl font-display font-light uppercase tracking-tighter">The Experience</h2>
           </div>
-          <div className="relative aspect-video rounded-[3rem] overflow-hidden shadow-2xl group cursor-pointer bg-parchment">
+          <div 
+            className="relative aspect-video rounded-[3rem] overflow-hidden shadow-2xl group cursor-pointer bg-parchment"
+            onClick={togglePromoPlay}
+          >
             <video 
+              ref={videoRef}
               key={promoVideoUrl}
               src={promoVideoUrl}
               autoPlay 
               loop 
               muted 
               playsInline 
-              controls
+              controls={isPromoPlaying}
+              onPlay={() => setIsPromoPlaying(true)}
+              onPause={() => setIsPromoPlaying(false)}
               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000 opacity-90"
             />
-            <div className="absolute inset-0 flex items-center justify-center bg-black/5 group-hover:bg-transparent transition-colors pointer-events-none">
-              <div className="w-20 h-20 bg-white/10 backdrop-blur-md rounded-full flex items-center justify-center border border-white/20">
-                <Play size={28} className="text-white fill-white ml-1" />
+            {!isPromoPlaying && (
+              <div className="absolute inset-0 flex items-center justify-center bg-black/10 transition-colors">
+                <div className="w-20 h-20 bg-white/20 backdrop-blur-xl rounded-full flex items-center justify-center border border-white/30 shadow-2xl transform group-hover:scale-110 transition-transform">
+                  <Play size={32} className="text-white fill-white ml-1" />
+                </div>
               </div>
-            </div>
+            )}
           </div>
         </div>
       </section>
