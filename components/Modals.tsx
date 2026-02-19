@@ -83,11 +83,11 @@ export const RoomDetailModal: React.FC<{
         </button>
 
         {/* Media Container - Optimized Aspect Ratios */}
-        <div className="w-full relative bg-stone/40 flex-shrink-0 aspect-[4/3] sm:aspect-video md:h-[400px]">
+        <div className="w-full relative bg-black flex-shrink-0 flex items-center justify-center overflow-hidden aspect-[4/3] sm:aspect-video md:h-[500px]">
           {room.video ? (
             <video
               src={room.video}
-              className="w-full h-full object-cover"
+              className="w-full h-full object-contain"
               controls
               autoPlay
               loop
@@ -95,7 +95,7 @@ export const RoomDetailModal: React.FC<{
               playsInline
             />
           ) : room.image ? (
-            <img src={room.image} className="w-full h-full object-cover" alt={room.name} />
+            <img src={room.image} className="w-full h-full object-contain" alt={room.name} />
           ) : (
             <div className="absolute inset-0 flex flex-col items-center justify-center text-white/20 gap-2">
               <Loader2 className="animate-spin" size={32} />
