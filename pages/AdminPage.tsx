@@ -456,7 +456,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                             }`}>{app.status}</span>
                           </div>
                           <div className="flex flex-wrap gap-x-6 gap-y-2 text-[11px] text-stone/40 font-bold uppercase tracking-widest items-center">
-                            <span className="text-aqua-primary font-black">{app.id}</span>
+                            <span className="text-aqua-primary font-black">{app.refId}</span>
                             {app.roomName && <span className="text-stone font-black italic">{app.roomName.toUpperCase()}</span>}
                             <span className="flex items-center gap-2 text-stone font-black bg-[#faf9f6] px-4 py-1.5 rounded-full shadow-sm">
                               <Calendar size={12} className="text-aqua-primary" />

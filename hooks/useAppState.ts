@@ -99,7 +99,8 @@ export const useAppState = () => {
           const sEnd = apiInquiry.sessionEndDate || apiInquiry.endDate || (apiInquiry.session && (apiInquiry.session.endDate || apiInquiry.session.end_date));
           
           return {
-            id: apiInquiry.refId || apiInquiry._id,
+            refId: apiInquiry.refId,
+            id: apiInquiry._id,
             sessionId: apiInquiry.sessionId || (apiInquiry.session && apiInquiry.session._id) || '',
             guestName: apiInquiry.fullName,
             email: apiInquiry.email,
