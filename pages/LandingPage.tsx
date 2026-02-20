@@ -131,7 +131,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ sessions, rooms, itine
             <button
               key={room.id}
               onClick={() => setSelectedRoomDetail(room)}
-              className="relative group rounded-[2.5rem] overflow-hidden aspect-[4/5] shadow-2xl text-left"
+              className="relative group rounded-[2.5rem] overflow-hidden aspect-[3/2] shadow-2xl text-left"
             >
               <img src={room.image} alt={room.name} className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000" />
               <div className="absolute inset-0 bg-gradient-to-t from-stone/90 via-stone/20 to-transparent opacity-80 group-hover:opacity-100 transition-opacity"></div>
