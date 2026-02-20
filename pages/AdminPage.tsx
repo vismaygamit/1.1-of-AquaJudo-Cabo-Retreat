@@ -449,13 +449,15 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                           <button onClick={() => handleStatusChange(app.id, 'Pending')} className="px-6 py-4 bg-[#f9f9f9] text-stone rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-amber-500 hover:text-white transition-all shadow-sm">PENDING</button>
                           <button onClick={() => handleStatusChange(app.id, 'Approved')} className="px-6 py-4 bg-[#f9f9f9] text-stone rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-[#111] hover:text-white transition-all shadow-sm">APPROVE</button>
                           <button onClick={() => handleStatusChange(app.id, 'Declined')} className="px-6 py-4 bg-[#f9f9f9] text-stone rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-red-500 hover:text-white transition-all shadow-sm">DECLINE</button>
-                          <button onClick={() => {
-                            const link = `${window.location.origin}${window.location.pathname}?portal=${app.id}`;
-                            navigator.clipboard.writeText(link);
-                            showToast('Magic link copied.', 'success');
-                          }} className="px-8 py-4 bg-aqua-primary text-stone rounded-2xl text-[10px] font-black uppercase tracking-widest flex items-center gap-3 hover:scale-105 transition-all shadow-xl">
-                            <Copy size={14} /> MAGIC LINK
-                          </button>
+                          {app.status === 'Approved' && (
+                            <button onClick={() => {
+                              const link = `${window.location.origin}${window.location.pathname}?portal=${app.id}`;
+                              navigator.clipboard.writeText(link);
+                              showToast('Magic link copied.', 'success');
+                            }} className="px-8 py-4 bg-aqua-primary text-stone rounded-2xl text-[10px] font-black uppercase tracking-widest flex items-center gap-3 hover:scale-105 transition-all shadow-xl">
+                              <Copy size={14} /> MAGIC LINK
+                            </button>
+                          )}
                         </div>
                       </div>
                     </div>
