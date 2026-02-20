@@ -107,10 +107,31 @@ export const AdminPage: React.FC<AdminPageProps> = ({
     }
   }, []);
 
-  const handleStatusChange = (id: string, newStatus: ApplicationStatus) => {
-    const next = applications.map(a => a.id === id ? { ...a, status: newStatus } : a);
-    setApplications(next);
-    showToast(`Inquiry status updated to ${newStatus.toUpperCase()}.`, 'success');
+  const handleStatusChange = async (id: string, newStatus: ApplicationStatus) => {
+    setIsSaving(prev => ({ ...prev, [id]: true }));
+    try {
+      const response = await fetch(`${API_BASE_URL}/inquiries/${id}/status`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ status: newStatus.toLowerCase() })
+      });
+      
+      const result = await response.json();
+      
+      if (result.success) {
+        const next = applications.map(a => a.id === id ? { ...a, status: newStatus } : a);
+        setApplications(next);
+        showToast(`Inquiry status updated to ${newStatus.toUpperCase()}.`, 'success');
+      } else {
+        throw new Error(result.message || 'Update failed');
+      }
+    } catch (e: any) {
+      showToast(e.message || 'Failed to update status.', 'error');
+    } finally {
+      setIsSaving(prev => ({ ...prev, [id]: false }));
+    }
   };
 
   const handleRefresh = async () => {
@@ -446,15 +467,24 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                           </div>
                         </div>
                         <div className="flex flex-wrap items-center gap-3">
-                          <button onClick={() => handleStatusChange(app.id, 'Pending')} className="px-6 py-4 bg-[#f9f9f9] text-stone rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-amber-500 hover:text-white transition-all shadow-sm">PENDING</button>
-                          <button onClick={() => handleStatusChange(app.id, 'Approved')} className="px-6 py-4 bg-[#f9f9f9] text-stone rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-[#111] hover:text-white transition-all shadow-sm">APPROVE</button>
-                          <button onClick={() => handleStatusChange(app.id, 'Declined')} className="px-6 py-4 bg-[#f9f9f9] text-stone rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-red-500 hover:text-white transition-all shadow-sm">DECLINE</button>
+                          <button onClick={() => handleStatusChange(app.id, 'Pending')} disabled={isSaving[app.id]} className="px-6 py-4 bg-[#f9f9f9] text-stone rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-amber-500 hover:text-white transition-all shadow-sm disabled:opacity-50 flex items-center gap-2">
+                            {isSaving[app.id] && <Loader2 size={12} className="animate-spin" />}
+                            PENDING
+                          </button>
+                          <button onClick={() => handleStatusChange(app.id, 'Approved')} disabled={isSaving[app.id]} className="px-6 py-4 bg-[#f9f9f9] text-stone rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-[#111] hover:text-white transition-all shadow-sm disabled:opacity-50 flex items-center gap-2">
+                            {isSaving[app.id] && <Loader2 size={12} className="animate-spin" />}
+                            APPROVE
+                          </button>
+                          <button onClick={() => handleStatusChange(app.id, 'Declined')} disabled={isSaving[app.id]} className="px-6 py-4 bg-[#f9f9f9] text-stone rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-red-500 hover:text-white transition-all shadow-sm disabled:opacity-50 flex items-center gap-2">
+                            {isSaving[app.id] && <Loader2 size={12} className="animate-spin" />}
+                            DECLINE
+                          </button>
                           {app.status === 'Approved' && (
                             <button onClick={() => {
                               const link = `${window.location.origin}${window.location.pathname}?portal=${app.id}`;
                               navigator.clipboard.writeText(link);
                               showToast('Magic link copied.', 'success');
-                            }} className="px-8 py-4 bg-aqua-primary text-stone rounded-2xl text-[10px] font-black uppercase tracking-widest flex items-center gap-3 hover:scale-105 transition-all shadow-xl">
+                            }} disabled={isSaving[app.id]} className="px-8 py-4 bg-aqua-primary text-stone rounded-2xl text-[10px] font-black uppercase tracking-widest flex items-center gap-3 hover:scale-105 transition-all shadow-xl disabled:opacity-50">
                               <Copy size={14} /> MAGIC LINK
                             </button>
                           )}
