@@ -373,6 +373,13 @@ export const useAppState = () => {
     return result;
   };
 
+  const deleteInquiryFromApi = async (id: string) => {
+    const response = await fetch(`${API_BASE_URL}/inquiries/${id}`, { method: 'DELETE' });
+    const result = await response.json();
+    if (result.success) await fetchInquiriesFromApi(pagination?.page || 1, 5, true);
+    return result;
+  };
+
   const submitApplication = async (form: BookingState) => {
     const response = await fetch(`${API_BASE_URL}/inquiries/add`, {
       method: 'POST',
@@ -435,6 +442,7 @@ export const useAppState = () => {
     saveItineraryToApi,
     saveSessionToApi,
     deleteSessionFromApi,
+    deleteInquiryFromApi,
     submitApplication
   };
 };

@@ -25,6 +25,7 @@ interface AdminPageProps {
   saveItineraryToApi: (days: any[]) => Promise<any>;
   saveSessionToApi: (session: any) => Promise<any>;
   deleteSessionFromApi: (id: string) => Promise<any>;
+  deleteInquiryFromApi: (id: string) => Promise<any>;
   rooms: Room[];
   setRooms: any;
   sessions: any[];
@@ -65,7 +66,7 @@ const formatRegistryDateForInput = (iso?: string) => {
 };
 
 export const AdminPage: React.FC<AdminPageProps> = ({ 
-  onExit, applications, pagination, setApplications, fetchInquiriesFromApi, fetchSessionsFromApi, fetchRoomsFromApi, fetchItineraryFromApi, fetchFaqsFromApi, fetchPortalConfigFromApi, savePortalConfigToApi, saveFaqToApi, deleteFaqFromApi, saveItineraryToApi, saveSessionToApi, deleteSessionFromApi, rooms, setRooms, 
+  onExit, applications, pagination, setApplications, fetchInquiriesFromApi, fetchSessionsFromApi, fetchRoomsFromApi, fetchItineraryFromApi, fetchFaqsFromApi, fetchPortalConfigFromApi, savePortalConfigToApi, saveFaqToApi, deleteFaqFromApi, saveItineraryToApi, saveSessionToApi, deleteSessionFromApi, deleteInquiryFromApi, rooms, setRooms, 
   sessions, setSessions, itinerary, setItinerary, 
   faqs, setFaqs, portalConfig, setPortalConfig, showToast
 }) => {
@@ -220,6 +221,17 @@ export const AdminPage: React.FC<AdminPageProps> = ({
         showToast('Intelligence entry purged.', 'success');
       } catch (e: any) {
         showToast(e.message || 'Purge failed.', 'error');
+      } finally {
+        setIsSaving(prev => ({ ...prev, [id]: false }));
+        setDeleteTarget(null);
+      }
+    } else if (type === 'applications') {
+      setIsSaving(prev => ({ ...prev, [id]: true }));
+      try {
+        await deleteInquiryFromApi(id);
+        showToast('Inquiry purged from registry.', 'success');
+      } catch (e) {
+        showToast('Purge failed.', 'error');
       } finally {
         setIsSaving(prev => ({ ...prev, [id]: false }));
         setDeleteTarget(null);
@@ -488,6 +500,13 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                               <Copy size={14} /> MAGIC LINK
                             </button>
                           )}
+                          <button 
+                            onClick={() => setDeleteTarget({ id: app.id, type: 'applications', label: app.guestName })} 
+                            disabled={isSaving[app.id]}
+                            className="p-4 text-stone/10 hover:text-red-500 hover:bg-red-50 rounded-full transition-all disabled:opacity-30"
+                          >
+                            <Trash2 size={22}/>
+                          </button>
                         </div>
                       </div>
                     </div>
