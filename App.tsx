@@ -5,12 +5,13 @@ import { MainLayout } from './layouts/MainLayout';
 import { LandingPage } from './pages/LandingPage';
 import { PortalPage } from './pages/PortalPage';
 import { AdminPage } from './pages/AdminPage';
+import { PaymentSuccessPage, PaymentFailPage } from './pages/PaymentStatusPages';
 import { LoginModal, ApplyModal } from './components/Modals';
 import { Toast } from './components/Shared';
 
 const App: React.FC = () => {
   const state = useAppState();
-  const [view, setView] = useState<'landing' | 'portal' | 'admin'>('landing');
+  const [view, setView] = useState<'landing' | 'portal' | 'admin' | 'payment-success' | 'payment-fail'>('landing');
   const [isAdminLoggedIn, setIsAdminLoggedIn] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [showApplyModal, setShowApplyModal] = useState(false);
@@ -52,6 +53,17 @@ const App: React.FC = () => {
     window.history.replaceState({}, '', '/');
   };
 
+  // Detect Payment Status from URL
+  React.useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const paymentStatus = urlParams.get('payment');
+    if (paymentStatus === 'success') {
+      setView('payment-success');
+    } else if (paymentStatus === 'fail' || paymentStatus === 'cancel') {
+      setView('payment-fail');
+    }
+  }, []);
+
   // Render Admin View Directly (Bypasses MainLayout)
   if (view === 'admin' && isAdminLoggedIn) {
     return (
@@ -92,6 +104,35 @@ const App: React.FC = () => {
   }
 
   // Root Content Switcher
+  const renderContent = () => {
+    if (view === 'payment-success') {
+      return <PaymentSuccessPage onReturn={() => setView('landing')} />;
+    }
+    if (view === 'payment-fail') {
+      return <PaymentFailPage onReturn={() => setView('landing')} />;
+    }
+    if (view === 'portal' && state.activePortalGuest) {
+      return (
+        <PortalPage 
+          guest={state.activePortalGuest} 
+          session={state.sessions.find(s => s.id === state.activePortalGuest?.sessionId)} 
+          room={state.rooms.find(r => r.id === state.activePortalGuest?.roomPreferenceId)} 
+          portalConfig={state.portalConfig} 
+        />
+      );
+    }
+    return (
+      <LandingPage 
+        sessions={state.sessions} 
+        rooms={state.rooms} 
+        itinerary={state.itinerary} 
+        faqs={state.faqs} 
+        promoVideoUrl={state.portalConfig.promoVideoUrl} 
+        onApplyClick={openApply} 
+      />
+    );
+  };
+
   return (
     <MainLayout 
       isPortalView={view === 'portal'} 
@@ -100,23 +141,7 @@ const App: React.FC = () => {
       onAdminClick={() => setShowLoginModal(true)}
       onExitPortal={exitPortal}
     >
-      {view === 'portal' && state.activePortalGuest ? (
-        <PortalPage 
-          guest={state.activePortalGuest} 
-          session={state.sessions.find(s => s.id === state.activePortalGuest?.sessionId)} 
-          room={state.rooms.find(r => r.id === state.activePortalGuest?.roomPreferenceId)} 
-          portalConfig={state.portalConfig} 
-        />
-      ) : (
-        <LandingPage 
-          sessions={state.sessions} 
-          rooms={state.rooms} 
-          itinerary={state.itinerary} 
-          faqs={state.faqs} 
-          promoVideoUrl={state.portalConfig.promoVideoUrl} 
-          onApplyClick={openApply} 
-        />
-      )}
+      {renderContent()}
 
       {/* Global Modals Controlled by App Router */}
       {showLoginModal && (
