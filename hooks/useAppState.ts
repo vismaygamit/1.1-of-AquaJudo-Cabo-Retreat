@@ -311,6 +311,7 @@ export const useAppState = () => {
 
     const response = await fetch(`${API_BASE_URL}/updatePortalSettings`, {
       method: 'PUT',
+      credentials: 'include',
       body: formData
     });
 
@@ -327,6 +328,7 @@ export const useAppState = () => {
     const response = await fetch(url, {
       method,
       headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
       body: JSON.stringify({ que: faq.q, ans: faq.a })
     });
     const result = await response.json();
@@ -335,7 +337,10 @@ export const useAppState = () => {
   };
 
   const deleteFaqFromApi = async (id: string) => {
-    const response = await fetch(`${API_BASE_URL}/faq/${id}`, { method: 'DELETE' });
+    const response = await fetch(`${API_BASE_URL}/faq/${id}`, { 
+      method: 'DELETE',
+      credentials: 'include'
+    });
     const result = await response.json();
     if (result.success) await fetchFaqsFromApi(true);
     return result;
@@ -345,6 +350,7 @@ export const useAppState = () => {
     const response = await fetch(`${API_BASE_URL}/itinerary`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
       body: JSON.stringify({ days })
     });
     const result = await response.json();
@@ -359,6 +365,7 @@ export const useAppState = () => {
     const response = await fetch(url, {
       method,
       headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
       body: JSON.stringify({ startDate: session.startDate, endDate: session.endDate, maxGuests: session.maxGuests })
     });
     const result = await response.json();
@@ -367,14 +374,20 @@ export const useAppState = () => {
   };
 
   const deleteSessionFromApi = async (id: string) => {
-    const response = await fetch(`${API_BASE_URL}/session/delete/${id}`, { method: 'DELETE' });
+    const response = await fetch(`${API_BASE_URL}/session/delete/${id}`, { 
+      method: 'DELETE',
+      credentials: 'include'
+    });
     const result = await response.json();
     if (result.success) await fetchSessionsFromApi(true);
     return result;
   };
 
   const deleteInquiryFromApi = async (id: string) => {
-    const response = await fetch(`${API_BASE_URL}/inquiries/${id}`, { method: 'DELETE' });
+    const response = await fetch(`${API_BASE_URL}/inquiries/${id}`, { 
+      method: 'DELETE',
+      credentials: 'include'
+    });
     const result = await response.json();
     if (result.success) await fetchInquiriesFromApi(pagination?.page || 1, 5, true);
     return result;
@@ -384,6 +397,7 @@ export const useAppState = () => {
     const response = await fetch(`${API_BASE_URL}/inquiries/add`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
       body: JSON.stringify({
         fullName: form.guestName,
         email: form.guestEmail,
