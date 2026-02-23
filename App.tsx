@@ -19,6 +19,7 @@ const App: React.FC = () => {
   const [showApplyModal, setShowApplyModal] = useState(false);
   const [targetSessionId, setTargetSessionId] = useState('');
   const [targetRoomId, setTargetRoomId] = useState('');
+  const hasFetchedPayment = React.useRef(false);
   
   // Toast State
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' | 'info' } | null>(null);
@@ -82,7 +83,8 @@ const App: React.FC = () => {
 
     if (paymentStatus === 'success') {
       setView('payment-success');
-      if (sessionId) {
+      if (sessionId && !hasFetchedPayment.current) {
+        hasFetchedPayment.current = true;
         state.fetchPaymentDetails(sessionId);
       }
     } else if (paymentStatus === 'fail' || paymentStatus === 'cancel') {
