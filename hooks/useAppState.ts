@@ -64,6 +64,7 @@ export const useAppState = () => {
   const [itinerary, setItinerary] = useState<any[]>([]);
   const [portalConfig, setPortalConfig] = useState(DEFAULT_PORTAL_CONFIG);
   const [activePortalGuest, setActivePortalGuest] = useState<Application | null>(null);
+  const [paymentId, setPaymentId] = useState<string | null>(null);
 
   const isFetchingInquiries = useRef(false);
   const isFetchingRooms = useRef(false);
@@ -405,6 +406,20 @@ export const useAppState = () => {
     return result.data;
   };
 
+  const fetchPaymentDetails = async (sessionId: string) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/paymentdetails?session_id=${sessionId}`, { credentials: 'omit' });
+      const result = await response.json();
+      if (result.success && result.data) {
+        setPaymentId(result.data.id);
+        return result.data;
+      }
+    } catch (error) {
+      console.warn("Payment details API unavailable:", error);
+    }
+    return null;
+  };
+
   useEffect(() => {
     fetchRoomsFromApi();
     fetchSessionsFromApi();
@@ -435,6 +450,7 @@ export const useAppState = () => {
     portalConfig,
     setPortalConfig,
     activePortalGuest,
+    paymentId,
     fetchInquiriesFromApi,
     fetchRoomsFromApi,
     fetchSessionsFromApi,
@@ -448,6 +464,7 @@ export const useAppState = () => {
     saveSessionToApi,
     deleteSessionFromApi,
     deleteInquiryFromApi,
-    submitApplication
+    submitApplication,
+    fetchPaymentDetails
   };
 };

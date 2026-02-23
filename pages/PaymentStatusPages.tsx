@@ -5,9 +5,10 @@ import { Logo } from '../components/Shared';
 
 interface PaymentStatusPageProps {
   onReturn: () => void;
+  paymentId?: string | null;
 }
 
-export const PaymentSuccessPage: React.FC<PaymentStatusPageProps> = ({ onReturn }) => {
+export const PaymentSuccessPage: React.FC<PaymentStatusPageProps> = ({ onReturn, paymentId }) => {
   return (
     <main className="min-h-screen flex flex-col items-center justify-center px-8 py-20 bg-[#faf9f6]">
       <div className="max-w-2xl w-full space-y-12 text-center animate-reveal">
@@ -22,7 +23,14 @@ export const PaymentSuccessPage: React.FC<PaymentStatusPageProps> = ({ onReturn 
           <h1 className="text-5xl md:text-7xl font-display font-light uppercase tracking-tighter text-stone">
             Registry Confirmed
           </h1>
-          <p className="text-lg md:text-xl font-serif italic text-stone/40 max-w-lg mx-auto leading-relaxed">
+          {paymentId && (
+            <div className="py-2 px-4 bg-white border border-stone/5 rounded-full inline-block mt-4">
+              <p className="text-[10px] font-black uppercase tracking-widest text-stone/40">
+                TRANSACTION ID: <span className="text-stone">{paymentId}</span>
+              </p>
+            </div>
+          )}
+          <p className="text-lg md:text-xl font-serif italic text-stone/40 max-w-lg mx-auto leading-relaxed pt-4">
             Your foundational deposit has been processed. Your place at the estate is now officially secured.
           </p>
         </header>

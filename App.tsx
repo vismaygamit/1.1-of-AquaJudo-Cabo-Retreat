@@ -78,8 +78,13 @@ const App: React.FC = () => {
   React.useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const paymentStatus = urlParams.get('payment');
+    const sessionId = urlParams.get('session_id');
+
     if (paymentStatus === 'success') {
       setView('payment-success');
+      if (sessionId) {
+        state.fetchPaymentDetails(sessionId);
+      }
     } else if (paymentStatus === 'fail' || paymentStatus === 'cancel') {
       setView('payment-fail');
     }
@@ -127,7 +132,7 @@ const App: React.FC = () => {
   // Root Content Switcher
   const renderContent = () => {
     if (view === 'payment-success') {
-      return <PaymentSuccessPage onReturn={() => setView('landing')} />;
+      return <PaymentSuccessPage onReturn={() => setView('landing')} paymentId={state.paymentId} />;
     }
     if (view === 'payment-fail') {
       return <PaymentFailPage onReturn={() => setView('landing')} />;
