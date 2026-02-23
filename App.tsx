@@ -48,6 +48,7 @@ const App: React.FC = () => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ pin: password.trim() }),
+        credentials: 'include'
       });
 
       const result = await response.json();

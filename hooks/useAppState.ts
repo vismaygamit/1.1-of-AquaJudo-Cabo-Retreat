@@ -90,7 +90,7 @@ export const useAppState = () => {
     lastInquiryFetch.current = now;
     lastInquiryPage.current = page;
     try {
-      const response = await fetch(`${API_BASE_URL}/inquiries?page=${page}&limit=${limit}`);
+      const response = await fetch(`${API_BASE_URL}/inquiries?page=${page}&limit=${limit}`, { credentials: 'omit' });
       const result = await response.json();
       if (result.success && result.data) {
         const inquiriesData = result.data.inquiries || [];
@@ -146,7 +146,7 @@ export const useAppState = () => {
     isFetchingRooms.current = true;
     lastRoomFetch.current = now;
     try {
-      const response = await fetch(`${API_BASE_URL}/getAllRooms`);
+      const response = await fetch(`${API_BASE_URL}/getAllRooms`, { credentials: 'omit' });
       const result = await response.json();
       if (result.success && Array.isArray(result.data)) {
         const t = Date.now();
@@ -190,7 +190,7 @@ export const useAppState = () => {
     isFetchingSessions.current = true;
     lastSessionFetch.current = now;
     try {
-      const response = await fetch(`${API_BASE_URL}/session/getAllSessionsForAdmin`);
+      const response = await fetch(`${API_BASE_URL}/session/getAllSessionsForAdmin`, { credentials: 'omit' });
       const result = await response.json();
       if (result.success && Array.isArray(result.data)) {
         const mappedSessions: ResidencySession[] = result.data.map((apiSession: any) => ({
@@ -216,7 +216,7 @@ export const useAppState = () => {
     isFetchingItinerary.current = true;
     lastItineraryFetch.current = now;
     try {
-      const response = await fetch(`${API_BASE_URL}/itinerary`);
+      const response = await fetch(`${API_BASE_URL}/itinerary`, { credentials: 'omit' });
       const result = await response.json();
       if (result.success && Array.isArray(result.data)) {
         setItinerary(result.data);
@@ -235,7 +235,7 @@ export const useAppState = () => {
     isFetchingFaqs.current = true;
     lastFaqFetch.current = now;
     try {
-      const response = await fetch(`${API_BASE_URL}/faq`);
+      const response = await fetch(`${API_BASE_URL}/faq`, { credentials: 'omit' });
       const result = await response.json();
       if (result.success && Array.isArray(result.data)) {
         const mappedFaqs: FAQItem[] = result.data.map((apiFaq: any) => ({
@@ -259,7 +259,7 @@ export const useAppState = () => {
     isFetchingPortal.current = true;
     lastPortalFetch.current = now;
     try {
-      const response = await fetch(`${API_BASE_URL}/getPortalSettings`);
+      const response = await fetch(`${API_BASE_URL}/getPortalSettings`, { credentials: 'omit' });
       if (!response.ok) throw new Error(`Portal GET Error ${response.status}`);
       const result = await response.json();
 
@@ -311,7 +311,8 @@ export const useAppState = () => {
 
     const response = await fetch(`${API_BASE_URL}/updatePortalSettings`, {
       method: 'PUT',
-      body: formData
+      body: formData,
+      credentials: 'include'
     });
 
     if (!response.ok) throw new Error(`Registry refused sync: ${response.status}`);
@@ -327,7 +328,8 @@ export const useAppState = () => {
     const response = await fetch(url, {
       method,
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ que: faq.q, ans: faq.a })
+      body: JSON.stringify({ que: faq.q, ans: faq.a }),
+      credentials: 'include'
     });
     const result = await response.json();
     if (result.success) await fetchFaqsFromApi(true);
@@ -335,7 +337,7 @@ export const useAppState = () => {
   };
 
   const deleteFaqFromApi = async (id: string) => {
-    const response = await fetch(`${API_BASE_URL}/faq/${id}`, { method: 'DELETE' });
+    const response = await fetch(`${API_BASE_URL}/faq/${id}`, { method: 'DELETE', credentials: 'include' });
     const result = await response.json();
     if (result.success) await fetchFaqsFromApi(true);
     return result;
@@ -345,7 +347,8 @@ export const useAppState = () => {
     const response = await fetch(`${API_BASE_URL}/itinerary`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ days })
+      body: JSON.stringify({ days }),
+      credentials: 'include'
     });
     const result = await response.json();
     if (result.success) setItinerary(result.data);
@@ -359,7 +362,8 @@ export const useAppState = () => {
     const response = await fetch(url, {
       method,
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ startDate: session.startDate, endDate: session.endDate, maxGuests: session.maxGuests })
+      body: JSON.stringify({ startDate: session.startDate, endDate: session.endDate, maxGuests: session.maxGuests }),
+      credentials: 'include'
     });
     const result = await response.json();
     if (result.success) await fetchSessionsFromApi(true);
@@ -367,14 +371,14 @@ export const useAppState = () => {
   };
 
   const deleteSessionFromApi = async (id: string) => {
-    const response = await fetch(`${API_BASE_URL}/session/delete/${id}`, { method: 'DELETE' });
+    const response = await fetch(`${API_BASE_URL}/session/delete/${id}`, { method: 'DELETE', credentials: 'include' });
     const result = await response.json();
     if (result.success) await fetchSessionsFromApi(true);
     return result;
   };
 
   const deleteInquiryFromApi = async (id: string) => {
-    const response = await fetch(`${API_BASE_URL}/inquiries/${id}`, { method: 'DELETE' });
+    const response = await fetch(`${API_BASE_URL}/inquiries/${id}`, { method: 'DELETE', credentials: 'include' });
     const result = await response.json();
     if (result.success) await fetchInquiriesFromApi(pagination?.page || 1, 5, true);
     return result;
@@ -393,7 +397,8 @@ export const useAppState = () => {
         backgroundDescription: form.healthNotes,
         isBathroomProtocolChecked: form.bathroomConsent,
         isAlcoholFreeEstateChecked: form.alcoholConsent
-      })
+      }),
+      credentials: 'omit'
     });
     const result = await response.json();
     if (!result.success) throw new Error(result.message || 'Submission failed');

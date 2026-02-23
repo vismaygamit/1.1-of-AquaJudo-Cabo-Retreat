@@ -116,7 +116,8 @@ export const AdminPage: React.FC<AdminPageProps> = ({
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ status: newStatus.toLowerCase() })
+        body: JSON.stringify({ status: newStatus.toLowerCase() }),
+        credentials: 'include'
       });
       
       const result = await response.json();
@@ -192,7 +193,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({
       }
       setIsSaving(prev => ({ ...prev, [id]: true }));
       try {
-        const response = await fetch(`${API_BASE_URL}/deleteRoom/${id}`, { method: 'DELETE' });
+        const response = await fetch(`${API_BASE_URL}/deleteRoom/${id}`, { method: 'DELETE', credentials: 'include' });
         const result = await response.json();
         if (result.success) {
           showToast(result.message || 'Sanctuary purged from registry.', 'success');
@@ -323,7 +324,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({
       const url = isNew ? `${API_BASE_URL}/createRoom` : `${API_BASE_URL}/updateRoom/${room.id}`;
       const method = isNew ? 'POST' : 'PUT';
       
-      const response = await fetch(url, { method, body: data });
+      const response = await fetch(url, { method, body: data, credentials: 'include' });
       const result = await response.json();
 
       if (result.success) {
