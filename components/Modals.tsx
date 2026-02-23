@@ -6,17 +6,34 @@ import { BookingState, Room, ResidencySession } from '../types';
 interface LoginModalProps {
   onLogin: (password: string) => void;
   onClose: () => void;
+  isLoading?: boolean;
 }
 
-export const LoginModal: React.FC<LoginModalProps> = ({ onLogin, onClose }) => {
+export const LoginModal: React.FC<LoginModalProps> = ({ onLogin, onClose, isLoading }) => {
   const [input, setInput] = useState("");
   return (
     <div className="fixed inset-0 z-[1000] bg-[#111]/98 backdrop-blur-2xl flex items-center justify-center p-6 animate-fade-in">
       <div className="bg-white w-full max-w-sm p-12 rounded-[3rem] space-y-8 text-center relative shadow-3xl">
-        <button onClick={onClose} className="absolute top-8 right-8 text-stone/20 hover:text-stone transition-all"><X size={20} /></button>
+        <button onClick={onClose} disabled={isLoading} className="absolute top-8 right-8 text-stone/20 hover:text-stone transition-all disabled:opacity-0"><X size={20} /></button>
         <h4 className="text-[12px] font-black uppercase tracking-[0.5em] text-stone/30">ESTATE CURATOR</h4>
-        <input type="password" placeholder="••••" value={input} onChange={e => setInput(e.target.value)} onKeyDown={e => e.key === 'Enter' && onLogin(input)} className="w-full bg-[#faf9f6] rounded-[2rem] px-6 py-5 text-center text-2xl font-display tracking-[0.4em] outline-none border border-stone/10" autoFocus />
-        <button onClick={() => onLogin(input)} className="w-full py-5 bg-[#111] text-white rounded-2xl text-[11px] font-black uppercase tracking-[0.3em] hover:bg-aqua-primary transition-all">ACCESS CONSOLE</button>
+        <input 
+          type="password" 
+          placeholder="••••" 
+          value={input} 
+          onChange={e => setInput(e.target.value)} 
+          onKeyDown={e => e.key === 'Enter' && !isLoading && onLogin(input)} 
+          className="w-full bg-[#faf9f6] rounded-[2rem] px-6 py-5 text-center text-2xl font-display tracking-[0.4em] outline-none border border-stone/10 disabled:opacity-50" 
+          autoFocus 
+          disabled={isLoading}
+        />
+        <button 
+          onClick={() => onLogin(input)} 
+          disabled={isLoading || !input}
+          className="w-full py-5 bg-[#111] text-white rounded-2xl text-[11px] font-black uppercase tracking-[0.3em] hover:bg-aqua-primary transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+        >
+          {isLoading ? <Loader2 size={14} className="animate-spin" /> : null}
+          {isLoading ? 'VERIFYING...' : 'ACCESS CONSOLE'}
+        </button>
       </div>
     </div>
   );

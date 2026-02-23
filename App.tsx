@@ -8,11 +8,13 @@ import { AdminPage } from './pages/AdminPage';
 import { PaymentSuccessPage, PaymentFailPage } from './pages/PaymentStatusPages';
 import { LoginModal, ApplyModal } from './components/Modals';
 import { Toast } from './components/Shared';
+import { API_BASE_URL } from './constants';
 
 const App: React.FC = () => {
   const state = useAppState();
   const [view, setView] = useState<'landing' | 'portal' | 'admin' | 'payment-success' | 'payment-fail'>('landing');
   const [isAdminLoggedIn, setIsAdminLoggedIn] = useState(false);
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [showApplyModal, setShowApplyModal] = useState(false);
   const [targetSessionId, setTargetSessionId] = useState('');
@@ -37,14 +39,32 @@ const App: React.FC = () => {
     setShowApplyModal(true);
   };
 
-  const handleAdminLogin = (password: string) => {
-    if (password.trim() === "admin") {
-      setIsAdminLoggedIn(true);
-      setShowLoginModal(false);
-      setView('admin');
-      showToast("CURATOR ACCESS GRANTED", "success");
-    } else {
-      showToast("INVALID CREDENTIALS", "error");
+  const handleAdminLogin = async (password: string) => {
+    setIsLoggingIn(true);
+    try {
+      const response = await fetch(`${API_BASE_URL}/adminAuth`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ pin: password.trim() }),
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        setIsAdminLoggedIn(true);
+        setShowLoginModal(false);
+        setView('admin');
+        showToast("CURATOR ACCESS GRANTED", "success");
+      } else {
+        showToast(result.message || "INVALID CREDENTIALS", "error");
+      }
+    } catch (error) {
+      console.error("Login error:", error);
+      showToast("AUTHENTICATION SERVICE UNAVAILABLE", "error");
+    } finally {
+      setIsLoggingIn(false);
     }
   };
 
@@ -148,6 +168,7 @@ const App: React.FC = () => {
         <LoginModal 
           onLogin={handleAdminLogin} 
           onClose={() => setShowLoginModal(false)} 
+          isLoading={isLoggingIn}
         />
       )}
 
