@@ -111,7 +111,11 @@ export const PaymentSuccessPage: React.FC<PaymentStatusPageProps> = ({ onReturn,
                 <div>
                   <p className="text-[9px] font-black uppercase text-stone/30">STATUS & AMOUNT</p>
                   <div className="flex items-center gap-2">
-                    <span className="text-[14px] font-black uppercase tracking-tight text-stone">${paymentDetails?.amount.toLocaleString()}</span>
+                    <span className="text-[14px] font-black uppercase tracking-tight text-stone">
+                      {typeof paymentDetails?.amount === 'string' 
+                        ? paymentDetails.amount 
+                        : `$${paymentDetails?.amount.toLocaleString()}`}
+                    </span>
                     <span className="px-2 py-0.5 bg-green-50 text-green-500 text-[8px] font-black uppercase rounded-full border border-green-100">
                       {paymentDetails?.status || 'SUCCESS'}
                     </span>

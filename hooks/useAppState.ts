@@ -411,17 +411,21 @@ export const useAppState = () => {
     try {
       const response = await fetch(`${API_BASE_URL}/paymentdetails?session_id=${sessionId}`, { credentials: 'omit' });
       const result = await response.json();
-      if (result.success && result.data) {
+      
+      // Handle both wrapped and unwrapped responses
+      const data = result.success && result.data ? result.data : result;
+
+      if (data && data.id) {
         const mappedDetails: PaymentDetails = {
-          id: result.data.id,
-          referenceId: result.data.referenceId || result.data.refId || '',
-          roomName: result.data.roomName || '',
-          checkInDate: result.data.checkInDate || result.data.startDate || '',
-          checkOutDate: result.data.checkOutDate || result.data.endDate || '',
-          transactionDate: result.data.transactionDate || result.data.createdAt || new Date().toISOString(),
-          amount: result.data.amount || 0,
-          status: result.data.status || 'success',
-          inquiryId: result.data.inquiryId || ''
+          id: data.payment_intent || data.id,
+          referenceId: data.refId || data.referenceId || '',
+          roomName: data.roomName || '',
+          checkInDate: data.checkInDate || data.startDate || '',
+          checkOutDate: data.checkOutDate || data.endDate || '',
+          transactionDate: data.created ? new Date(data.created * 1000).toISOString() : (data.transactionDate || data.createdAt || new Date().toISOString()),
+          amount: data.amount_total !== undefined ? `CAD ${(data.amount_total / 100).toFixed(2)}` : (data.amount || 0),
+          status: data.payment_status || data.status || 'success',
+          inquiryId: data.metadata?.inquiryId || data.inquiryId || ''
         };
         setPaymentDetails(mappedDetails);
         return mappedDetails;

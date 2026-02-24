@@ -107,7 +107,7 @@ export interface PaymentDetails {
   checkInDate: string;
   checkOutDate: string;
   transactionDate: string;
-  amount: number;
+  amount: string | number;
   status: string;
   inquiryId: string;
 }
