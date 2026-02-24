@@ -65,6 +65,7 @@ export const useAppState = () => {
   const [portalConfig, setPortalConfig] = useState(DEFAULT_PORTAL_CONFIG);
   const [activePortalGuest, setActivePortalGuest] = useState<Application | null>(null);
   const [paymentDetails, setPaymentDetails] = useState<PaymentDetails | null>(null);
+  const [magicLinkStatus, setMagicLinkStatus] = useState<'idle' | 'verifying' | 'valid' | 'invalid'>('idle');
 
   const isFetchingInquiries = useRef(false);
   const isFetchingRooms = useRef(false);
@@ -431,6 +432,50 @@ export const useAppState = () => {
     return null;
   };
 
+  const verifyMagicLink = useCallback(async (token: string) => {
+    setMagicLinkStatus('verifying');
+    try {
+      const response = await fetch(`${API_BASE_URL}/accessBooking?token=${token}`, {
+        method: 'GET',
+        credentials: 'include'
+      });
+      const result = await response.json();
+      
+      if (response.ok && result.success) {
+        setMagicLinkStatus('valid');
+        if (result.data) {
+          const apiInquiry = result.data;
+          const mapped: Application = {
+            id: apiInquiry._id || apiInquiry.id,
+            guestName: apiInquiry.guestName,
+            email: apiInquiry.email,
+            phone: apiInquiry.phone,
+            gender: apiInquiry.gender || '',
+            bookingType: apiInquiry.bookingType || 'solo',
+            status: apiInquiry.status as ApplicationStatus,
+            sessionId: apiInquiry.sessionId || (apiInquiry.session && (apiInquiry.session._id || apiInquiry.session.id)),
+            roomPreferenceId: apiInquiry.roomPreferenceId || (apiInquiry.room && (apiInquiry.room._id || apiInquiry.room.id)),
+            consentBathroom: apiInquiry.consentBathroom || apiInquiry.isBathroomProtocolChecked || false,
+            consentAlcohol: apiInquiry.consentAlcohol || apiInquiry.isAlcoholFreeEstateChecked || false,
+            depositPaid: apiInquiry.depositPaid || false,
+            totalPrice: apiInquiry.totalPrice || 0,
+            timestamp: new Date(apiInquiry.createdAt || Date.now()).getTime(),
+            healthNotes: apiInquiry.backgroundDescription || apiInquiry.healthNotes
+          };
+          setActivePortalGuest(mapped);
+        }
+        return true;
+      } else {
+        setMagicLinkStatus('invalid');
+        return false;
+      }
+    } catch (error) {
+      console.error("Magic link verification error:", error);
+      setMagicLinkStatus('invalid');
+      return false;
+    }
+  }, []);
+
   useEffect(() => {
     fetchRoomsFromApi();
     fetchSessionsFromApi();
@@ -476,6 +521,9 @@ export const useAppState = () => {
     deleteSessionFromApi,
     deleteInquiryFromApi,
     submitApplication,
-    fetchPaymentDetails
+    fetchPaymentDetails,
+    magicLinkStatus,
+    setMagicLinkStatus,
+    verifyMagicLink
   };
 };

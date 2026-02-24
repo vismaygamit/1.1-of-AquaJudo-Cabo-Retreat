@@ -72,6 +72,7 @@ const App: React.FC = () => {
 
   const exitPortal = () => {
     setView('landing');
+    state.setMagicLinkStatus('idle');
     window.history.replaceState({}, '', '/');
   };
 
@@ -91,6 +92,19 @@ const App: React.FC = () => {
       setView('payment-fail');
     }
   }, []);
+
+  // Handle Magic Link Token
+  React.useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const token = urlParams.get('token');
+    if (token) {
+      state.verifyMagicLink(token).then(success => {
+        if (success) {
+          setView('portal');
+        }
+      });
+    }
+  }, [state.verifyMagicLink]);
 
   // Render Admin View Directly (Bypasses MainLayout)
   if (view === 'admin' && isAdminLoggedIn) {
@@ -133,6 +147,43 @@ const App: React.FC = () => {
 
   // Root Content Switcher
   const renderContent = () => {
+    if (state.magicLinkStatus === 'verifying') {
+      return (
+        <div className="min-h-screen flex items-center justify-center bg-parchment">
+          <div className="text-center space-y-4">
+            <div className="w-12 h-12 border-4 border-aqua-primary border-t-transparent rounded-full animate-spin mx-auto" />
+            <p className="text-[10px] font-black uppercase tracking-[0.3em] text-stone/40">Verifying Access...</p>
+          </div>
+        </div>
+      );
+    }
+
+    if (state.magicLinkStatus === 'invalid') {
+      return (
+        <div className="min-h-screen flex items-center justify-center bg-parchment p-6">
+          <div className="bg-white p-12 rounded-[1rem] shadow-xl max-w-md w-full text-center space-y-6 border border-red-100">
+            <div className="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mx-auto text-red-500">
+              <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            </div>
+            <div className="space-y-2">
+              <h2 className="text-2xl font-display font-light uppercase tracking-tight text-stone">Link expired or invalid</h2>
+              <p className="text-stone/50 text-sm">The access link you used is no longer valid. Please contact the estate curator for a new one.</p>
+            </div>
+            <button 
+              onClick={() => {
+                setView('landing');
+                state.setMagicLinkStatus('idle');
+                window.history.replaceState({}, '', '/');
+              }}
+              className="w-full py-4 bg-stone text-white rounded-full text-[10px] font-black uppercase tracking-widest hover:bg-aqua-primary hover:text-stone transition-all"
+            >
+              Return to Landing
+            </button>
+          </div>
+        </div>
+      );
+    }
+
     if (view === 'payment-success') {
       return <PaymentSuccessPage onReturn={() => setView('landing')} paymentDetails={state.paymentDetails} />;
     }
