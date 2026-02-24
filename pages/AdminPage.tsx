@@ -448,7 +448,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({
             </div>
             <div className="grid gap-8">
               {applications.length === 0 ? (
-                <div className="p-20 text-center bg-white rounded-[3rem] border border-stone/5 border-dashed">
+                <div className="p-20 text-center bg-white rounded-[1rem] border border-stone/5 border-dashed">
                   <p className="text-stone/20 font-black uppercase tracking-widest text-[10px]">No active inquiries found</p>
                 </div>
               ) : (
@@ -531,7 +531,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                 const eLabelText = formatRegistryDateText(s.endDate);
                 const localizedRangeText = (sLabelText !== 'TBD' && eLabelText !== 'TBD') ? `${sLabelText} — ${eLabelText}` : 'RESIDENCY WINDOW DRAFT';
                 return (
-                  <div key={s.id} className="bg-white p-10 rounded-[3rem] border border-stone/5 shadow-xl flex flex-col gap-8 group">
+                  <div key={s.id} className="bg-white p-10 rounded-[1rem] border border-stone/5 shadow-xl flex flex-col gap-8 group">
                     <div className="flex items-center gap-3 pb-4 border-b border-stone/5">
                       <Calendar size={18} className="text-aqua-primary" />
                       <h4 className="text-[12px] font-black uppercase tracking-[0.2em] text-stone">{localizedRangeText}</h4>

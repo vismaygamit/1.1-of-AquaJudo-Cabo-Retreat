@@ -93,7 +93,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ sessions, rooms, itine
             <h2 className="text-3xl md:text-5xl font-display font-light uppercase tracking-tighter">The Experience</h2>
           </div>
           <div
-            className="relative aspect-video rounded-[3rem] overflow-hidden shadow-2xl group cursor-pointer bg-parchment"
+            className="relative aspect-video rounded-[1rem] overflow-hidden shadow-2xl group cursor-pointer bg-parchment"
             onClick={togglePromoPlay}
           >
             <video
@@ -175,12 +175,12 @@ export const LandingPage: React.FC<LandingPageProps> = ({ sessions, rooms, itine
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {activeSessions.length === 0 ? (
-              <div className="col-span-full py-20 text-center bg-white rounded-[3rem] border border-stone/5 border-dashed">
+              <div className="col-span-full py-20 text-center bg-white rounded-[1rem] border border-stone/5 border-dashed">
                 <p className="text-stone/20 font-black uppercase tracking-widest text-[11px]">No upcoming residency windows scheduled</p>
               </div>
             ) : (
               activeSessions.map((s) => (
-                <div key={s.id} className="bg-white p-10 rounded-[3rem] border border-stone/5 space-y-8 shadow-sm flex flex-col justify-between">
+                <div key={s.id} className="bg-white p-10 rounded-[1rem] border border-stone/5 space-y-8 shadow-sm flex flex-col justify-between">
                   <div className="space-y-4">
                     <div className="flex justify-between items-start">
                       <p className="text-[10px] font-black uppercase tracking-[0.3em] text-aqua-primary">{new Date(s.startDate).getFullYear()}</p>

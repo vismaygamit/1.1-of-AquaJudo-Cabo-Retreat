@@ -70,14 +70,14 @@ export const PortalPage: React.FC<PortalPageProps> = ({ guest, session, room, po
         {/* Welcome Header */}
         <section className="space-y-12 animate-reveal">
           <header className="space-y-4">
-            <p className="text-[12px] font-black uppercase tracking-[0.4em] text-aqua-primary">GUEST REGISTRY</p>
+            <p className="text-[12px] font-black uppercase tracking-[0.4em] text-aqua-primary">GUEST PORTAL</p>
             <h1 className="text-6xl md:text-8xl font-display font-light uppercase tracking-tighter text-stone">
               Welcome, {guest.guestName.split(' ')[0]}
             </h1>
           </header>
 
           {/* Message from Founder */}
-          <div className="bg-white p-8 md:p-12 rounded-[3rem] border border-stone/5 shadow-sm flex flex-col md:flex-row items-center gap-8 md:gap-12 relative overflow-hidden">
+          <div className="bg-white p-8 md:p-12 rounded-[1rem] border border-stone/5 shadow-sm flex flex-col md:flex-row items-center gap-8 md:gap-12 relative overflow-hidden">
             <div className="absolute top-0 right-0 w-64 h-64 bg-aqua-primary/5 rounded-full -mr-32 -mt-32 blur-3xl" />
             <div className="w-24 h-24 rounded-full overflow-hidden flex-shrink-0 border-4 border-white shadow-xl">
               <img src="https://picsum.photos/seed/founder/200/200" alt="Founder" className="w-full h-full object-cover" />
@@ -93,7 +93,7 @@ export const PortalPage: React.FC<PortalPageProps> = ({ guest, session, room, po
 
           {/* Quick Info Cards */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="bg-white p-10 rounded-[3rem] border border-stone/5 shadow-sm flex flex-col justify-between h-full">
+            <div className="bg-white p-10 rounded-[1rem] border border-stone/5 shadow-sm flex flex-col justify-between h-full">
               <div className="space-y-1">
                 <p className="text-[10px] font-black text-stone/20 uppercase tracking-widest">RESIDENCY WINDOW</p>
                 <p className="text-2xl font-black uppercase tracking-tight text-stone">
@@ -105,7 +105,7 @@ export const PortalPage: React.FC<PortalPageProps> = ({ guest, session, room, po
                 <p className="text-2xl font-black uppercase tracking-tight text-aqua-primary">{room?.name || 'ONYX SANCTUARY'}</p>
               </div>
             </div>
-            <div className="bg-white p-10 rounded-[3rem] border border-stone/5 shadow-sm grid grid-cols-2 gap-8">
+            <div className="bg-white p-10 rounded-[1rem] border border-stone/5 shadow-sm grid grid-cols-2 gap-8">
               <div className="space-y-1">
                 <p className="text-[10px] font-black text-stone/20 uppercase tracking-widest">CHECK-IN</p>
                 <p className="text-2xl font-black uppercase tracking-tight text-stone">3:00 PM</p>
@@ -146,7 +146,7 @@ export const PortalPage: React.FC<PortalPageProps> = ({ guest, session, room, po
           <SectionHeader icon={Coffee} title={`Your Chamber — ${room?.name || 'Onyx Sanctuary'}`} subtitle="ACCOMMODATION" />
           <p className="text-lg font-serif italic text-stone/60">You have been assigned {room?.name || 'Onyx Sanctuary'}.</p>
           
-          <div className="relative aspect-[21/9] rounded-[3rem] overflow-hidden shadow-2xl group">
+          <div className="relative aspect-[21/9] rounded-[1rem] overflow-hidden shadow-2xl group">
             <img 
               src={room?.image || "https://picsum.photos/seed/chamber/1200/600"} 
               alt="Chamber" 
@@ -177,7 +177,7 @@ export const PortalPage: React.FC<PortalPageProps> = ({ guest, session, room, po
               { title: 'BALANDRA INTEGRATION', type: 'RESTORATIVE', desc: 'A full-day expedition to the shallow lagoons for floating technical drills.', freq: 'ONCE' },
               { title: 'COASTAL BOULDERING', type: 'TECHNICAL', desc: 'Natural terrain integration focusing on balance and weight distribution.', freq: 'ONCE' }
             ].map((exp, i) => (
-              <div key={i} className="bg-white p-10 rounded-[3rem] border border-stone/5 shadow-sm space-y-6">
+              <div key={i} className="bg-white p-10 rounded-[1rem] border border-stone/5 shadow-sm space-y-6">
                 <div className="flex justify-between items-start">
                   <h4 className="text-[14px] font-black uppercase tracking-tight text-stone">{exp.title}</h4>
                   <span className="text-[8px] font-black px-2 py-1 bg-aqua-primary/10 text-aqua-primary rounded-full tracking-widest">{exp.type}</span>
@@ -311,7 +311,7 @@ export const PortalPage: React.FC<PortalPageProps> = ({ guest, session, room, po
         {/* Property Address */}
         <section className="space-y-8">
           <SectionHeader icon={Home} title="Property Address" subtitle="LOCATION" />
-          <div className="bg-stone p-12 rounded-[3rem] text-white space-y-8 shadow-2xl relative overflow-hidden group">
+          <div className="bg-stone p-12 rounded-[1rem] text-white space-y-8 shadow-2xl relative overflow-hidden group">
             <div className="absolute top-0 right-0 w-96 h-96 bg-aqua-primary/10 rounded-full -mr-48 -mt-48 blur-3xl group-hover:bg-aqua-primary/20 transition-all duration-1000" />
             <div className="space-y-2 relative">
               <p className="text-[10px] font-black text-aqua-primary uppercase tracking-widest">EXACT ADDRESS</p>
@@ -349,68 +349,6 @@ export const PortalPage: React.FC<PortalPageProps> = ({ guest, session, room, po
               ))}
             </div>
             <p className="text-[11px] font-serif italic text-stone/30">If delayed, notify via WhatsApp immediately.</p>
-          </div>
-        </section>
-
-        {/* Travel Details Submission */}
-        <section className="space-y-8">
-          <SectionHeader icon={Calendar} title="Travel Details Submission" subtitle="REGISTRY" />
-          <p className="text-[13px] font-serif italic text-stone/50">Please submit your arrival and departure details below if you have not already done so.</p>
-          
-          <div className="bg-white p-10 rounded-[3rem] border border-stone/5 shadow-sm space-y-8">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <label className="text-[9px] font-black uppercase tracking-widest text-stone/30">AIRLINE</label>
-                <input 
-                  type="text" 
-                  placeholder="e.g. Aeromexico"
-                  className="w-full px-6 py-4 bg-stone/5 border-none rounded-2xl text-[13px] focus:ring-1 focus:ring-aqua-primary/30 transition-all"
-                  value={travelForm.airline}
-                  onChange={e => setTravelForm({...travelForm, airline: e.target.value})}
-                />
-              </div>
-              <div className="space-y-2">
-                <label className="text-[9px] font-black uppercase tracking-widest text-stone/30">FLIGHT NUMBER</label>
-                <input 
-                  type="text" 
-                  placeholder="e.g. AM123"
-                  className="w-full px-6 py-4 bg-stone/5 border-none rounded-2xl text-[13px] focus:ring-1 focus:ring-aqua-primary/30 transition-all"
-                  value={travelForm.flightNumber}
-                  onChange={e => setTravelForm({...travelForm, flightNumber: e.target.value})}
-                />
-              </div>
-              <div className="space-y-2">
-                <label className="text-[9px] font-black uppercase tracking-widest text-stone/30">ARRIVAL TIME</label>
-                <input 
-                  type="time" 
-                  className="w-full px-6 py-4 bg-stone/5 border-none rounded-2xl text-[13px] focus:ring-1 focus:ring-aqua-primary/30 transition-all"
-                  value={travelForm.arrivalTime}
-                  onChange={e => setTravelForm({...travelForm, arrivalTime: e.target.value})}
-                />
-              </div>
-              <div className="space-y-2">
-                <label className="text-[9px] font-black uppercase tracking-widest text-stone/30">DEPARTURE TIME</label>
-                <input 
-                  type="time" 
-                  className="w-full px-6 py-4 bg-stone/5 border-none rounded-2xl text-[13px] focus:ring-1 focus:ring-aqua-primary/30 transition-all"
-                  value={travelForm.departureTime}
-                  onChange={e => setTravelForm({...travelForm, departureTime: e.target.value})}
-                />
-              </div>
-              <div className="md:col-span-2 space-y-2">
-                <label className="text-[9px] font-black uppercase tracking-widest text-stone/30">EMERGENCY CONTACT</label>
-                <input 
-                  type="text" 
-                  placeholder="Name & Phone Number"
-                  className="w-full px-6 py-4 bg-stone/5 border-none rounded-2xl text-[13px] focus:ring-1 focus:ring-aqua-primary/30 transition-all"
-                  value={travelForm.emergencyContact}
-                  onChange={e => setTravelForm({...travelForm, emergencyContact: e.target.value})}
-                />
-              </div>
-            </div>
-            <button className="w-full py-5 bg-stone text-white rounded-full text-[11px] font-black uppercase tracking-[0.2em] hover:bg-aqua-primary hover:text-stone transition-all shadow-xl flex items-center justify-center gap-3">
-              SUBMIT TRAVEL DETAILS <Send size={14} />
-            </button>
           </div>
         </section>
 

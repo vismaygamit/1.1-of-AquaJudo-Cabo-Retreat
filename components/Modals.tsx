@@ -13,7 +13,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({ onLogin, onClose, isLoad
   const [input, setInput] = useState("");
   return (
     <div className="fixed inset-0 z-[1000] bg-[#111]/98 backdrop-blur-2xl flex items-center justify-center p-6 animate-fade-in">
-      <div className="bg-white w-full max-w-sm p-12 rounded-[3rem] space-y-8 text-center relative shadow-3xl">
+      <div className="bg-white w-full max-w-sm p-12 rounded-[1rem] space-y-8 text-center relative shadow-3xl">
         <button onClick={onClose} disabled={isLoading} className="absolute top-8 right-8 text-stone/20 hover:text-stone transition-all disabled:opacity-0"><X size={20} /></button>
         <h4 className="text-[12px] font-black uppercase tracking-[0.5em] text-stone/30">ESTATE CURATOR</h4>
         <input 
@@ -50,7 +50,7 @@ export const DeleteConfirmModal: React.FC<{
   if (!isOpen) return null;
   return (
     <div className="fixed inset-0 z-[1100] bg-stone/20 backdrop-blur-md flex items-center justify-center p-6 animate-fade-in">
-      <div className="bg-white w-full max-w-sm p-10 rounded-[3rem] space-y-8 text-center shadow-3xl border border-white">
+      <div className="bg-white w-full max-w-sm p-10 rounded-[1rem] space-y-8 text-center shadow-3xl border border-white">
         <div className="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mx-auto text-red-500">
           <AlertCircle size={32} />
         </div>
