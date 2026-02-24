@@ -7,9 +7,16 @@ import { PaymentDetails } from '../types';
 interface PaymentStatusPageProps {
   onReturn: () => void;
   paymentDetails?: PaymentDetails | null;
+  showToast?: (message: string, type: 'success' | 'error' | 'info') => void;
 }
 
-export const PaymentSuccessPage: React.FC<PaymentStatusPageProps> = ({ onReturn, paymentDetails }) => {
+export const PaymentSuccessPage: React.FC<PaymentStatusPageProps> = ({ onReturn, paymentDetails, showToast }) => {
+  React.useEffect(() => {
+    if (paymentDetails && showToast) {
+      showToast("Your receipt has been sent to your email successfully.", "success");
+    }
+  }, [paymentDetails, showToast]);
+
   if (!paymentDetails) {
     return (
       <main className="min-h-screen flex flex-col items-center justify-center bg-[#faf9f6]">
@@ -108,7 +115,7 @@ export const PaymentSuccessPage: React.FC<PaymentStatusPageProps> = ({ onReturn,
                 <CreditCard size={16} className="text-aqua-primary mt-1" />
                 <div>
                   <p className="text-[9px] font-black uppercase text-stone/30">TRANSACTION ID</p>
-                  <p className="text-[14px] font-black uppercase tracking-tight text-stone truncate max-w-[200px]">{paymentDetails?.id || '—'}</p>
+                  <p className="text-[14px] font-black uppercase tracking-tight text-stone break-all">{paymentDetails?.id || '—'}</p>
                 </div>
               </div>
 

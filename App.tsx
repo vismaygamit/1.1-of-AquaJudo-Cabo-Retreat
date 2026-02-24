@@ -187,7 +187,7 @@ const App: React.FC = () => {
     }
 
     if (view === 'payment-success') {
-      return <PaymentSuccessPage onReturn={() => setView('landing')} paymentDetails={state.paymentDetails} />;
+      return <PaymentSuccessPage onReturn={() => setView('landing')} paymentDetails={state.paymentDetails} showToast={showToast} />;
     }
     if (view === 'payment-fail') {
       return <PaymentFailPage onReturn={() => setView('landing')} />;
