@@ -65,7 +65,7 @@ export const Toast = ({ message, type, onClose, duration = 4000 }: ToastProps) =
   };
 
   return (
-    <div className="fixed bottom-10 left-1/2 -translate-x-1/2 z-[2000] animate-reveal">
+    <div className="fixed top-4 right-4 sm:top-10 sm:right-10 z-[2000] animate-reveal">
       <div className="bg-white/90 backdrop-blur-xl border border-stone/5 shadow-2xl rounded-full px-6 py-4 flex items-center gap-4 min-w-[320px]">
         <div className="flex-shrink-0">
           {icons[type]}
