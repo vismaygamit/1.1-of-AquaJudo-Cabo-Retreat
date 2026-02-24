@@ -10,6 +10,20 @@ interface PaymentStatusPageProps {
 }
 
 export const PaymentSuccessPage: React.FC<PaymentStatusPageProps> = ({ onReturn, paymentDetails }) => {
+  if (!paymentDetails) {
+    return (
+      <main className="min-h-screen flex flex-col items-center justify-center bg-[#faf9f6]">
+        <div className="text-center space-y-6 animate-reveal">
+          <div className="w-16 h-16 border-4 border-aqua-primary border-t-transparent rounded-full animate-spin mx-auto" />
+          <div className="space-y-2">
+            <p className="text-[12px] font-black uppercase tracking-[0.4em] text-aqua-primary">SECURE PROTOCOL</p>
+            <h2 className="text-2xl font-display font-light uppercase tracking-tight text-stone">Verifying Registry...</h2>
+          </div>
+        </div>
+      </main>
+    );
+  }
+
   const formatDate = (dateStr?: string) => {
     if (!dateStr) return '—';
     try {
