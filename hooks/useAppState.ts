@@ -482,13 +482,6 @@ export const useAppState = () => {
     fetchItineraryFromApi();
     fetchFaqsFromApi();
     fetchPortalConfigFromApi();
-
-    const urlParams = new URLSearchParams(window.location.search);
-    const portalId = urlParams.get('portal');
-    if (portalId) {
-      // If we are looking for a portal ID, we should try to fetch inquiries as well
-      fetchInquiriesFromApi(1, 50); // Higher limit to increase chances of finding it
-    }
   }, [fetchRoomsFromApi, fetchSessionsFromApi, fetchItineraryFromApi, fetchFaqsFromApi, fetchPortalConfigFromApi, fetchInquiriesFromApi]);
 
   return {

@@ -25,7 +25,7 @@ export const PaymentSuccessPage: React.FC<PaymentStatusPageProps> = ({ onReturn,
 
   const handleViewBooking = () => {
     if (paymentDetails?.inquiryId) {
-      window.location.href = `/?portal=${paymentDetails.inquiryId}`;
+      window.location.href = `/booking/access?token=${paymentDetails.inquiryId}`;
     } else {
       onReturn();
     }

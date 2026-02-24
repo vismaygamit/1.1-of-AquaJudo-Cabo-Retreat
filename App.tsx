@@ -97,7 +97,9 @@ const App: React.FC = () => {
   React.useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const token = urlParams.get('token');
-    if (token) {
+    const isAccessPath = window.location.pathname === '/booking/access';
+
+    if (token && isAccessPath) {
       state.verifyMagicLink(token).then(success => {
         if (success) {
           setView('portal');
