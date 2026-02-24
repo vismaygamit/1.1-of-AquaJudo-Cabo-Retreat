@@ -24,9 +24,9 @@ const App: React.FC = () => {
   // Toast State
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' | 'info' } | null>(null);
 
-  const showToast = (message: string, type: 'success' | 'error' | 'info' = 'info') => {
+  const showToast = React.useCallback((message: string, type: 'success' | 'error' | 'info' = 'info') => {
     setToast({ message, type });
-  };
+  }, []);
 
   // Handle Internal Routing Actions
   const openApply = async (sessionId?: string, roomId?: string) => {

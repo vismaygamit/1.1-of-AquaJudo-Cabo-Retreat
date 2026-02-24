@@ -11,9 +11,12 @@ interface PaymentStatusPageProps {
 }
 
 export const PaymentSuccessPage: React.FC<PaymentStatusPageProps> = ({ onReturn, paymentDetails, showToast }) => {
+  const hasShownToast = React.useRef(false);
+
   React.useEffect(() => {
-    if (paymentDetails && showToast) {
+    if (paymentDetails && showToast && !hasShownToast.current) {
       showToast("Your receipt has been sent to your email successfully.", "success");
+      hasShownToast.current = true;
     }
   }, [paymentDetails, showToast]);
 
