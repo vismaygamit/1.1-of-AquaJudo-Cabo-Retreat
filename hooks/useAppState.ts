@@ -445,22 +445,27 @@ export const useAppState = () => {
         setMagicLinkStatus('valid');
         if (result.data) {
           const apiInquiry = result.data;
+          
+          // Normalize status to match ApplicationStatus type (Capitalized)
+          const rawStatus = apiInquiry.status || 'Pending';
+          const normalizedStatus = (rawStatus.charAt(0).toUpperCase() + rawStatus.slice(1).toLowerCase()) as ApplicationStatus;
+
           const mapped: Application = {
             id: apiInquiry._id || apiInquiry.id,
-            guestName: apiInquiry.guestName,
-            email: apiInquiry.email,
-            phone: apiInquiry.phone,
+            guestName: apiInquiry.fullName || apiInquiry.guestName || '',
+            email: apiInquiry.email || '',
+            phone: apiInquiry.phone || '',
             gender: apiInquiry.gender || '',
             bookingType: apiInquiry.bookingType || 'solo',
-            status: apiInquiry.status as ApplicationStatus,
+            status: normalizedStatus,
             sessionId: apiInquiry.sessionId || (apiInquiry.session && (apiInquiry.session._id || apiInquiry.session.id)),
-            roomPreferenceId: apiInquiry.roomPreferenceId || (apiInquiry.room && (apiInquiry.room._id || apiInquiry.room.id)),
-            consentBathroom: apiInquiry.consentBathroom || apiInquiry.isBathroomProtocolChecked || false,
-            consentAlcohol: apiInquiry.consentAlcohol || apiInquiry.isAlcoholFreeEstateChecked || false,
+            roomPreferenceId: apiInquiry.roomId || apiInquiry.roomPreferenceId || (apiInquiry.room && (apiInquiry.room._id || apiInquiry.room.id)),
+            consentBathroom: apiInquiry.isBathroomProtocolChecked || apiInquiry.consentBathroom || false,
+            consentAlcohol: apiInquiry.isAlcoholFreeEstateChecked || apiInquiry.consentAlcohol || false,
             depositPaid: apiInquiry.depositPaid || false,
             totalPrice: apiInquiry.totalPrice || 0,
             timestamp: new Date(apiInquiry.createdAt || Date.now()).getTime(),
-            healthNotes: apiInquiry.backgroundDescription || apiInquiry.healthNotes
+            healthNotes: apiInquiry.backgroundDescription || apiInquiry.healthNotes || ''
           };
           setActivePortalGuest(mapped);
         }
