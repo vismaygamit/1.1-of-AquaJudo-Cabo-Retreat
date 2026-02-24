@@ -99,3 +99,15 @@ export interface BookingState {
   notes: string;
   isConfirmed: boolean;
 }
+
+export interface PaymentDetails {
+  id: string;
+  referenceId: string;
+  roomName: string;
+  checkInDate: string;
+  checkOutDate: string;
+  transactionDate: string;
+  amount: number;
+  status: string;
+  inquiryId: string;
+}

@@ -134,7 +134,7 @@ const App: React.FC = () => {
   // Root Content Switcher
   const renderContent = () => {
     if (view === 'payment-success') {
-      return <PaymentSuccessPage onReturn={() => setView('landing')} paymentId={state.paymentId} />;
+      return <PaymentSuccessPage onReturn={() => setView('landing')} paymentDetails={state.paymentDetails} />;
     }
     if (view === 'payment-fail') {
       return <PaymentFailPage onReturn={() => setView('landing')} />;
@@ -146,6 +146,8 @@ const App: React.FC = () => {
           session={state.sessions.find(s => s.id === state.activePortalGuest?.sessionId)} 
           room={state.rooms.find(r => r.id === state.activePortalGuest?.roomPreferenceId)} 
           portalConfig={state.portalConfig} 
+          itinerary={state.itinerary}
+          onExit={exitPortal}
         />
       );
     }

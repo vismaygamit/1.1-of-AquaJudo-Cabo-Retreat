@@ -1,17 +1,39 @@
 
 import React from 'react';
-import { CheckCircle2, XCircle, ArrowRight, Home, ShieldCheck } from 'lucide-react';
+import { CheckCircle2, XCircle, ArrowRight, Home, ShieldCheck, Calendar, MapPin, CreditCard, Hash, Clock } from 'lucide-react';
 import { Logo } from '../components/Shared';
+import { PaymentDetails } from '../types';
 
 interface PaymentStatusPageProps {
   onReturn: () => void;
-  paymentId?: string | null;
+  paymentDetails?: PaymentDetails | null;
 }
 
-export const PaymentSuccessPage: React.FC<PaymentStatusPageProps> = ({ onReturn, paymentId }) => {
+export const PaymentSuccessPage: React.FC<PaymentStatusPageProps> = ({ onReturn, paymentDetails }) => {
+  const formatDate = (dateStr?: string) => {
+    if (!dateStr) return '—';
+    try {
+      return new Date(dateStr).toLocaleDateString('en-US', {
+        month: 'long',
+        day: 'numeric',
+        year: 'numeric'
+      });
+    } catch (e) {
+      return dateStr;
+    }
+  };
+
+  const handleViewBooking = () => {
+    if (paymentDetails?.inquiryId) {
+      window.location.href = `/?portal=${paymentDetails.inquiryId}`;
+    } else {
+      onReturn();
+    }
+  };
+
   return (
-    <main className="min-h-screen flex flex-col items-center justify-center px-8 py-20 bg-[#faf9f6]">
-      <div className="max-w-2xl w-full space-y-12 text-center animate-reveal">
+    <main className="min-h-screen flex flex-col items-center justify-center px-4 sm:px-8 py-20 bg-[#faf9f6]">
+      <div className="max-w-3xl w-full space-y-12 text-center animate-reveal">
         <div className="flex justify-center">
           <div className="w-24 h-24 bg-aqua-primary/10 rounded-full flex items-center justify-center text-aqua-primary shadow-inner">
             <CheckCircle2 size={48} strokeWidth={1.5} />
@@ -23,26 +45,79 @@ export const PaymentSuccessPage: React.FC<PaymentStatusPageProps> = ({ onReturn,
           <h1 className="text-5xl md:text-7xl font-display font-light uppercase tracking-tighter text-stone">
             Registry Confirmed
           </h1>
-          {paymentId && (
-            <div className="py-2 px-4 bg-white border border-stone/5 rounded-full inline-block mt-4">
-              <p className="text-[10px] font-black uppercase tracking-widest text-stone/40">
-                TRANSACTION ID: <span className="text-stone">{paymentId}</span>
-              </p>
-            </div>
-          )}
           <p className="text-lg md:text-xl font-serif italic text-stone/40 max-w-lg mx-auto leading-relaxed pt-4">
             Your foundational deposit has been processed. Your place at the estate is now officially secured.
           </p>
         </header>
 
-        <div className="grid gap-6 pt-8">
-          <div className="bg-white p-8 rounded-[2.5rem] border border-stone/5 shadow-sm flex items-center gap-6 text-left">
-            <div className="w-12 h-12 rounded-full bg-stone/5 flex items-center justify-center text-stone/40">
-              <ShieldCheck size={24} />
+        {/* Detailed Summary Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-left">
+          {/* Booking Details */}
+          <div className="bg-white p-8 rounded-[2.5rem] border border-stone/5 shadow-sm space-y-6">
+            <h4 className="text-[10px] font-black uppercase tracking-widest text-stone/20 border-b border-stone/5 pb-4">BOOKING PROTOCOL</h4>
+            
+            <div className="space-y-4">
+              <div className="flex items-start gap-4">
+                <Hash size={16} className="text-aqua-primary mt-1" />
+                <div>
+                  <p className="text-[9px] font-black uppercase text-stone/30">REFERENCE ID</p>
+                  <p className="text-[14px] font-black uppercase tracking-tight text-stone">{paymentDetails?.referenceId || 'PENDING'}</p>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-4">
+                <MapPin size={16} className="text-aqua-primary mt-1" />
+                <div>
+                  <p className="text-[9px] font-black uppercase text-stone/30">SANCTUARY</p>
+                  <p className="text-[14px] font-black uppercase tracking-tight text-stone">{paymentDetails?.roomName || 'ASSIGNED ON ARRIVAL'}</p>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-4">
+                <Calendar size={16} className="text-aqua-primary mt-1" />
+                <div>
+                  <p className="text-[9px] font-black uppercase text-stone/30">RESIDENCY WINDOW</p>
+                  <p className="text-[14px] font-black uppercase tracking-tight text-stone">
+                    {formatDate(paymentDetails?.checkInDate)} — {formatDate(paymentDetails?.checkOutDate)}
+                  </p>
+                </div>
+              </div>
             </div>
-            <div>
-              <h4 className="text-[10px] font-black uppercase tracking-widest text-stone/20">NEXT STEPS</h4>
-              <p className="text-[14px] font-black uppercase tracking-tight text-stone">Access your guest portal for logistics and packing inventory.</p>
+          </div>
+
+          {/* Transaction Details */}
+          <div className="bg-white p-8 rounded-[2.5rem] border border-stone/5 shadow-sm space-y-6">
+            <h4 className="text-[10px] font-black uppercase tracking-widest text-stone/20 border-b border-stone/5 pb-4">TRANSACTION LOG</h4>
+            
+            <div className="space-y-4">
+              <div className="flex items-start gap-4">
+                <CreditCard size={16} className="text-aqua-primary mt-1" />
+                <div>
+                  <p className="text-[9px] font-black uppercase text-stone/30">TRANSACTION ID</p>
+                  <p className="text-[14px] font-black uppercase tracking-tight text-stone truncate max-w-[200px]">{paymentDetails?.id || '—'}</p>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-4">
+                <Clock size={16} className="text-aqua-primary mt-1" />
+                <div>
+                  <p className="text-[9px] font-black uppercase text-stone/30">TIMESTAMP</p>
+                  <p className="text-[14px] font-black uppercase tracking-tight text-stone">{formatDate(paymentDetails?.transactionDate)}</p>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-4">
+                <ShieldCheck size={16} className="text-aqua-primary mt-1" />
+                <div>
+                  <p className="text-[9px] font-black uppercase text-stone/30">STATUS & AMOUNT</p>
+                  <div className="flex items-center gap-2">
+                    <span className="text-[14px] font-black uppercase tracking-tight text-stone">${paymentDetails?.amount.toLocaleString()}</span>
+                    <span className="px-2 py-0.5 bg-green-50 text-green-500 text-[8px] font-black uppercase rounded-full border border-green-100">
+                      {paymentDetails?.status || 'SUCCESS'}
+                    </span>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -50,15 +125,15 @@ export const PaymentSuccessPage: React.FC<PaymentStatusPageProps> = ({ onReturn,
         <div className="pt-12 flex flex-col md:flex-row items-center justify-center gap-6">
           <button 
             onClick={onReturn}
-            className="px-10 py-5 bg-[#111] text-white rounded-full text-[11px] font-black uppercase tracking-[0.2em] hover:bg-aqua-primary hover:text-stone transition-all shadow-xl flex items-center gap-3"
+            className="w-full md:w-auto px-10 py-5 bg-[#faf9f6] text-stone border border-stone/10 rounded-full text-[11px] font-black uppercase tracking-[0.2em] hover:bg-stone/5 transition-all flex items-center justify-center gap-3"
           >
             <Home size={16} /> RETURN TO ESTATE
           </button>
           <button 
-            onClick={onReturn}
-            className="px-10 py-5 bg-white text-stone border border-stone/5 rounded-full text-[11px] font-black uppercase tracking-[0.2em] hover:bg-stone/5 transition-all shadow-sm flex items-center gap-3"
+            onClick={handleViewBooking}
+            className="w-full md:w-auto px-10 py-5 bg-[#111] text-white rounded-full text-[11px] font-black uppercase tracking-[0.2em] hover:bg-aqua-primary hover:text-stone transition-all shadow-xl flex items-center justify-center gap-3"
           >
-            VIEW PORTAL <ArrowRight size={16} />
+            VIEW MY BOOKING <ArrowRight size={16} />
           </button>
         </div>
 

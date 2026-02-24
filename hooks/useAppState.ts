@@ -4,7 +4,7 @@ import {
   API_BASE_URL,
   API_ROOT
 } from '../constants';
-import { BookingState, Room, ResidencySession, Application, FAQItem, ApplicationStatus } from '../types';
+import { BookingState, Room, ResidencySession, Application, FAQItem, ApplicationStatus, PaymentDetails } from '../types';
 
 const INITIAL_PROMO_VIDEO_URL = "https://player.vimeo.com/external/517042307.hd.mp4?s=d946d0a7a4073a9e34c9c7379201509a2503254e&profile_id=174";
 
@@ -64,7 +64,7 @@ export const useAppState = () => {
   const [itinerary, setItinerary] = useState<any[]>([]);
   const [portalConfig, setPortalConfig] = useState(DEFAULT_PORTAL_CONFIG);
   const [activePortalGuest, setActivePortalGuest] = useState<Application | null>(null);
-  const [paymentId, setPaymentId] = useState<string | null>(null);
+  const [paymentDetails, setPaymentDetails] = useState<PaymentDetails | null>(null);
 
   const isFetchingInquiries = useRef(false);
   const isFetchingRooms = useRef(false);
@@ -411,8 +411,19 @@ export const useAppState = () => {
       const response = await fetch(`${API_BASE_URL}/paymentdetails?session_id=${sessionId}`, { credentials: 'omit' });
       const result = await response.json();
       if (result.success && result.data) {
-        setPaymentId(result.data.id);
-        return result.data;
+        const mappedDetails: PaymentDetails = {
+          id: result.data.id,
+          referenceId: result.data.referenceId || result.data.refId || '',
+          roomName: result.data.roomName || '',
+          checkInDate: result.data.checkInDate || result.data.startDate || '',
+          checkOutDate: result.data.checkOutDate || result.data.endDate || '',
+          transactionDate: result.data.transactionDate || result.data.createdAt || new Date().toISOString(),
+          amount: result.data.amount || 0,
+          status: result.data.status || 'success',
+          inquiryId: result.data.inquiryId || ''
+        };
+        setPaymentDetails(mappedDetails);
+        return mappedDetails;
       }
     } catch (error) {
       console.warn("Payment details API unavailable:", error);
@@ -450,7 +461,7 @@ export const useAppState = () => {
     portalConfig,
     setPortalConfig,
     activePortalGuest,
-    paymentId,
+    paymentDetails,
     fetchInquiriesFromApi,
     fetchRoomsFromApi,
     fetchSessionsFromApi,
