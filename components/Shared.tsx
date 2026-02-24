@@ -70,7 +70,7 @@ export const Toast = ({ message, type, onClose, duration = 4000 }: ToastProps) =
         <div className="flex-shrink-0">
           {icons[type]}
         </div>
-        <p className="flex-1 text-[11px] font-black uppercase tracking-widest text-stone leading-none">
+        <p className="flex-1 text-[11px] font-black uppercase tracking-widest text-stone leading-none text-center">
           {message}
         </p>
         <button 
