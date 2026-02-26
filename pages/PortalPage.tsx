@@ -319,9 +319,14 @@ export const PortalPage: React.FC<PortalPageProps> = ({ guest, session, room, po
                 {portalConfig.logistics.address}
               </p>
             </div>
-            <button className="relative px-8 py-4 bg-white/10 hover:bg-white/20 border border-white/10 rounded-full text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-3">
+            <a 
+              href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(portalConfig.logistics.address)}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="relative px-8 py-4 bg-white/10 hover:bg-white/20 border border-white/10 rounded-full text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-3 w-fit"
+            >
               <MapPin size={14} className="text-aqua-primary" /> GOOGLE MAPS LINK <ExternalLink size={12} />
-            </button>
+            </a>
             <p className="text-[11px] font-serif italic opacity-40 relative">Please use the exact address provided above.</p>
           </div>
         </section>

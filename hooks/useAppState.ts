@@ -107,6 +107,7 @@ export const useAppState = () => {
             guestName: apiInquiry.fullName,
             email: apiInquiry.email,
             phone: apiInquiry.phone,
+            rawToken: apiInquiry.rawToken,
             gender: '',
             roomPreferenceId: apiInquiry.roomId,
             roomName: apiInquiry.roomName,
