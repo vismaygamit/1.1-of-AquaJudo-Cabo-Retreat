@@ -24,7 +24,7 @@ export const MainLayout: React.FC<MainLayoutProps> = ({
       <nav className="fixed top-0 w-full z-[100] px-8 py-4 flex items-center justify-between bg-[#faf9f6]/95 backdrop-blur-md border-b border-stone/5">
         <div className="flex items-center gap-4 cursor-pointer" onClick={() => window.scrollTo({top: 0, behavior: 'smooth'})}>
           <div className="leading-tight">
-            <img src="/aquajudologo.jpeg" alt="Aqua Judo Logo" className="w-26 h-12" />
+            <img src="/aquajudologo.jpeg" alt="Aqua Judo Logo" className="h-9 sm:h-12 w-auto object-contain" />
           </div>
         </div>
         <div className="flex items-center gap-4">
@@ -55,8 +55,8 @@ export const MainLayout: React.FC<MainLayoutProps> = ({
           <div className="flex gap-8">
             <button className="text-[9px] font-bold uppercase tracking-widest text-stone/30 hover:text-aqua-primary transition-colors">Privacy Policy</button>
             <button className="text-[9px] font-bold uppercase tracking-widest text-stone/30 hover:text-aqua-primary transition-colors">Terms of Use</button>
-            <button onClick={onAdminClick} className="text-[9px] font-bold uppercase tracking-widest text-stone/20 hover:text-aqua-primary transition-colors flex items-center gap-2 group">
-              <ShieldCheck size={10} className="opacity-50 group-hover:opacity-100 transition-opacity" /> Curator Access
+            <button onClick={onAdminClick} className="px-3 py-1 bg-stone/5 hover:bg-stone/10 text-stone/40 hover:text-stone text-[9px] font-bold uppercase tracking-widest rounded-full transition-all flex items-center gap-2">
+              <ShieldCheck size={10} /> Admin
             </button>
           </div>
         </div>
