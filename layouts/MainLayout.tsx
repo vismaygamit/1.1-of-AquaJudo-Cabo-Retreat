@@ -24,10 +24,7 @@ export const MainLayout: React.FC<MainLayoutProps> = ({
       <nav className="fixed top-0 w-full z-[100] px-8 py-4 flex items-center justify-between bg-[#faf9f6]/95 backdrop-blur-md border-b border-stone/5">
         <div className="flex items-center gap-4 cursor-pointer" onClick={() => window.scrollTo({top: 0, behavior: 'smooth'})}>
           <div className="leading-tight">
-            <h1 className="text-[16px] sm:text-[18px] tracking-[0.2em] font-serif italic text-stone">AQUA JUDO</h1>
-            <p className="text-[8px] tracking-[0.4em] font-black text-aqua-primary uppercase opacity-70">
-              {isPortalView ? 'GUEST PORTAL' : 'ESTATE RESIDENCY'}
-            </p>
+            <img src="/aquajudologo.jpeg" alt="Aqua Judo Logo" className="w-26 h-8" />
           </div>
         </div>
         <div className="flex items-center gap-4">
