@@ -24,7 +24,7 @@ export const MainLayout: React.FC<MainLayoutProps> = ({
       <nav className="fixed top-0 w-full z-[100] px-8 py-4 flex items-center justify-between bg-[#faf9f6]/95 backdrop-blur-md border-b border-stone/5">
         <div className="flex items-center gap-4 cursor-pointer" onClick={() => window.scrollTo({top: 0, behavior: 'smooth'})}>
           <div className="leading-tight">
-            <img src="/aquajudologo.jpeg" alt="Aqua Judo Logo" className="w-26 h-8" />
+            <img src="/aquajudologo.jpeg" alt="Aqua Judo Logo" className="w-26 h-12" />
           </div>
         </div>
         <div className="flex items-center gap-4">
@@ -39,9 +39,6 @@ export const MainLayout: React.FC<MainLayoutProps> = ({
                    <Key size={14} /> ACTIVE PORTAL
                  </button>
                )}
-               <button onClick={onAdminClick} className="px-6 py-2.5 bg-[#111] text-white rounded-full text-[10px] font-black uppercase tracking-widest flex items-center gap-3 hover:bg-stone-light transition-all shadow-xl">
-                 <ShieldCheck size={14} className="text-aqua-primary" /> ADMIN
-               </button>
              </>
            )}
         </div>
@@ -52,12 +49,15 @@ export const MainLayout: React.FC<MainLayoutProps> = ({
       <footer className="py-20 bg-white text-center border-t border-stone/10 px-6">
         <div className="max-w-6xl mx-auto flex flex-col items-center gap-12">
           <div className="text-center">
-            <h2 className="text-[24px] tracking-[0.2em] font-serif italic text-stone opacity-40">AQUA JUDO</h2>
+            <h2 className="text-[24px] tracking-[0.2em] font-serif text-stone opacity-40">AQUA JUDO</h2>
             <p className="text-[10px] tracking-[0.6em] font-black text-stone/20 uppercase">ESTATE CABO</p>
           </div>
           <div className="flex gap-8">
             <button className="text-[9px] font-bold uppercase tracking-widest text-stone/30 hover:text-aqua-primary transition-colors">Privacy Policy</button>
             <button className="text-[9px] font-bold uppercase tracking-widest text-stone/30 hover:text-aqua-primary transition-colors">Terms of Use</button>
+            <button onClick={onAdminClick} className="text-[9px] font-bold uppercase tracking-widest text-stone/20 hover:text-aqua-primary transition-colors flex items-center gap-2 group">
+              <ShieldCheck size={10} className="opacity-50 group-hover:opacity-100 transition-opacity" /> Curator Access
+            </button>
           </div>
         </div>
       </footer>
