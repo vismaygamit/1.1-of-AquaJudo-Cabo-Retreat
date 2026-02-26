@@ -412,8 +412,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({
         <div className="flex items-center gap-4">
           <Logo className="w-10 h-10" />
           <div className="leading-tight">
-            <h2 className="text-[10px] tracking-[0.5em] font-black uppercase">Registry Console</h2>
-            <p className="text-[8px] tracking-[0.2em] font-bold text-aqua-primary uppercase opacity-70">Estate Management</p>
+            <img src="/aquajudologo.jpeg" alt="Aqua Judo Logo" className="h-9 sm:h-12 w-auto object-contain" />
           </div>
         </div>
         <button onClick={onExit} className="px-6 py-2 bg-[#111] text-white rounded-full text-[10px] uppercase font-bold tracking-widest hover:bg-stone-light transition-all flex items-center gap-2 shadow-sm">
