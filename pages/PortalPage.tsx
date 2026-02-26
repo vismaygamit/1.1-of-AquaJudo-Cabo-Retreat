@@ -65,10 +65,10 @@ export const PortalPage: React.FC<PortalPageProps> = ({ guest, session, room, po
         </button>
       </nav>
 
-      <main className="max-w-5xl mx-auto px-6 sm:px-12 pt-32 pb-12 space-y-20">
+      <main className="max-w-5xl mx-auto px-6 sm:px-12 pt-12 pb-12 space-y-12">
         
         {/* Welcome Header */}
-        <section className="space-y-12 animate-reveal">
+        <section className="space-y-8 animate-reveal">
           <header className="space-y-4">
             <p className="text-[12px] font-black uppercase tracking-[0.4em] text-aqua-primary">GUEST PORTAL</p>
             <h1 className="text-6xl md:text-8xl font-display font-light uppercase tracking-tighter text-stone">
@@ -230,7 +230,7 @@ export const PortalPage: React.FC<PortalPageProps> = ({ guest, session, room, po
         </section>
 
         {/* Preparation */}
-        <section className="space-y-12">
+        <section className="space-y-8">
           <SectionHeader icon={Compass} title="Preparation" subtitle="LOGISTICS" />
           
           <div className="space-y-8">
@@ -283,7 +283,7 @@ export const PortalPage: React.FC<PortalPageProps> = ({ guest, session, room, po
         </section>
 
         {/* Travel & Arrival */}
-        <section className="space-y-12">
+        <section className="space-y-8">
           <SectionHeader icon={MapPin} title="Travel & Arrival" subtitle="TRANSPORTATION" />
           
           <div className="space-y-6">
@@ -334,7 +334,7 @@ export const PortalPage: React.FC<PortalPageProps> = ({ guest, session, room, po
         {/* Check-in Instructions */}
         <section className="space-y-8">
           <SectionHeader icon={Info} title="Check-in Instructions" subtitle="ARRIVAL" />
-          <div className="space-y-12">
+          <div className="space-y-8">
             <div className="space-y-2">
               <p className="text-[10px] font-black uppercase tracking-widest text-stone/30">ARRIVAL WINDOW</p>
               <p className="text-2xl font-black uppercase tracking-tight text-stone">3:00 PM</p>
@@ -382,7 +382,7 @@ export const PortalPage: React.FC<PortalPageProps> = ({ guest, session, room, po
         </section>
 
         {/* Contact */}
-        <section className="space-y-12">
+        <section className="space-y-8">
           <SectionHeader icon={Phone} title="Contact" subtitle="CONCIERGE" />
           <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
             <div className="space-y-2">
