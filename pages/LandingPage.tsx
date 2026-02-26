@@ -45,7 +45,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ sessions, rooms, itine
   return (
     <main>
       {/* HERO SECTION - Updated to match attached image style */}
-      <header className="relative min-h-[50vh] sm:min-h-[60vh] flex flex-col items-center justify-center text-center px-6 bg-[#faf9f6] overflow-hidden pt-8 pb-4 sm:pt-16 sm:pb-8">
+      <header className="relative flex flex-col items-center justify-center text-center px-6 bg-[#faf9f6] overflow-hidden pt-12 pb-4 sm:pt-20 sm:pb-6">
         {/* Extremely subtle background video to maintain the "clean" image look while keeping the feature available */}
         <video
           autoPlay
@@ -57,7 +57,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ sessions, rooms, itine
           <source src={HERO_VIDEO_URL} type="video/mp4" />
         </video>
 
-        <div className="relative z-10 space-y-8 sm:space-y-10 max-w-5xl animate-fade-in flex flex-col items-center">
+        <div className="relative z-10 space-y-6 sm:space-y-8 max-w-5xl animate-fade-in flex flex-col items-center">
           <div className="space-y-4 sm:space-y-6">
             <p className="text-[10px] sm:text-[12px] md:text-[14px] tracking-[0.3em] sm:tracking-[0.6em] text-stone font-black uppercase opacity-90">
               CABO SAN LUCAS • MEXICO
@@ -86,8 +86,8 @@ export const LandingPage: React.FC<LandingPageProps> = ({ sessions, rooms, itine
       </header>
 
       {/* PROMO VIDEO */}
-      <section className="py-24 px-6 bg-white border-t border-stone/5">
-        <div className="max-w-6xl mx-auto space-y-16">
+      <section className="py-12 px-6 bg-white border-t border-stone/5">
+        <div className="max-w-6xl mx-auto space-y-8">
           <div className="text-center space-y-4">
             <p className="text-[11px] tracking-[0.5em] text-aqua-deep font-black uppercase opacity-40">ESTATE NARRATIVE</p>
             <h2 className="text-3xl md:text-5xl font-display font-light uppercase tracking-tighter">The Experience</h2>
