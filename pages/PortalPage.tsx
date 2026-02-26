@@ -387,16 +387,16 @@ export const PortalPage: React.FC<PortalPageProps> = ({ guest, session, room, po
           <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
             <div className="space-y-2">
               <p className="text-[9px] font-black uppercase tracking-widest text-stone/30">PRIMARY WHATSAPP</p>
-              <p className="text-[16px] font-black uppercase tracking-tight text-stone">+52 624 555 0192</p>
+              <p className="text-[16px] font-black uppercase tracking-tight text-stone">+1 (437) 434-0686</p>
             </div>
             <div className="space-y-2">
               <p className="text-[9px] font-black uppercase tracking-widest text-stone/30">EMAIL</p>
-              <p className="text-[16px] font-black uppercase tracking-tight text-stone">concierge@aquajudo-cabo.com</p>
+              <p className="text-[16px] font-black uppercase tracking-tight text-stone">residency@aquajudo.com</p>
             </div>
-            <div className="space-y-2">
+            {/* <div className="space-y-2">
               <p className="text-[9px] font-black uppercase tracking-widest text-red-400/40">EMERGENCY ONLY</p>
               <p className="text-[16px] font-black uppercase tracking-tight text-red-400">+52 624 555 9999</p>
-            </div>
+            </div> */}
           </div>
           <p className="text-[11px] font-serif italic text-stone/30">Please review this page before reaching out with questions.</p>
         </section>
