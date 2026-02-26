@@ -93,7 +93,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ sessions, rooms, itine
             <h2 className="text-3xl md:text-5xl font-display font-light uppercase tracking-tighter">The Experience</h2>
           </div>
           <div
-            className="relative aspect-video rounded-[1rem] overflow-hidden shadow-2xl group cursor-pointer bg-parchment"
+            className="relative aspect-[13/9] sm:aspect-video rounded-[1rem] overflow-hidden shadow-2xl group cursor-pointer bg-parchment"
             onClick={togglePromoPlay}
           >
             <video
