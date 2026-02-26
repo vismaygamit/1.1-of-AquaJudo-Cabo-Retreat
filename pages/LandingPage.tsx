@@ -45,7 +45,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ sessions, rooms, itine
   return (
     <main>
       {/* HERO SECTION - Updated to match attached image style */}
-      <header className="relative min-h-[50vh] sm:min-h-[60vh] flex flex-col items-center justify-center text-center px-6 bg-[#faf9f6] overflow-hidden py-8 sm:py-16">
+      <header className="relative min-h-[50vh] sm:min-h-[60vh] flex flex-col items-center justify-center text-center px-6 bg-[#faf9f6] overflow-hidden pt-8 pb-4 sm:pt-16 sm:pb-8">
         {/* Extremely subtle background video to maintain the "clean" image look while keeping the feature available */}
         <video
           autoPlay
