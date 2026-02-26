@@ -48,8 +48,8 @@ export const PaymentSuccessPage: React.FC<PaymentStatusPageProps> = ({ onReturn,
   };
 
   return (
-    <main className="min-h-[40vh] flex flex-col items-center px-4 sm:px-8 py-12 bg-[#faf9f6]">
-      <div className="max-w-3xl w-full space-y-12 text-center animate-reveal">
+    <main className="min-h-[40vh] flex flex-col items-center px-4 sm:px-8 pt-16 pb-12 bg-[#faf9f6]">
+      <div className="max-w-3xl w-full space-y-4 text-center animate-reveal">
         <div className="flex justify-center">
           <div className="w-24 h-24 bg-aqua-primary/10 rounded-full flex items-center justify-center text-aqua-primary shadow-inner">
             <CheckCircle2 size={48} strokeWidth={1.5} />
@@ -158,8 +158,8 @@ export const PaymentSuccessPage: React.FC<PaymentStatusPageProps> = ({ onReturn,
 
 export const PaymentFailPage: React.FC<PaymentStatusPageProps> = ({ onReturn }) => {
   return (
-    <main className="min-h-[40vh] flex flex-col items-center px-8 py-12 bg-[#faf9f6]">
-      <div className="max-w-2xl w-full space-y-12 text-center animate-reveal">
+    <main className="min-h-[40vh] flex flex-col items-center px-8 pt-16 pb-12 bg-[#faf9f6]">
+      <div className="max-w-2xl w-full space-y-4 text-center animate-reveal">
         <div className="flex justify-center">
           <div className="w-24 h-24 bg-red-50 rounded-full flex items-center justify-center text-red-500 shadow-inner">
             <XCircle size={48} strokeWidth={1.5} />
