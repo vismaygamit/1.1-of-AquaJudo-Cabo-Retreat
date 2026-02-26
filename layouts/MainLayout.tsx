@@ -1,6 +1,7 @@
 
 import React from 'react';
 import { ShieldCheck, Key } from 'lucide-react';
+import { Logo } from '../components/Shared';
 
 interface MainLayoutProps {
   children: React.ReactNode;
@@ -23,9 +24,10 @@ export const MainLayout: React.FC<MainLayoutProps> = ({
     <div className="min-h-screen bg-[#faf9f6] text-stone font-sans selection:bg-aqua-primary/10 overflow-x-hidden">
       <nav className="fixed top-0 w-full z-[100] px-8 py-4 flex items-center justify-between bg-[#faf9f6]/95 backdrop-blur-md border-b border-stone/5">
         <div className="flex items-center gap-4 cursor-pointer" onClick={() => window.scrollTo({top: 0, behavior: 'smooth'})}>
+          <Logo className="w-10 h-10" />
           <div className="leading-tight">
-            <h1 className="text-[16px] sm:text-[18px] tracking-[0.2em] font-serif italic text-stone">AQUA JUDO</h1>
-            <p className="text-[8px] tracking-[0.4em] font-black text-aqua-primary uppercase opacity-70">
+            <h1 className="text-[12px] tracking-[0.5em] font-black text-stone uppercase">AQUA JUDO</h1>
+            <p className="text-[8px] tracking-[0.2em] font-bold text-aqua-primary uppercase opacity-70">
               {isPortalView ? 'GUEST PORTAL' : 'ESTATE RESIDENCY'}
             </p>
           </div>
@@ -54,10 +56,8 @@ export const MainLayout: React.FC<MainLayoutProps> = ({
 
       <footer className="py-20 bg-white text-center border-t border-stone/10 px-6">
         <div className="max-w-6xl mx-auto flex flex-col items-center gap-12">
-          <div className="text-center">
-            <h2 className="text-[24px] tracking-[0.2em] font-serif italic text-stone opacity-40">AQUA JUDO</h2>
-            <p className="text-[10px] tracking-[0.6em] font-black text-stone/20 uppercase">ESTATE CABO</p>
-          </div>
+          <Logo className="w-10 h-10 opacity-30 grayscale" />
+          <p className="text-[11px] tracking-[0.8em] font-black text-stone/20 uppercase">AQUA JUDO ESTATE CABO</p>
           <div className="flex gap-8">
             <button className="text-[9px] font-bold uppercase tracking-widest text-stone/30 hover:text-aqua-primary transition-colors">Privacy Policy</button>
             <button className="text-[9px] font-bold uppercase tracking-widest text-stone/30 hover:text-aqua-primary transition-colors">Terms of Use</button>
