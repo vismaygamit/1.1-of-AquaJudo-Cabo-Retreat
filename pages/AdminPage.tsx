@@ -457,7 +457,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                   const eLabel = formatRegistryDateText(app.sessionEndDate);
                   const sessionRange = (sLabel !== 'TBD' && eLabel !== 'TBD') ? `${sLabel} — ${eLabel}` : 'DATES PENDING';
                   return (
-                    <div key={app.id} className="bg-white p-10 md:p-14 rounded-[3.5rem] border border-stone/5 flex flex-col gap-10 shadow-sm hover:shadow-xl transition-all">
+                    <div key={app.id} className="bg-white p-10 md:p-14 rounded-[1rem] border border-stone/5 flex flex-col gap-10 shadow-sm hover:shadow-xl transition-all">
                       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-10">
                         <div className="space-y-4">
                           <div className="flex items-center gap-5">
@@ -598,7 +598,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                 const hasImageError = roomErrors[`${room.id}-image`];
                 const isRoomSaving = isSaving[room.id];
                 return (
-                  <div key={room.id} className="bg-white p-10 md:p-14 rounded-[3.5rem] border border-stone/5 shadow-2xl space-y-12 group transition-all hover:shadow-aqua-primary/5">
+                  <div key={room.id} className="bg-white p-10 md:p-14 rounded-[1rem] border border-stone/5 shadow-2xl space-y-12 group transition-all hover:shadow-aqua-primary/5">
                     <div className="flex flex-col md:flex-row justify-between items-start gap-8">
                       <div className="flex-1 space-y-8">
                         <div className="space-y-4">
@@ -864,7 +864,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({
         {tab === 'portal' && (
           <div className="space-y-12 animate-fade-in pb-20">
             <h3 className="text-4xl font-black uppercase tracking-tight text-stone">PORTAL SETTINGS</h3>
-            <div className="bg-white p-10 md:p-14 rounded-[3.5rem] border border-stone/5 space-y-16 shadow-xl relative overflow-hidden">
+            <div className="bg-white p-10 md:p-14 rounded-[1rem] border border-stone/5 space-y-16 shadow-xl relative overflow-hidden">
               <div className="absolute top-0 left-0 w-full h-1 bg-aqua-primary opacity-20"></div>
               <div className="space-y-8">
                 <div className="flex items-center gap-3">

@@ -89,7 +89,7 @@ export const RoomDetailModal: React.FC<{
 }> = ({ room, onClose, onRequestAccess }) => {
   return (
     <div className="fixed inset-0 z-[1200] bg-black/85 backdrop-blur-lg flex items-center justify-center p-4 sm:p-6 animate-fade-in">
-      <div className="bg-[#1a1a1a] w-full max-w-4xl max-h-[95vh] rounded-[3.5rem] overflow-hidden flex flex-col relative shadow-2xl border border-white/5">
+      <div className="bg-[#1a1a1a] w-full max-w-4xl max-h-[95vh] rounded-[1rem] overflow-hidden flex flex-col relative shadow-2xl border border-white/5">
         
         {/* Close button - Top right floating */}
         <button 
