@@ -45,7 +45,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ sessions, rooms, itine
   return (
     <main>
       {/* HERO SECTION - Updated to match attached image style */}
-      <header className="relative min-h-[90vh] flex flex-col items-center justify-center text-center px-6 bg-[#faf9f6] overflow-hidden">
+      <header className="relative min-h-[60vh] sm:min-h-[70vh] flex flex-col items-center justify-center text-center px-6 bg-[#faf9f6] overflow-hidden py-12 sm:py-20">
         {/* Extremely subtle background video to maintain the "clean" image look while keeping the feature available */}
         <video
           autoPlay
@@ -57,29 +57,29 @@ export const LandingPage: React.FC<LandingPageProps> = ({ sessions, rooms, itine
           <source src={HERO_VIDEO_URL} type="video/mp4" />
         </video>
 
-        <div className="relative z-10 space-y-10 max-w-5xl animate-fade-in flex flex-col items-center">
-          <div className="space-y-6">
-            <p className="text-[12px] md:text-[14px] tracking-[0.6em] text-stone font-black uppercase opacity-90">
+        <div className="relative z-10 space-y-8 sm:space-y-10 max-w-5xl animate-fade-in flex flex-col items-center">
+          <div className="space-y-4 sm:space-y-6">
+            <p className="text-[10px] sm:text-[12px] md:text-[14px] tracking-[0.3em] sm:tracking-[0.6em] text-stone font-black uppercase opacity-90">
               CABO SAN LUCAS • MEXICO
             </p>
 
             <div className="space-y-2">
-              <h1 className="text-6xl md:text-8xl font-display font-medium uppercase tracking-tight text-stone leading-[0.9]">
+              <h1 className="text-4xl sm:text-6xl md:text-8xl font-display font-medium uppercase tracking-tight text-stone leading-[0.95] sm:leading-[0.9]">
                 AQUA JUDO CABO
               </h1>
-              <p className="text-aqua-primary italic font-serif lowercase text-3xl md:text-4xl tracking-normal">
+              <p className="text-aqua-primary italic font-serif lowercase text-xl sm:text-3xl md:text-4xl tracking-normal">
                 a 7-day private coastal residency
               </p>
             </div>
           </div>
 
-          <div className="pt-4">
+          <div className="pt-4 w-full flex justify-center">
             <button
               onClick={() => onApplyClick()}
-              className="bg-[#111] text-white px-12 py-5 rounded-full text-[13px] tracking-[0.2em] font-black uppercase shadow-[0_20px_50px_rgba(0,0,0,0.1)] hover:scale-105 active:scale-95 transition-all flex items-center gap-4 group"
+              className="bg-[#111] text-white px-8 sm:px-12 py-4 sm:py-5 rounded-full text-[11px] sm:text-[13px] tracking-[0.15em] sm:tracking-[0.2em] font-black uppercase shadow-[0_20px_50px_rgba(0,0,0,0.1)] hover:scale-105 active:scale-95 transition-all flex items-center gap-3 sm:gap-4 group whitespace-nowrap"
             >
               APPLY FOR RESIDENCY
-              <Zap size={18} className="text-aqua-primary fill-aqua-primary group-hover:rotate-12 transition-transform" />
+              <Zap size={18} className="text-aqua-primary fill-aqua-primary group-hover:rotate-12 transition-transform shrink-0" />
             </button>
           </div>
         </div>
