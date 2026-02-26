@@ -48,7 +48,7 @@ export const PaymentSuccessPage: React.FC<PaymentStatusPageProps> = ({ onReturn,
   };
 
   return (
-    <main className="min-h-screen flex flex-col items-center justify-center px-4 sm:px-8 py-20 bg-[#faf9f6]">
+    <main className="min-h-[40vh] flex flex-col items-center px-4 sm:px-8 py-12 bg-[#faf9f6]">
       <div className="max-w-3xl w-full space-y-12 text-center animate-reveal">
         <div className="flex justify-center">
           <div className="w-24 h-24 bg-aqua-primary/10 rounded-full flex items-center justify-center text-aqua-primary shadow-inner">
@@ -142,7 +142,7 @@ export const PaymentSuccessPage: React.FC<PaymentStatusPageProps> = ({ onReturn,
           </div>
         </div>
 
-        <div className="pt-12 flex flex-col md:flex-row items-center justify-center gap-6">
+        <div className="pt-8 flex flex-col md:flex-row items-center justify-center gap-6">
           <button 
             onClick={onReturn}
             className="w-full md:w-auto px-10 py-5 bg-[#111] text-white rounded-full text-[11px] font-black uppercase tracking-[0.2em] hover:bg-aqua-primary hover:text-stone transition-all shadow-xl flex items-center justify-center gap-3"
@@ -151,9 +151,6 @@ export const PaymentSuccessPage: React.FC<PaymentStatusPageProps> = ({ onReturn,
           </button>
         </div>
 
-        <div className="pt-20 opacity-20">
-          <Logo className="w-12 h-12 mx-auto" />
-        </div>
       </div>
     </main>
   );
@@ -161,7 +158,7 @@ export const PaymentSuccessPage: React.FC<PaymentStatusPageProps> = ({ onReturn,
 
 export const PaymentFailPage: React.FC<PaymentStatusPageProps> = ({ onReturn }) => {
   return (
-    <main className="min-h-screen flex flex-col items-center justify-center px-8 py-20 bg-[#faf9f6]">
+    <main className="min-h-[40vh] flex flex-col items-center px-8 py-12 bg-[#faf9f6]">
       <div className="max-w-2xl w-full space-y-12 text-center animate-reveal">
         <div className="flex justify-center">
           <div className="w-24 h-24 bg-red-50 rounded-full flex items-center justify-center text-red-500 shadow-inner">
@@ -185,7 +182,7 @@ export const PaymentFailPage: React.FC<PaymentStatusPageProps> = ({ onReturn }) 
           </p>
         </div>
 
-        <div className="pt-12 flex flex-col md:flex-row items-center justify-center gap-6">
+        <div className="pt-8 flex flex-col md:flex-row items-center justify-center gap-6">
           <button 
             onClick={onReturn}
             className="px-12 py-5 bg-[#111] text-white rounded-full text-[11px] font-black uppercase tracking-[0.2em] hover:bg-red-500 transition-all shadow-xl flex items-center gap-3"
@@ -200,9 +197,6 @@ export const PaymentFailPage: React.FC<PaymentStatusPageProps> = ({ onReturn }) 
           </button>
         </div>
 
-        <div className="pt-20 opacity-20">
-          <Logo className="w-12 h-12 mx-auto" />
-        </div>
       </div>
     </main>
   );
