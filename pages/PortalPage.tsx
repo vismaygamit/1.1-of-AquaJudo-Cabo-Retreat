@@ -65,7 +65,7 @@ export const PortalPage: React.FC<PortalPageProps> = ({ guest, session, room, po
         </button>
       </nav>
 
-      <main className="max-w-5xl mx-auto px-6 sm:px-12 pt-32 pb-40 space-y-32">
+      <main className="max-w-5xl mx-auto px-6 sm:px-12 pt-32 pb-12 space-y-20">
         
         {/* Welcome Header */}
         <section className="space-y-12 animate-reveal">
@@ -402,13 +402,13 @@ export const PortalPage: React.FC<PortalPageProps> = ({ guest, session, room, po
         </section>
 
         {/* Footer */}
-        <footer className="pt-40 text-center space-y-8">
+        <footer className="pt-12 text-center space-y-8">
           <div className="space-y-2">
             <p className="text-[9px] font-black uppercase tracking-widest text-stone/20">PORTAL ACCESS</p>
             <p className="text-[11px] font-serif italic text-stone/30">Your access to this page will expire three days after the residency concludes.</p>
           </div>
           <p className="text-[10px] font-black uppercase tracking-[0.4em] text-stone/10">END OF PORTAL</p>
-          <div className="pt-12 opacity-10">
+          <div className="pt-6 opacity-10">
             <Logo className="w-12 h-12 mx-auto" />
           </div>
         </footer>
