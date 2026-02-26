@@ -499,7 +499,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                                 navigator.clipboard.writeText(link);
                                 showToast('Magic link copied.', 'success');
                               }} 
-                              disabled={isSaving[app.id]} 
+                              disabled={isSaving[app.id] || !app.rawToken}
                               className="px-8 py-4 bg-aqua-primary text-stone rounded-2xl text-[10px] font-black uppercase tracking-widest flex items-center gap-3 hover:scale-105 transition-all shadow-xl disabled:opacity-50"
                             >
                               <Copy size={14} /> MAGIC LINK
