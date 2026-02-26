@@ -410,7 +410,6 @@ export const AdminPage: React.FC<AdminPageProps> = ({
     <div className="min-h-screen bg-[#faf9f6] flex flex-col font-sans text-stone">
       <aside className="w-full bg-[#faf9f6]/95 backdrop-blur-md text-stone p-6 flex items-center justify-between border-b border-stone/5 sticky top-0 z-[100]">
         <div className="flex items-center gap-4">
-          <Logo className="w-10 h-10" />
           <div className="leading-tight">
             <img src="/aquajudologo.jpeg" alt="Aqua Judo Logo" className="h-9 sm:h-12 w-auto object-contain" />
           </div>
