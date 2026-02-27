@@ -187,14 +187,15 @@ export const useAppState = () => {
     }
   }, []);
 
-  const fetchSessionsFromApi = useCallback(async (force = false) => {
+  const fetchSessionsFromApi = useCallback(async (force = false, isAdmin = false) => {
     const now = Date.now();
     if (isFetchingSessions.current) return;
     if (!force && (now - lastSessionFetch.current < FETCH_THROTTLE_MS)) return;
     isFetchingSessions.current = true;
     lastSessionFetch.current = now;
     try {
-      const response = await fetch(`${API_BASE_URL}/session/getAllSessionsForAdmin`, { credentials: 'omit' });
+      const endpoint = isAdmin ? '/session/getAllSessionsForAdmin' : '/session/getUnapprovedSessions';
+      const response = await fetch(`${API_BASE_URL}${endpoint}`, { credentials: 'omit' });
       const result = await response.json();
       if (result.success && Array.isArray(result.data)) {
         const mappedSessions: ResidencySession[] = result.data.map((apiSession: any) => ({

@@ -89,7 +89,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({
     if (t === 'applications') {
       fetchInquiriesFromApi(1, ITEMS_PER_PAGE, true);
     } else if (t === 'sessions') {
-      fetchSessionsFromApi(true);
+      fetchSessionsFromApi(true, true);
     } else if (t === 'rooms') {
       fetchRoomsFromApi(true);
     } else if (t === 'itinerary') {
@@ -142,7 +142,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({
       if (tab === 'applications') {
         await fetchInquiriesFromApi(pagination?.page || 1, ITEMS_PER_PAGE, true);
       } else if (tab === 'sessions') {
-        await fetchSessionsFromApi(true);
+        await fetchSessionsFromApi(true, true);
       } else if (tab === 'rooms') {
         await fetchRoomsFromApi(true);
       } else if (tab === 'itinerary') {
