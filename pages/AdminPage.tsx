@@ -566,9 +566,16 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                 const localizedRangeText = (sLabelText !== 'TBD' && eLabelText !== 'TBD') ? `${sLabelText} — ${eLabelText}` : 'RESIDENCY WINDOW DRAFT';
                 return (
                   <div key={s.id} className="bg-white p-10 rounded-[1rem] border border-stone/5 shadow-xl flex flex-col gap-8 group">
-                    <div className="flex items-center gap-3 pb-4 border-b border-stone/5">
-                      <Calendar size={18} className="text-aqua-primary" />
-                      <h4 className="text-[12px] font-black uppercase tracking-[0.2em] text-stone">{localizedRangeText}</h4>
+                    <div className="flex items-center justify-between pb-4 border-b border-stone/5">
+                      <div className="flex items-center gap-3">
+                        <Calendar size={18} className="text-aqua-primary" />
+                        <h4 className="text-[12px] font-black uppercase tracking-[0.2em] text-stone">{localizedRangeText}</h4>
+                      </div>
+                      <span className={`px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest ${
+                        s.status === 'Full' ? 'bg-red-50 text-red-500' : 
+                        s.status === 'Limited' ? 'bg-amber-50 text-amber-500' : 
+                        'bg-green-50 text-green-500'
+                      }`}>{s.status}</span>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                       <div className="space-y-2">

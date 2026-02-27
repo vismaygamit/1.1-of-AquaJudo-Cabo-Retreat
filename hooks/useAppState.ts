@@ -4,7 +4,7 @@ import {
   API_BASE_URL,
   API_ROOT
 } from '../constants';
-import { BookingState, Room, ResidencySession, Application, FAQItem, ApplicationStatus, PaymentDetails } from '../types';
+import { BookingState, Room, ResidencySession, SessionStatus, Application, FAQItem, ApplicationStatus, PaymentDetails } from '../types';
 
 const INITIAL_PROMO_VIDEO_URL = "https://player.vimeo.com/external/517042307.hd.mp4?s=d946d0a7a4073a9e34c9c7379201509a2503254e&profile_id=174";
 
@@ -194,17 +194,28 @@ export const useAppState = () => {
     isFetchingSessions.current = true;
     lastSessionFetch.current = now;
     try {
-      const endpoint = isAdmin ? '/session/getAllSessionsForAdmin' : '/session/getUnapprovedSessions';
+      const endpoint = isAdmin ? '/session/getAllSessionsForAdmin' : '/session/getSessionsWithStatus';
       const response = await fetch(`${API_BASE_URL}${endpoint}`, { credentials: 'omit' });
       const result = await response.json();
       if (result.success && Array.isArray(result.data)) {
-        const mappedSessions: ResidencySession[] = result.data.map((apiSession: any) => ({
-          id: apiSession._id,
-          startDate: apiSession.startDate,
-          endDate: apiSession.endDate,
-          status: 'Open',
-          maxGuests: apiSession.maxGuests
-        }));
+        const mappedSessions: ResidencySession[] = result.data.map((apiSession: any) => {
+          // Normalize status to match SessionStatus type
+          let status: SessionStatus = 'Open';
+          if (apiSession.status) {
+            const s = apiSession.status.toLowerCase();
+            if (s === 'full') status = 'Full';
+            else if (s === 'limited') status = 'Limited';
+            else status = 'Open';
+          }
+
+          return {
+            id: apiSession._id,
+            startDate: apiSession.startDate,
+            endDate: apiSession.endDate,
+            status,
+            maxGuests: apiSession.maxGuests
+          };
+        });
         setSessions(mappedSessions);
       }
     } catch (error) {
