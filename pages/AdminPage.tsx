@@ -427,7 +427,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({
       <aside className="w-full bg-[#faf9f6]/95 backdrop-blur-md text-stone p-6 flex items-center justify-between border-b border-stone/5 sticky top-0 z-[100]">
         <div className="flex items-center gap-4">
           <div className="leading-tight">
-            <img src="/aquajudologo.jpeg" alt="Aqua Judo Logo" className="h-9 sm:h-12 w-auto object-contain" />
+            <img src="/aquajudologo.jpeg" alt="Aqua Judo Logo" className="h-5 sm:h-12 w-auto object-contain" />
           </div>
         </div>
         <button onClick={onExit} className="px-6 py-2 bg-[#111] text-white rounded-full text-[10px] uppercase font-bold tracking-widest hover:bg-stone-light transition-all flex items-center gap-2 shadow-sm">

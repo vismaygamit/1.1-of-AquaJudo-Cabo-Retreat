@@ -24,7 +24,7 @@ export const MainLayout: React.FC<MainLayoutProps> = ({
       <nav className="fixed top-0 w-full z-[100] px-8 py-4 flex items-center justify-between bg-[#faf9f6]/95 backdrop-blur-md border-b border-stone/5">
         <div className="flex items-center gap-4 cursor-pointer" onClick={() => window.scrollTo({top: 0, behavior: 'smooth'})}>
           <div className="leading-tight">
-            <img src="/aquajudologo.jpeg" alt="Aqua Judo Logo" className="h-9 sm:h-12 w-auto object-contain" />
+            <img src="/aquajudologo.jpeg" alt="Aqua Judo Logo" className="h-5 sm:h-12 w-auto object-contain" />
           </div>
         </div>
         <div className="flex items-center gap-4">
