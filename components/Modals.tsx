@@ -264,12 +264,31 @@ export const ApplyModal: React.FC<ApplyModalProps> = ({ sessions, rooms, initial
                 <p className="text-[10px] font-black uppercase tracking-[0.2em] text-stone/30 text-center">Residency Window</p>
                 <div className="space-y-4">
                   {availableSessions.map(s => (
-                    <button key={s.id} onClick={() => setForm({...form, sessionId: s.id})} className={`w-full p-8 rounded-[2rem] border transition-all text-left flex justify-between items-center ${form.sessionId === s.id ? 'bg-aqua-primary/5 border-aqua-primary' : 'bg-white border-stone/10'}`}>
+                    <button 
+                      key={s.id} 
+                      onClick={() => setForm({...form, sessionId: s.id})} 
+                      disabled={s.status === 'Full'}
+                      className={`w-full p-8 rounded-[2rem] border transition-all text-left flex justify-between items-center ${
+                        form.sessionId === s.id 
+                          ? 'bg-aqua-primary/5 border-aqua-primary' 
+                          : s.status === 'Full' 
+                            ? 'bg-stone/5 border-stone/5 cursor-not-allowed opacity-60' 
+                            : 'bg-white border-stone/10 hover:border-stone/20'
+                      }`}
+                    >
                       <div className="space-y-1">
-                        <p className="text-[14px] font-black uppercase text-stone">{new Date(s.startDate).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}</p>
+                        <p className={`text-[14px] font-black uppercase ${s.status === 'Full' ? 'text-stone/30' : 'text-stone'}`}>
+                          {new Date(s.startDate).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
+                        </p>
                         <p className="text-[11px] font-serif italic text-stone/30">{new Date(s.startDate).toLocaleDateString()} — {new Date(s.endDate).toLocaleDateString()}</p>
                       </div>
-                      <span className={`px-4 py-1.5 rounded-full text-[9px] font-black uppercase ${s.status === 'Full' ? 'bg-stone/5 text-stone/20' : 'bg-green-50 text-green-500'}`}>{s.status}</span>
+                      <span className={`px-4 py-1.5 rounded-full text-[9px] font-black uppercase ${
+                        s.status === 'Full' 
+                          ? 'bg-stone/10 text-stone/40' 
+                          : s.status === 'Limited' 
+                            ? 'bg-amber-50 text-amber-500' 
+                            : 'bg-green-50 text-green-500'
+                      }`}>{s.status}</span>
                     </button>
                   ))}
                 </div>
