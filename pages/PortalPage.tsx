@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { 
   Anchor, Coffee, Zap, Shield, Clock, Compass, CheckCircle2, 
   MapPin, Home, Info, Calendar, ShieldCheck, Phone, 
-  ArrowRight, ExternalLink, Check, Send, X
+  ArrowRight, ExternalLink, Check, Send, X, AlertCircle
 } from 'lucide-react';
 import { Logo } from '../components/Shared';
 
@@ -77,7 +77,18 @@ export const PortalPage: React.FC<PortalPageProps> = ({ guest, session, room, po
           </header>
 
           {/* Message from Founder */}
-          <div className="bg-white p-8 md:p-12 rounded-[1rem] border border-stone/5 shadow-sm flex flex-col md:flex-row items-center gap-8 md:gap-12 relative overflow-hidden">
+          <div className="space-y-6">
+            {portalConfig.portalNote && (
+              <div className="bg-aqua-primary/5 border border-aqua-primary/20 p-6 rounded-2xl flex items-start gap-4 animate-fade-in">
+                <AlertCircle size={20} className="text-aqua-primary shrink-0 mt-0.5" />
+                <div className="space-y-1">
+                  <p className="text-[10px] font-black uppercase tracking-widest text-aqua-primary">IMPORTANT NOTICE</p>
+                  <p className="text-sm font-serif italic text-stone/60 leading-relaxed">{portalConfig.portalNote}</p>
+                </div>
+              </div>
+            )}
+            
+            <div className="bg-white p-8 md:p-12 rounded-[1rem] border border-stone/5 shadow-sm flex flex-col md:flex-row items-center gap-8 md:gap-12 relative overflow-hidden">
             <div className="absolute top-0 right-0 w-64 h-64 bg-aqua-primary/5 rounded-full -mr-32 -mt-32 blur-3xl" />
             <div className="w-24 h-24 rounded-full overflow-hidden flex-shrink-0 border-4 border-white shadow-xl">
               <img src="https://picsum.photos/seed/founder/200/200" alt="Founder" className="w-full h-full object-cover" />
@@ -90,6 +101,7 @@ export const PortalPage: React.FC<PortalPageProps> = ({ guest, session, room, po
               <p className="text-[11px] font-black uppercase tracking-widest text-stone/30">— FOUNDER, AQUA JUDO CABO</p>
             </div>
           </div>
+        </div>
 
           {/* Quick Info Cards */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

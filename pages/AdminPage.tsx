@@ -383,6 +383,22 @@ export const AdminPage: React.FC<AdminPageProps> = ({
   const handleVideoFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      // Constraints: 300MB limit and specific formats
+      const MAX_SIZE = 300 * 1024 * 1024;
+      const ALLOWED_TYPES = ['video/mp4', 'video/mpeg', 'video/quicktime', 'video/x-msvideo'];
+      
+      if (file.size > MAX_SIZE) {
+        showToast("FILE TOO LARGE. MAXIMUM SIZE IS 300MB.", "error");
+        if (videoFileInputRef.current) videoFileInputRef.current.value = '';
+        return;
+      }
+      
+      if (!ALLOWED_TYPES.includes(file.type)) {
+        showToast("INVALID FORMAT. ALLOWED: MP4, MPEG, MOV, AVI.", "error");
+        if (videoFileInputRef.current) videoFileInputRef.current.value = '';
+        return;
+      }
+
       setStagedVideoFile(file);
       const objectUrl = URL.createObjectURL(file);
       setPortalConfig({ ...portalConfig, promoVideoUrl: objectUrl });
@@ -476,6 +492,22 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                             <span>{app.email}</span>
                             <span>{app.phone}</span>
                           </div>
+                          {(app.healthNotes || app.notes) && (
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4">
+                              {app.healthNotes && (
+                                <div className="space-y-2">
+                                  <p className="text-[8px] font-black uppercase tracking-widest text-stone/20">Health Considerations</p>
+                                  <p className="text-[13px] font-serif italic text-stone/50 bg-[#faf9f6] p-4 rounded-xl border border-stone/5">{app.healthNotes}</p>
+                                </div>
+                              )}
+                              {app.notes && (
+                                <div className="space-y-2">
+                                  <p className="text-[8px] font-black uppercase tracking-widest text-stone/20">Internal Notes</p>
+                                  <p className="text-[13px] font-serif italic text-stone/50 bg-aqua-primary/5 p-4 rounded-xl border border-aqua-primary/10">{app.notes}</p>
+                                </div>
+                              )}
+                            </div>
+                          )}
                         </div>
                         <div className="flex flex-wrap items-center gap-3">
                           <button onClick={() => handleStatusChange(app.id, 'Pending')} disabled={isSaving[app.id]} className="px-6 py-4 bg-[#f9f9f9] text-stone rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-amber-500 hover:text-white transition-all shadow-sm disabled:opacity-50 flex items-center gap-2">
@@ -881,10 +913,11 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                     </div>
                     <div className="space-y-4">
                       <p className="text-[8px] font-black uppercase tracking-widest text-stone/10 px-1">UPLOAD LOCAL VIDEO</p>
-                      <input type="file" ref={videoFileInputRef} onChange={handleVideoFileChange} accept="video/*" className="hidden" />
+                      <input type="file" ref={videoFileInputRef} onChange={handleVideoFileChange} accept=".mp4,.mpeg,.mov,.avi,video/mp4,video/mpeg,video/quicktime,video/x-msvideo" className="hidden" />
                       <button onClick={() => videoFileInputRef.current?.click()} className="w-full py-4 bg-[#111] text-white rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-3 hover:bg-stone-light transition-all">
                         <Upload size={14} /> SELECT VIDEO FILE
                       </button>
+                      <p className="text-[8px] text-stone/30 font-bold uppercase tracking-widest text-center">MAX 300MB • MP4, MPEG, MOV, AVI</p>
                     </div>
                   </div>
                   <div className="aspect-video bg-[#faf9f6] rounded-[2rem] border border-stone/5 overflow-hidden flex items-center justify-center relative">
@@ -897,6 +930,13 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                     )}
                   </div>
                 </div>
+              </div>
+              <div className="space-y-4">
+                <div className="flex items-center gap-3">
+                  <AlertCircle size={16} className="text-aqua-primary" />
+                  <h5 className="text-[10px] font-black uppercase tracking-[0.4em] text-stone/20">IMPORTANT NOTE (PORTAL NOTICE)</h5>
+                </div>
+                <textarea value={portalConfig.portalNote} onChange={e => setPortalConfig({...portalConfig, portalNote: e.target.value})} className="w-full bg-[#faf9f6] p-10 rounded-[2.5rem] border border-stone/5 text-sm font-serif italic text-stone/50 outline-none min-h-[100px] leading-relaxed resize-none focus:border-aqua-primary/30 transition-all shadow-inner" placeholder="Add an important note for the guest portal..." />
               </div>
               <div className="space-y-4">
                 <div className="flex items-center gap-3">

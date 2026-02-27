@@ -10,6 +10,7 @@ const INITIAL_PROMO_VIDEO_URL = "https://player.vimeo.com/external/517042307.hd.
 
 const DEFAULT_PORTAL_CONFIG = {
   welcomeParagraph: "Our team is standing by to ensure your technical immersion is seamless and restorative. We look forward to your arrival at the estate.",
+  portalNote: "Please ensure your travel details are submitted at least 72 hours before arrival to coordinate your private transfer.",
   packingList: [
     'Lightweight Judo Gi (available for rent)',
     'Rash guard / Compression shorts',
@@ -270,6 +271,7 @@ export const useAppState = () => {
         const api = result.data;
         const mappedPortal = {
           welcomeParagraph: api.welcomeMessage || DEFAULT_PORTAL_CONFIG.welcomeParagraph,
+          portalNote: api.portalNote || DEFAULT_PORTAL_CONFIG.portalNote,
           packingList: (Array.isArray(api.packingInventory) && api.packingInventory.length > 0)
             ? api.packingInventory
             : DEFAULT_PORTAL_CONFIG.packingList,
@@ -301,6 +303,7 @@ export const useAppState = () => {
     const formData = new FormData();
     if (videoFile) formData.append('estateNarrativeVideo', videoFile);
     formData.append('welcomeMessage', config.welcomeParagraph);
+    formData.append('portalNote', config.portalNote || '');
     formData.append('arrivalLogistics', JSON.stringify({
       estateAddress: config.logistics.address,
       checkInWindow: config.logistics.checkInWindow,
