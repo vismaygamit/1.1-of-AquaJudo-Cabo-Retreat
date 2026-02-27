@@ -496,8 +496,8 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4">
                               {app.healthNotes && (
                                 <div className="space-y-2">
-                                  <p className="text-[8px] font-black uppercase tracking-widest text-stone/20">Health Considerations</p>
-                                  <p className="text-[13px] font-serif italic text-stone/50 bg-[#faf9f6] p-4 rounded-xl border border-stone/5">{app.healthNotes}</p>
+                                  <p className="text-[8px] font-black uppercase tracking-widest text-stone/20">Inquiry Narrative</p>
+                                  <p className="text-[13px] font-serif italic text-stone/50 bg-[#faf9f6] p-4 rounded-xl border border-stone/5 leading-relaxed">{app.healthNotes}</p>
                                 </div>
                               )}
                               {app.notes && (
