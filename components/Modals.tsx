@@ -1,7 +1,8 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { X, Check, Info, Copy, ChevronLeft, AlertCircle, Loader2, Trash2 } from 'lucide-react';
 import { BookingState, Room, ResidencySession } from '../types';
+import { API_BASE_URL } from '../constants';
 
 interface LoginModalProps {
   onLogin: (password: string) => void;
@@ -183,12 +184,56 @@ export const ApplyModal: React.FC<ApplyModalProps> = ({ sessions, rooms, initial
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submittedId, setSubmittedId] = useState('');
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [availableRooms, setAvailableRooms] = useState<Room[]>([]);
+  const [isLoadingRooms, setIsLoadingRooms] = useState(false);
   const [form, setForm] = useState<BookingState>({
     sessionId: initialSessionId, guestName: '', guestEmail: '', guestPhone: '', gender: '',
     bookingType: 'solo', companionName: '', roomPreferenceId: initialRoomId || '',
     healthNotes: '', oneOnOneInterest: false, bathroomConsent: false,
     alcoholConsent: false, language: 'English', notes: '', isConfirmed: false
   });
+
+  useEffect(() => {
+    if (!form.sessionId) {
+      setAvailableRooms([]);
+      return;
+    }
+
+    const fetchAvailableRooms = async () => {
+      setIsLoadingRooms(true);
+      try {
+        const response = await fetch(`${API_BASE_URL}/session/${form.sessionId}/getAvailableRoomsBySession`);
+        const result = await response.json();
+        if (result.success && Array.isArray(result.data)) {
+          const mappedRooms: Room[] = result.data.map((apiRoom: any) => {
+            const fullRoom = rooms.find(r => r.id === apiRoom._id || r.name === apiRoom.name);
+            return {
+              id: apiRoom._id,
+              name: apiRoom.name,
+              basePrice: apiRoom.price,
+              description: fullRoom?.description || '',
+              image: fullRoom?.image || '',
+              video: fullRoom?.video || '',
+              maxOccupancy: fullRoom?.maxOccupancy || 2,
+              facilities: fullRoom?.facilities || []
+            };
+          });
+          setAvailableRooms(mappedRooms);
+          
+          // If current roomPreferenceId is not in available rooms, reset it
+          if (form.roomPreferenceId && !mappedRooms.find(r => r.id === form.roomPreferenceId)) {
+            setForm(prev => ({ ...prev, roomPreferenceId: '' }));
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching available rooms:", error);
+      } finally {
+        setIsLoadingRooms(false);
+      }
+    };
+
+    fetchAvailableRooms();
+  }, [form.sessionId, rooms]);
 
   const validatePhase1 = () => {
     const newErrors: Record<string, string> = {};
@@ -295,17 +340,28 @@ export const ApplyModal: React.FC<ApplyModalProps> = ({ sessions, rooms, initial
               </div>
               <div className="space-y-6">
                 <p className="text-[10px] font-black uppercase tracking-[0.2em] text-stone/30 text-center">Sanctuary Selection</p>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {rooms.map(r => (
-                    <button key={r.id} onClick={() => setForm({...form, roomPreferenceId: r.id})} className={`relative p-10 rounded-[2.5rem] border transition-all text-left flex flex-col justify-between aspect-square ${form.roomPreferenceId === r.id ? 'bg-aqua-primary/5 border-aqua-primary' : 'bg-white border-stone/10'}`}>
-                      <div className="space-y-1">
-                        <p className="text-[12px] font-black uppercase text-stone">{r.name}</p>
-                      </div>
-                      <p className="text-2xl font-black text-stone">${r.basePrice.toLocaleString()}</p>
-                      {form.roomPreferenceId === r.id && <div className="absolute bottom-10 right-10 text-aqua-primary"><Check size={20} /></div>}
-                    </button>
-                  ))}
-                </div>
+                {isLoadingRooms ? (
+                  <div className="py-20 flex flex-col items-center justify-center gap-4 bg-stone/5 rounded-[2.5rem] border border-stone/5 border-dashed">
+                    <Loader2 className="animate-spin text-aqua-primary" size={32} />
+                    <p className="text-[10px] font-black uppercase tracking-widest text-stone/20">Fetching Availability</p>
+                  </div>
+                ) : availableRooms.length === 0 ? (
+                  <div className="py-20 text-center bg-stone/5 rounded-[2.5rem] border border-stone/5 border-dashed">
+                    <p className="text-stone/20 font-black uppercase tracking-widest text-[11px]">No sanctuaries available for this window</p>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {availableRooms.map(r => (
+                      <button key={r.id} onClick={() => setForm({...form, roomPreferenceId: r.id})} className={`relative p-10 rounded-[2.5rem] border transition-all text-left flex flex-col justify-between aspect-square ${form.roomPreferenceId === r.id ? 'bg-aqua-primary/5 border-aqua-primary' : 'bg-white border-stone/10'}`}>
+                        <div className="space-y-1">
+                          <p className="text-[12px] font-black uppercase text-stone">{r.name}</p>
+                        </div>
+                        <p className="text-2xl font-black text-stone">${r.basePrice.toLocaleString()}</p>
+                        {form.roomPreferenceId === r.id && <div className="absolute bottom-10 right-10 text-aqua-primary"><Check size={20} /></div>}
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
               <div className="flex gap-4">
                 <button onClick={() => setStep(1)} className="flex-1 bg-[#faf9f6] text-stone py-6 rounded-full text-[12px] font-black uppercase tracking-[0.2em] flex items-center justify-center gap-2"><ChevronLeft size={16} /> Back</button>
