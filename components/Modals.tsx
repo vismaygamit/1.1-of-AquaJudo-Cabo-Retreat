@@ -306,64 +306,66 @@ export const ApplyModal: React.FC<ApplyModalProps> = ({ sessions, rooms, initial
           {step === 2 && (
             <div className="space-y-12 animate-fade-in py-4">
               <div className="space-y-6">
-                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-stone/30 text-center">Residency Window</p>
-                <div className="space-y-4">
+                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-stone/20 px-1">Residency Window</p>
+                <div className="space-y-3">
                   {availableSessions.map(s => (
                     <button 
                       key={s.id} 
                       onClick={() => setForm({...form, sessionId: s.id})} 
                       disabled={s.status === 'Full'}
-                      className={`w-full p-8 rounded-[2rem] border transition-all text-left flex justify-between items-center ${
+                      className={`w-full px-8 py-6 rounded-2xl border transition-all text-left flex justify-between items-center ${
                         form.sessionId === s.id 
-                          ? 'bg-aqua-primary/5 border-aqua-primary' 
+                          ? 'bg-[#E0F7F6] border-aqua-primary' 
                           : s.status === 'Full' 
                             ? 'bg-stone/5 border-stone/5 cursor-not-allowed opacity-60' 
                             : 'bg-white border-stone/10 hover:border-stone/20'
                       }`}
                     >
-                      <div className="space-y-1">
-                        <p className={`text-[14px] font-black uppercase ${s.status === 'Full' ? 'text-stone/30' : 'text-stone'}`}>
-                          {new Date(s.startDate).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
-                        </p>
-                        <p className="text-[11px] font-serif italic text-stone/30">{new Date(s.startDate).toLocaleDateString()} — {new Date(s.endDate).toLocaleDateString()}</p>
-                      </div>
-                      <span className={`px-4 py-1.5 rounded-full text-[9px] font-black uppercase ${
+                      <p className={`text-[13px] font-black uppercase tracking-tight ${s.status === 'Full' ? 'text-stone/30' : 'text-stone'}`}>
+                        {new Date(s.startDate).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
+                      </p>
+                      <span className={`text-[10px] font-black uppercase tracking-widest ${
                         s.status === 'Full' 
-                          ? 'bg-stone/10 text-stone/40' 
+                          ? 'text-stone/30' 
                           : s.status === 'Limited' 
-                            ? 'bg-amber-50 text-amber-500' 
-                            : 'bg-green-50 text-green-500'
+                            ? 'text-amber-500' 
+                            : 'text-stone/40'
                       }`}>{s.status}</span>
                     </button>
                   ))}
                 </div>
               </div>
               <div className="space-y-6">
-                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-stone/30 text-center">Sanctuary Selection</p>
+                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-stone/20 px-1">Sanctuary Preference</p>
                 {isLoadingRooms ? (
-                  <div className="py-20 flex flex-col items-center justify-center gap-4 bg-stone/5 rounded-[2.5rem] border border-stone/5 border-dashed">
+                  <div className="py-20 flex flex-col items-center justify-center gap-4 bg-stone/5 rounded-2xl border border-stone/5 border-dashed">
                     <Loader2 className="animate-spin text-aqua-primary" size={32} />
                     <p className="text-[10px] font-black uppercase tracking-widest text-stone/20">Fetching Availability</p>
                   </div>
                 ) : availableRooms.length === 0 ? (
-                  <div className="py-20 text-center bg-stone/5 rounded-[2.5rem] border border-stone/5 border-dashed">
+                  <div className="py-20 text-center bg-stone/5 rounded-2xl border border-stone/5 border-dashed">
                     <p className="text-stone/20 font-black uppercase tracking-widest text-[11px]">No sanctuaries available for this window</p>
                   </div>
                 ) : (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-3">
                     {availableRooms.map(r => (
-                      <button key={r.id} onClick={() => setForm({...form, roomPreferenceId: r.id})} className={`relative p-10 rounded-[2.5rem] border transition-all text-left flex flex-col justify-between aspect-square ${form.roomPreferenceId === r.id ? 'bg-aqua-primary/5 border-aqua-primary' : 'bg-white border-stone/10'}`}>
-                        <div className="space-y-1">
-                          <p className="text-[12px] font-black uppercase text-stone">{r.name}</p>
-                        </div>
-                        <p className="text-2xl font-black text-stone">${r.basePrice.toLocaleString()}</p>
-                        {form.roomPreferenceId === r.id && <div className="absolute bottom-10 right-10 text-aqua-primary"><Check size={20} /></div>}
+                      <button 
+                        key={r.id} 
+                        onClick={() => setForm({...form, roomPreferenceId: r.id})} 
+                        className={`w-full px-8 py-6 rounded-2xl border transition-all text-left flex flex-col justify-center ${
+                          form.roomPreferenceId === r.id 
+                            ? 'bg-[#E0F7F6] border-aqua-primary' 
+                            : 'bg-white border-stone/10 hover:border-stone/20'
+                        }`}
+                      >
+                        <p className="text-[13px] font-black uppercase tracking-tight text-stone">{r.name}</p>
+                        <p className="text-[11px] font-black text-stone/30 tracking-widest mt-0.5">${r.basePrice.toLocaleString()}</p>
                       </button>
                     ))}
                   </div>
                 )}
               </div>
-              <div className="flex gap-4">
+              <div className="flex gap-4 pt-4">
                 <button onClick={() => setStep(1)} className="flex-1 bg-[#faf9f6] text-stone py-6 rounded-full text-[12px] font-black uppercase tracking-[0.2em] flex items-center justify-center gap-2"><ChevronLeft size={16} /> Back</button>
                 <button onClick={() => setStep(3)} disabled={!form.sessionId || !form.roomPreferenceId} className="flex-[2] bg-[#111] text-white py-6 rounded-full text-[12px] font-black uppercase tracking-[0.2em] shadow-xl disabled:opacity-20">Next Phase</button>
               </div>
