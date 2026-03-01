@@ -359,7 +359,7 @@ export const ApplyModal: React.FC<ApplyModalProps> = ({ sessions, rooms, initial
                         }`}
                       >
                         <p className="text-[13px] font-black uppercase tracking-tight text-stone">{r.name}</p>
-                        <p className="text-[11px] font-black text-stone/30 tracking-widest mt-0.5">${r.basePrice.toLocaleString()}</p>
+                        <p className="text-[11px] font-black text-stone/30 tracking-widest mt-0.5">${r.basePrice.toLocaleString()} USD</p>
                       </button>
                     ))}
                   </div>
