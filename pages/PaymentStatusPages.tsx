@@ -147,7 +147,7 @@ export const PaymentSuccessPage: React.FC<PaymentStatusPageProps> = ({ onReturn,
             onClick={onReturn}
             className="w-full md:w-auto px-10 py-5 bg-[#111] text-white rounded-full text-[11px] font-black uppercase tracking-[0.2em] hover:bg-aqua-primary hover:text-stone transition-all shadow-xl flex items-center justify-center gap-3"
           >
-            <Home size={16} /> RETURN TO ESTATE
+            <Home size={16} /> GUEST PORTAL
           </button>
         </div>
 

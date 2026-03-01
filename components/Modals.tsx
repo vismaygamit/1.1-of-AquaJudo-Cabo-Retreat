@@ -421,7 +421,7 @@ export const ApplyModal: React.FC<ApplyModalProps> = ({ sessions, rooms, initial
                 <div className="space-y-1"><p className="text-[10px] font-black text-stone/20 uppercase">ID</p><p className="text-2xl font-black text-stone">{submittedId}</p></div>
                 <div className="space-y-1"><p className="text-[10px] font-black text-stone/20 uppercase">GUEST</p><p className="text-2xl font-black text-stone">{form.guestName.split(' ')[0].toUpperCase()}</p></div>
               </div>
-              <button onClick={onClose} className="w-full bg-[#999] text-white py-6 rounded-full text-[11px] font-black uppercase shadow-xl hover:bg-stone transition-all">RETURN TO ESTATE</button>
+              <button onClick={onClose} className="w-full bg-[#999] text-white py-6 rounded-full text-[11px] font-black uppercase shadow-xl hover:bg-stone transition-all">GUEST PORTAL</button>
             </div>
           )}
         </div>
