@@ -20,6 +20,11 @@ export const LandingPage: React.FC<LandingPageProps> = ({ sessions, rooms, itine
   const [selectedRoomDetail, setSelectedRoomDetail] = useState<Room | null>(null);
   const [isPromoPlaying, setIsPromoPlaying] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
+  const availabilityRef = useRef<HTMLElement>(null);
+
+  const scrollToAvailability = () => {
+    availabilityRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
 
   const togglePromoPlay = () => {
     if (videoRef.current) {
@@ -75,7 +80,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ sessions, rooms, itine
 
           <div className="pt-4 w-full flex justify-center">
             <button
-              onClick={() => onApplyClick()}
+              onClick={scrollToAvailability}
               className="bg-[#111] text-white px-8 sm:px-12 py-4 sm:py-5 rounded-full text-[11px] sm:text-[13px] tracking-[0.15em] sm:tracking-[0.2em] font-black uppercase shadow-[0_20px_50px_rgba(0,0,0,0.1)] hover:scale-105 active:scale-95 transition-all flex items-center gap-3 sm:gap-4 group whitespace-nowrap"
             >
               APPLY FOR RESIDENCY
@@ -167,7 +172,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ sessions, rooms, itine
       </section>
 
       {/* SESSIONS */}
-      <section className="py-24 bg-[#faf9f6] px-6 border-t border-stone/5">
+      <section ref={availabilityRef} className="py-24 bg-[#faf9f6] px-6 border-t border-stone/5">
         <div className="max-w-5xl mx-auto space-y-16">
           <div className="text-center space-y-4">
             <p className="text-[11px] tracking-[0.5em] text-aqua-deep font-black uppercase opacity-40">AVAILABILITY</p>
