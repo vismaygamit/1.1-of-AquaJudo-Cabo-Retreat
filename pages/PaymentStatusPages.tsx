@@ -47,6 +47,14 @@ export const PaymentSuccessPage: React.FC<PaymentStatusPageProps> = ({ onReturn,
     }
   };
 
+  const handlePortalClick = () => {
+    if (paymentDetails?.magicUrl) {
+      window.location.href = paymentDetails.magicUrl;
+    } else {
+      onReturn();
+    }
+  };
+
   return (
     <main className="min-h-[40vh] flex flex-col items-center px-4 sm:px-8 pt-20 pb-12 bg-[#faf9f6]">
       <div className="max-w-3xl w-full space-y-4 text-center animate-reveal">
@@ -144,7 +152,7 @@ export const PaymentSuccessPage: React.FC<PaymentStatusPageProps> = ({ onReturn,
 
         <div className="pt-8 flex flex-col md:flex-row items-center justify-center gap-6">
           <button 
-            onClick={onReturn}
+            onClick={handlePortalClick}
             className="w-full md:w-auto px-10 py-5 bg-[#111] text-white rounded-full text-[11px] font-black uppercase tracking-[0.2em] hover:bg-aqua-primary hover:text-stone transition-all shadow-xl flex items-center justify-center gap-3"
           >
             <Home size={16} /> GUEST PORTAL

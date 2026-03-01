@@ -110,4 +110,5 @@ export interface PaymentDetails {
   amount: string | number;
   status: string;
   inquiryId: string;
+  magicUrl?: string;
 }
