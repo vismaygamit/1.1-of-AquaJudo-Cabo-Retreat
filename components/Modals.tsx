@@ -418,7 +418,7 @@ export const ApplyModal: React.FC<ApplyModalProps> = ({ sessions, rooms, initial
               <h4 className="text-[34px] font-black uppercase text-stone leading-none">REGISTRY RECEIVED</h4>
               <div className="space-y-3">
                 <p className="text-[13px] font-black uppercase tracking-[0.4em] text-[#4fd1c5]">PENDING CURATOR VERIFICATION</p>
-                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-stone/30">PLEASE WAIT 28-48 HOURS</p>
+                <p className="text-[16px] font-black uppercase tracking-[0.2em] text-stone/30">PLEASE WAIT 28-48 HOURS</p>
               </div>
               <div className="grid grid-cols-2 gap-10 text-left border-y border-stone/5 py-10">
                 <div className="space-y-1"><p className="text-[10px] font-black text-stone/20 uppercase">ID</p><p className="text-2xl font-black text-stone">{submittedId}</p></div>
