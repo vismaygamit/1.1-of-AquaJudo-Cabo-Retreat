@@ -220,11 +220,14 @@ export const LandingPage: React.FC<LandingPageProps> = ({ sessions, rooms, itine
                 <div className="space-y-1">
                   <h4 className="text-2xl md:text-3xl font-bold uppercase tracking-tight text-stone">{room.name}</h4>
                 </div>
-                <div className="flex items-baseline gap-1">
-                  <span className="text-lg font-light text-stone/40">$</span>
-                  <span className="text-4xl md:text-5xl font-bold tracking-tight text-stone">
-                    {room.basePrice.toLocaleString()}
-                  </span>
+                <div className="flex items-baseline gap-2">
+                  <div className="flex items-baseline gap-1">
+                    <span className="text-lg font-light text-stone/40">$</span>
+                    <span className="text-4xl md:text-5xl font-bold tracking-tight text-stone">
+                      {room.basePrice.toLocaleString()}
+                    </span>
+                  </div>
+                  <span className="text-sm md:text-base font-black text-stone/20 tracking-[0.2em] uppercase">USD</span>
                 </div>
               </button>
             ))}

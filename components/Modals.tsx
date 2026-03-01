@@ -151,7 +151,7 @@ export const RoomDetailModal: React.FC<{
             <div className="flex items-baseline gap-1 group flex-shrink-0">
               <span className="text-lg sm:text-xl font-light text-white/30">$</span>
               <span className="text-4xl sm:text-7xl font-bold tracking-tighter text-white leading-none">
-                {room.basePrice.toLocaleString()}
+                {room.basePrice.toLocaleString()} USD
               </span>
             </div>
             <div className="flex-shrink-0">
