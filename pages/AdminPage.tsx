@@ -1,6 +1,6 @@
 
 import React, { useState, useRef, useEffect } from 'react';
-import { LogOut, Plus, Trash2, Copy, Image as ImageIcon, CheckCircle2, XCircle, Clock, Upload, Film, MessageSquare, MapPin, Package, ShieldCheck, RefreshCw, Calendar, Home, Quote, ChevronLeft, ChevronRight, Save, AlertCircle, Loader2, Video, X, Zap } from 'lucide-react';
+import { LogOut, Plus, Trash2, Copy, Image as ImageIcon, CheckCircle2, XCircle, Clock, Upload, Film, MessageSquare, MapPin, Package, ShieldCheck, RefreshCw, Calendar, Home, Quote, ChevronLeft, ChevronRight, Save, AlertCircle, Loader2, Video, X } from 'lucide-react';
 import { DateTime } from 'luxon';
 import { AdminSectionHeader, Logo } from '../components/Shared';
 import { DeleteConfirmModal } from '../components/Modals';
@@ -1049,32 +1049,8 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                     <input value={portalConfig.logistics.address} onChange={e => setPortalConfig({...portalConfig, logistics: {...portalConfig.logistics, address: e.target.value}})} className="w-full bg-[#faf9f6] px-6 py-4 rounded-xl border border-stone/5 text-xs outline-none focus:border-aqua-primary/30 transition-all" />
                   </div>
                   <div className="space-y-2">
-                    <label className="text-[8px] font-black uppercase tracking-widest text-stone/10 px-1">GOOGLE MAPS LINK</label>
-                    <input value={portalConfig.logistics.googleMapsLink} onChange={e => setPortalConfig({...portalConfig, logistics: {...portalConfig.logistics, googleMapsLink: e.target.value}})} className="w-full bg-[#faf9f6] px-6 py-4 rounded-xl border border-stone/5 text-xs outline-none focus:border-aqua-primary/30 transition-all" />
-                  </div>
-                  <div className="space-y-2">
                     <label className="text-[8px] font-black uppercase tracking-widest text-stone/10 px-1">CHECK-IN WINDOW</label>
                     <input value={portalConfig.logistics.checkInWindow} onChange={e => setPortalConfig({...portalConfig, logistics: {...portalConfig.logistics, checkInWindow: e.target.value}})} className="w-full bg-[#faf9f6] px-6 py-4 rounded-xl border border-stone/5 text-xs outline-none focus:border-aqua-primary/30 transition-all" />
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-[8px] font-black uppercase tracking-widest text-stone/10 px-1">CHECK-OUT TIME</label>
-                    <input value={portalConfig.logistics.checkOutTime} onChange={e => setPortalConfig({...portalConfig, logistics: {...portalConfig.logistics, checkOutTime: e.target.value}})} className="w-full bg-[#faf9f6] px-6 py-4 rounded-xl border border-stone/5 text-xs outline-none focus:border-aqua-primary/30 transition-all" />
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-[8px] font-black uppercase tracking-widest text-stone/10 px-1">WHATSAPP CONTACT</label>
-                    <input value={portalConfig.logistics.whatsappContact} onChange={e => setPortalConfig({...portalConfig, logistics: {...portalConfig.logistics, whatsappContact: e.target.value}})} className="w-full bg-[#faf9f6] px-6 py-4 rounded-xl border border-stone/5 text-xs outline-none focus:border-aqua-primary/30 transition-all" />
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-[8px] font-black uppercase tracking-widest text-stone/10 px-1">EMAIL CONTACT</label>
-                    <input value={portalConfig.logistics.emailContact} onChange={e => setPortalConfig({...portalConfig, logistics: {...portalConfig.logistics, emailContact: e.target.value}})} className="w-full bg-[#faf9f6] px-6 py-4 rounded-xl border border-stone/5 text-xs outline-none focus:border-aqua-primary/30 transition-all" />
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-[8px] font-black uppercase tracking-widest text-stone/10 px-1">EMERGENCY PHONE</label>
-                    <input value={portalConfig.logistics.emergencyPhone} onChange={e => setPortalConfig({...portalConfig, logistics: {...portalConfig.logistics, emergencyPhone: e.target.value}})} className="w-full bg-[#faf9f6] px-6 py-4 rounded-xl border border-stone/5 text-xs outline-none focus:border-aqua-primary/30 transition-all" />
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-[8px] font-black uppercase tracking-widest text-stone/10 px-1">GATED ACCESS INSTRUCTIONS</label>
-                    <input value={portalConfig.logistics.gateInstructions} onChange={e => setPortalConfig({...portalConfig, logistics: {...portalConfig.logistics, gateInstructions: e.target.value}})} className="w-full bg-[#faf9f6] px-6 py-4 rounded-xl border border-stone/5 text-xs outline-none focus:border-aqua-primary/30 transition-all" />
                   </div>
                 </div>
               </div>
@@ -1101,113 +1077,6 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                   ))}
                 </div>
               </div>
-              
-              {/* ESTATE EXPERIENCES SECTION */}
-              <div className="space-y-8">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <Zap size={16} className="text-aqua-primary" />
-                    <h5 className="text-[10px] font-black uppercase tracking-[0.4em] text-stone/20">ESTATE EXPERIENCES</h5>
-                  </div>
-                  <button 
-                    onClick={() => {
-                      const newExp = {
-                        id: Date.now().toString(),
-                        title: 'NEW EXPERIENCE',
-                        technicalLevel: 'Beginner',
-                        frequency: 'Once',
-                        description: ''
-                      };
-                      setPortalConfig({
-                        ...portalConfig, 
-                        estateExperiences: [...(portalConfig.estateExperiences || []), newExp]
-                      });
-                      showToast('New experience draft added.', 'info');
-                    }} 
-                    className="px-6 py-2 bg-[#111] text-white rounded-full text-[9px] font-black uppercase tracking-widest flex items-center gap-2 hover:scale-105 transition-all shadow-md"
-                  >
-                    <Plus size={12} /> ADD EXPERIENCE
-                  </button>
-                </div>
-                
-                <div className="space-y-8">
-                  {(portalConfig.estateExperiences || []).map((exp: any, idx: number) => (
-                    <div key={exp.id} className="bg-[#faf9f6]/50 p-8 rounded-[2rem] border border-stone/5 space-y-6 relative group/exp animate-fade-in">
-                      <div className="flex justify-between items-center border-b border-stone/5 pb-4">
-                        <input 
-                          value={exp.title} 
-                          onChange={e => {
-                            const n = [...portalConfig.estateExperiences];
-                            n[idx] = { ...n[idx], title: e.target.value.toUpperCase() };
-                            setPortalConfig({ ...portalConfig, estateExperiences: n });
-                          }}
-                          className="text-xl font-black uppercase tracking-tight text-stone bg-transparent outline-none focus:text-aqua-primary transition-colors w-full"
-                          placeholder="EXPERIENCE TITLE"
-                        />
-                        <button 
-                          onClick={() => {
-                            const n = portalConfig.estateExperiences.filter((_: any, i: number) => i !== idx);
-                            setPortalConfig({ ...portalConfig, estateExperiences: n });
-                            showToast('Experience removed from draft.', 'info');
-                          }}
-                          className="p-2 text-stone/10 hover:text-red-400 transition-colors"
-                        >
-                          <Trash2 size={18} />
-                        </button>
-                      </div>
-                      
-                      <div className="grid md:grid-cols-2 gap-6">
-                        <div className="space-y-2">
-                          <label className="text-[8px] font-black uppercase tracking-widest text-stone/20 px-1">TECHNICAL LEVEL</label>
-                          <input 
-                            value={exp.technicalLevel} 
-                            onChange={e => {
-                              const n = [...portalConfig.estateExperiences];
-                              n[idx] = { ...n[idx], technicalLevel: e.target.value };
-                              setPortalConfig({ ...portalConfig, estateExperiences: n });
-                            }}
-                            className="w-full bg-white px-6 py-4 rounded-xl border border-stone/5 text-xs outline-none focus:border-aqua-primary/30 transition-all shadow-sm"
-                            placeholder="e.g. Beginner, Technical, Restorative"
-                          />
-                        </div>
-                        <div className="space-y-2">
-                          <label className="text-[8px] font-black uppercase tracking-widest text-stone/20 px-1">FREQUENCY</label>
-                          <input 
-                            value={exp.frequency} 
-                            onChange={e => {
-                              const n = [...portalConfig.estateExperiences];
-                              n[idx] = { ...n[idx], frequency: e.target.value };
-                              setPortalConfig({ ...portalConfig, estateExperiences: n });
-                            }}
-                            className="w-full bg-white px-6 py-4 rounded-xl border border-stone/5 text-xs outline-none focus:border-aqua-primary/30 transition-all shadow-sm"
-                            placeholder="e.g. Daily, Once, Weekly"
-                          />
-                        </div>
-                      </div>
-                      
-                      <div className="space-y-2">
-                        <label className="text-[8px] font-black uppercase tracking-widest text-stone/20 px-1">DESCRIPTION</label>
-                        <textarea 
-                          value={exp.description} 
-                          onChange={e => {
-                            const n = [...portalConfig.estateExperiences];
-                            n[idx] = { ...n[idx], description: e.target.value };
-                            setPortalConfig({ ...portalConfig, estateExperiences: n });
-                          }}
-                          className="w-full bg-white p-6 rounded-2xl border border-stone/5 text-[13px] font-serif italic text-stone/60 outline-none min-h-[100px] leading-relaxed resize-none focus:border-aqua-primary/30 transition-all shadow-sm"
-                          placeholder="Describe the experience..."
-                        />
-                      </div>
-                    </div>
-                  ))}
-                  {(portalConfig.estateExperiences || []).length === 0 && (
-                    <div className="py-12 text-center border border-dashed border-stone/5 rounded-[2rem] bg-[#faf9f6]/30">
-                      <p className="text-stone/20 font-black uppercase tracking-widest text-[10px]">No estate experiences defined</p>
-                    </div>
-                  )}
-                </div>
-              </div>
-
               <div className="pt-10 flex flex-col items-center gap-6">
                 <button onClick={handleSavePortalConfig} disabled={isSaving.portal} className="w-full max-w-md py-6 bg-aqua-primary text-stone rounded-full font-black uppercase tracking-[0.3em] shadow-2xl hover:bg-aqua-deep hover:text-white transition-all active:scale-[0.98] flex items-center justify-center gap-3">
                   {isSaving.portal ? <Loader2 className="animate-spin" size={20} /> : 'SYNCHRONIZE PORTAL SETTINGS'}
