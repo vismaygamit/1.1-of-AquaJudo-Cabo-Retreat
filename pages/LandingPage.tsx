@@ -140,7 +140,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ sessions, rooms, itine
             >
               <img src={room.image} alt={room.name} className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000" />
               <div className="absolute inset-0 bg-gradient-to-t from-stone/90 via-stone/20 to-transparent opacity-80 group-hover:opacity-100 transition-opacity"></div>
-              <div className="absolute bottom-8 left-8 z-10">
+              <div className="absolute top-8 left-8 z-10">
                 <h4 className="text-2xl font-black uppercase leading-tight text-white tracking-tighter">{room.name}</h4>
               </div>
             </button>
