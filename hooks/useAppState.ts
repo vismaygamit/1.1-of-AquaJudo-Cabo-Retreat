@@ -41,8 +41,13 @@ const DEFAULT_PORTAL_CONFIG = {
   ],
   logistics: {
     address: 'Calle Vista al Mar 104, Pedregal, Cabo San Lucas',
+    googleMapsLink: 'https://maps.google.com/?q=Calle+Vista+al+Mar+104,+Pedregal',
     gateInstructions: 'Present your registry ID to the Pedregal security gate. Mention "Estate Judo 104".',
-    checkInWindow: 'Access begins at 3:00 PM on your arrival date. Private SJD transfer included.'
+    checkInWindow: '3:00 PM',
+    checkOutTime: '11:00 AM',
+    whatsappContact: '+52 624 555 0192',
+    emailContact: 'concierge@aquajudo-cabo.com',
+    emergencyPhone: '+52 624 555 9999'
   },
   estateExperiences: [
     {
@@ -319,8 +324,13 @@ export const useAppState = () => {
             : DEFAULT_PORTAL_CONFIG.houseGuidelines,
           logistics: {
             address: api.arrivalLogistics?.estateAddress || DEFAULT_PORTAL_CONFIG.logistics.address,
+            googleMapsLink: api.arrivalLogistics?.googleMapsLink || DEFAULT_PORTAL_CONFIG.logistics.googleMapsLink,
             gateInstructions: api.arrivalLogistics?.gatedAccessInstructions || DEFAULT_PORTAL_CONFIG.logistics.gateInstructions,
-            checkInWindow: api.arrivalLogistics?.checkInWindow || DEFAULT_PORTAL_CONFIG.logistics.checkInWindow
+            checkInWindow: api.arrivalLogistics?.checkInWindow || DEFAULT_PORTAL_CONFIG.logistics.checkInWindow,
+            checkOutTime: api.arrivalLogistics?.checkOutTime || DEFAULT_PORTAL_CONFIG.logistics.checkOutTime,
+            whatsappContact: api.arrivalLogistics?.whatsappContact || DEFAULT_PORTAL_CONFIG.logistics.whatsappContact,
+            emailContact: api.arrivalLogistics?.emailContact || DEFAULT_PORTAL_CONFIG.logistics.emailContact,
+            emergencyPhone: api.arrivalLogistics?.emergencyPhone || DEFAULT_PORTAL_CONFIG.logistics.emergencyPhone
           },
           estateExperiences: (Array.isArray(api.estateExperiences) && api.estateExperiences.length > 0)
             ? api.estateExperiences
@@ -349,7 +359,12 @@ export const useAppState = () => {
     formData.append('portalNote', config.portalNote || '');
     formData.append('arrivalLogistics', JSON.stringify({
       estateAddress: config.logistics.address,
+      googleMapsLink: config.logistics.googleMapsLink,
       checkInWindow: config.logistics.checkInWindow,
+      checkOutTime: config.logistics.checkOutTime,
+      whatsappContact: config.logistics.whatsappContact,
+      emailContact: config.logistics.emailContact,
+      emergencyPhone: config.logistics.emergencyPhone,
       gatedAccessInstructions: config.logistics.gateInstructions
     }));
     formData.append('packingInventory', JSON.stringify(config.packingList));

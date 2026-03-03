@@ -13,10 +13,11 @@ interface LandingPageProps {
   faqs: any[];
   promoVideoUrl: string;
   residenceVideoUrl: string;
+  portalConfig: any;
   onApplyClick: (sessionId?: string, roomId?: string) => void;
 }
 
-export const LandingPage: React.FC<LandingPageProps> = ({ sessions, rooms, itinerary, faqs, promoVideoUrl, residenceVideoUrl, onApplyClick }) => {
+export const LandingPage: React.FC<LandingPageProps> = ({ sessions, rooms, itinerary, faqs, promoVideoUrl, residenceVideoUrl, portalConfig, onApplyClick }) => {
   const [openFaqId, setOpenFaqId] = useState<string | null>(null);
   const [selectedRoomDetail, setSelectedRoomDetail] = useState<Room | null>(null);
   const [isPromoPlaying, setIsPromoPlaying] = useState(false);
@@ -311,7 +312,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ sessions, rooms, itine
             <div className="space-y-2">
               <label className="text-[10px] font-black uppercase tracking-widest text-stone/40">ESTATE ADDRESS</label>
               <div className="bg-white p-5 rounded-xl border border-stone/5 text-stone font-medium">
-                Calle Vista al Mar 104, Pedregal, Cabo San Lucas
+                {portalConfig.logistics.address}
               </div>
             </div>
 
@@ -319,12 +320,12 @@ export const LandingPage: React.FC<LandingPageProps> = ({ sessions, rooms, itine
             <div className="space-y-2">
               <label className="text-[10px] font-black uppercase tracking-widest text-stone/40">GOOGLE MAPS LINK</label>
               <a 
-                href="https://maps.google.com/?q=Calle+Vista+al+Mar+104,+Pedregal" 
+                href={portalConfig.logistics.googleMapsLink} 
                 target="_blank" 
                 rel="noopener noreferrer"
                 className="block bg-white p-5 rounded-xl border border-aqua-primary/50 text-aqua-deep font-medium hover:bg-aqua-primary/5 transition-colors truncate"
               >
-                https://maps.google.com/?q=Calle+Vista+al+Mar+104,+Pedregal
+                {portalConfig.logistics.googleMapsLink}
               </a>
             </div>
 
@@ -332,7 +333,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ sessions, rooms, itine
             <div className="space-y-2">
               <label className="text-[10px] font-black uppercase tracking-widest text-stone/40">CHECK-IN WINDOW</label>
               <div className="bg-white p-5 rounded-xl border border-stone/5 text-stone font-medium">
-                3:00 PM
+                {portalConfig.logistics.checkInWindow}
               </div>
             </div>
 
@@ -340,7 +341,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ sessions, rooms, itine
             <div className="space-y-2">
               <label className="text-[10px] font-black uppercase tracking-widest text-stone/40">CHECK-OUT TIME</label>
               <div className="bg-white p-5 rounded-xl border border-stone/5 text-stone font-medium">
-                11:00 AM
+                {portalConfig.logistics.checkOutTime}
               </div>
             </div>
 
@@ -348,7 +349,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ sessions, rooms, itine
             <div className="space-y-2">
               <label className="text-[10px] font-black uppercase tracking-widest text-stone/40">WHATSAPP CONTACT</label>
               <div className="bg-white p-5 rounded-xl border border-stone/5 text-stone font-medium">
-                +52 624 555 0192
+                {portalConfig.logistics.whatsappContact}
               </div>
             </div>
 
@@ -356,7 +357,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ sessions, rooms, itine
             <div className="space-y-2">
               <label className="text-[10px] font-black uppercase tracking-widest text-stone/40">EMAIL CONTACT</label>
               <div className="bg-white p-5 rounded-xl border border-stone/5 text-stone font-medium">
-                concierge@aquajudo-cabo.com
+                {portalConfig.logistics.emailContact}
               </div>
             </div>
 
@@ -364,7 +365,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ sessions, rooms, itine
             <div className="space-y-2">
               <label className="text-[10px] font-black uppercase tracking-widest text-stone/40">EMERGENCY PHONE</label>
               <div className="bg-white p-5 rounded-xl border border-stone/5 text-stone font-medium">
-                +52 624 555 9999
+                {portalConfig.logistics.emergencyPhone}
               </div>
             </div>
 
@@ -372,7 +373,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ sessions, rooms, itine
             <div className="col-span-full space-y-2">
               <label className="text-[10px] font-black uppercase tracking-widest text-stone/40">GATED ACCESS INSTRUCTIONS</label>
               <div className="bg-white p-5 rounded-xl border border-stone/5 text-stone font-medium leading-relaxed">
-                Present your registry ID to the Pedregal security gate. Mention "Estate Judo 104".
+                {portalConfig.logistics.gateInstructions}
               </div>
             </div>
           </div>
