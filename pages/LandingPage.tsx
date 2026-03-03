@@ -73,7 +73,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ sessions, rooms, itine
                 AQUA JUDO CABO
               </h1>
               <p className="text-aqua-primary italic font-serif lowercase text-xl sm:text-3xl md:text-4xl tracking-normal">
-                a 7-day private coastal residency
+                A 7-day private coastal residency for men who want a reset
               </p>
             </div>
           </div>
@@ -94,7 +94,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ sessions, rooms, itine
       <section className="py-12 px-6 bg-white border-t border-stone/5">
         <div className="max-w-6xl mx-auto space-y-8">
           <div className="text-center space-y-4">
-            <p className="text-[11px] tracking-[0.5em] text-aqua-deep font-black uppercase opacity-40">ESTATE NARRATIVE</p>
+            <p className="text-[11px] tracking-[0.5em] text-aqua-deep font-black uppercase opacity-40">Ocean-based training and judo fundamentals for structural recalibration.</p>
             <h2 className="text-3xl md:text-5xl font-display font-light uppercase tracking-tighter">The Experience</h2>
           </div>
           <div
@@ -129,7 +129,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ sessions, rooms, itine
       <section className="py-24 px-6 max-w-6xl mx-auto">
         <div className="text-center space-y-6 mb-20 animate-fade-in">
           <h2 className="text-3xl md:text-5xl font-display font-light uppercase tracking-tighter">THE RESIDENCE</h2>
-          <p className="text-[11px] tracking-[0.5em] text-aqua-deep font-black uppercase opacity-40">Three guest chambers. One private residence.</p>
+          <p className="text-[11px] tracking-[0.5em] text-aqua-deep font-black uppercase opacity-40">A private coastal sanctuary in the gated community of Cabo Bello with semi-private beach access.</p>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {rooms.map((room) => (
