@@ -1,6 +1,6 @@
 
 import React, { useState, useRef, useEffect } from 'react';
-import { LogOut, Plus, Trash2, Copy, Image as ImageIcon, CheckCircle2, XCircle, Clock, Upload, Film, MessageSquare, MapPin, Package, ShieldCheck, RefreshCw, Calendar, Home, Quote, ChevronLeft, ChevronRight, Save, AlertCircle, Loader2, Video, X } from 'lucide-react';
+import { LogOut, Plus, Trash2, Copy, Image as ImageIcon, CheckCircle2, XCircle, Clock, Upload, Film, MessageSquare, MapPin, Package, ShieldCheck, Shield, Zap, RefreshCw, Calendar, Home, Quote, ChevronLeft, ChevronRight, Save, AlertCircle, Loader2, Video, X } from 'lucide-react';
 import { DateTime } from 'luxon';
 import { AdminSectionHeader, Logo } from '../components/Shared';
 import { DeleteConfirmModal } from '../components/Modals';
@@ -1083,7 +1083,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({
               <div className="space-y-8 pt-8 border-t border-stone/5">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <ShieldCheck size={18} className="text-aqua-primary" />
+                    <Zap size={18} className="text-aqua-primary" />
                     <h5 className="text-[10px] font-black uppercase tracking-[0.4em] text-stone/20">ESTATE EXPERIENCES</h5>
                   </div>
                   <button 
@@ -1158,6 +1158,61 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                             placeholder="Provide a technical description of the experience..."
                           />
                         </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* REGISTRY GUIDELINES SECTION */}
+              <div className="space-y-8 pt-8 border-t border-stone/5">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <Shield size={18} className="text-aqua-primary" />
+                    <h5 className="text-[10px] font-black uppercase tracking-[0.4em] text-stone/20">REGISTRY GUIDELINES</h5>
+                  </div>
+                  <button 
+                    onClick={() => setPortalConfig({...portalConfig, houseGuidelines: [...portalConfig.houseGuidelines, { title: '', desc: '' }]})} 
+                    className="px-6 py-2 bg-[#111] text-white rounded-full text-[9px] font-black uppercase tracking-widest flex items-center gap-2 hover:scale-105 transition-all shadow-md"
+                  >
+                    <Plus size={12} /> ADD GUIDELINE
+                  </button>
+                </div>
+                <div className="space-y-6">
+                  {portalConfig.houseGuidelines.map((item: any, idx: number) => (
+                    <div key={idx} className="bg-white p-10 rounded-[1.5rem] border border-stone/5 shadow-md space-y-6 relative group transition-all hover:shadow-xl">
+                      <button 
+                        onClick={() => {
+                          const n = portalConfig.houseGuidelines.filter((_: any, i: number) => i !== idx);
+                          setPortalConfig({...portalConfig, houseGuidelines: n});
+                        }} 
+                        className="absolute top-8 right-8 p-3 text-red-200 hover:text-red-500 hover:bg-red-50 rounded-full transition-all"
+                      >
+                        <Trash2 size={20} />
+                      </button>
+                      <div className="space-y-4">
+                        <div className="border-b border-stone/5 pb-4">
+                          <input 
+                            value={item.title} 
+                            onChange={e => {
+                              const n = [...portalConfig.houseGuidelines];
+                              n[idx].title = e.target.value.toUpperCase();
+                              setPortalConfig({...portalConfig, houseGuidelines: n});
+                            }} 
+                            className="text-xl font-black uppercase tracking-tight text-stone w-full bg-transparent outline-none focus:text-aqua-primary transition-colors" 
+                            placeholder="GUIDELINE TITLE"
+                          />
+                        </div>
+                        <textarea 
+                          value={item.desc} 
+                          onChange={e => {
+                            const n = [...portalConfig.houseGuidelines];
+                            n[idx].desc = e.target.value;
+                            setPortalConfig({...portalConfig, houseGuidelines: n});
+                          }} 
+                          className="w-full bg-[#faf9f6] p-8 rounded-[2rem] border border-stone/5 text-[15px] font-serif italic text-stone/60 outline-none min-h-[100px] resize-none leading-relaxed focus:border-aqua-primary/30 transition-all shadow-inner" 
+                          placeholder="Describe the guideline protocol..."
+                        />
                       </div>
                     </div>
                   ))}
