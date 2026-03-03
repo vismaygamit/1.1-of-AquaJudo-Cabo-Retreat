@@ -653,75 +653,6 @@ export const AdminPage: React.FC<AdminPageProps> = ({
 
         {tab === 'rooms' && (
           <div className="space-y-10 animate-fade-in">
-            {/* PROPERTY OVERVIEW VIDEO SECTION */}
-            <div className="bg-white p-10 md:p-14 rounded-[1rem] border border-stone/5 space-y-8 shadow-xl relative overflow-hidden">
-              <div className="absolute top-0 left-0 w-full h-1 bg-aqua-primary opacity-20"></div>
-              <div className="flex items-center justify-between border-b border-stone/5 pb-6">
-                <div className="flex items-center gap-3">
-                  <Video size={18} className="text-aqua-primary" />
-                  <h3 className="text-xl font-black uppercase tracking-tight text-stone">PROPERTY OVERVIEW VIDEO</h3>
-                </div>
-                <button 
-                  onClick={handleSavePortalConfig} 
-                  disabled={isSaving.portal}
-                  className="px-8 py-3 bg-[#111] text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-aqua-primary hover:text-stone transition-all shadow-md flex items-center gap-2 disabled:opacity-50"
-                >
-                  {isSaving.portal ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />}
-                  SAVE PROPERTY VIDEO
-                </button>
-              </div>
-              
-              <div className="grid md:grid-cols-2 gap-10">
-                <div className="space-y-6">
-                  <div className="space-y-2">
-                    <label className="text-[8px] font-black uppercase tracking-widest text-stone/10 px-1">VIDEO SOURCE URL</label>
-                    <input 
-                      value={portalConfig.residenceVideoUrl || ''} 
-                      onChange={e => setPortalConfig({...portalConfig, residenceVideoUrl: e.target.value})} 
-                      className="w-full bg-[#faf9f6] px-6 py-4 rounded-xl border border-stone/5 text-xs font-sans outline-none focus:border-aqua-primary/30 transition-all" 
-                      placeholder="Enter video URL..."
-                    />
-                  </div>
-                  <div className="space-y-4">
-                    <p className="text-[8px] font-black uppercase tracking-widest text-stone/10 px-1">UPLOAD LOCAL VIDEO</p>
-                    <input 
-                      type="file" 
-                      ref={residenceVideoFileInputRef} 
-                      onChange={handleResidenceVideoFileChange} 
-                      accept=".mp4,.mpeg,.mov,.avi,video/mp4,video/mpeg,video/quicktime,video/x-msvideo" 
-                      className="hidden" 
-                    />
-                    <button 
-                      onClick={() => residenceVideoFileInputRef.current?.click()} 
-                      className="w-full py-4 bg-[#faf9f6] text-stone rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-3 border border-stone/5 hover:bg-stone/5 transition-all"
-                    >
-                      <Upload size={14} /> SELECT VIDEO FILE
-                    </button>
-                    <p className="text-[8px] text-stone/30 font-bold uppercase tracking-widest text-center">MAX 300MB • MP4, MPEG, MOV, AVI</p>
-                  </div>
-                </div>
-                <div className="aspect-video bg-[#faf9f6] rounded-[2rem] border border-stone/5 overflow-hidden flex items-center justify-center relative shadow-inner">
-                  {portalConfig.residenceVideoUrl ? (
-                    <video 
-                      key={portalConfig.residenceVideoUrl} 
-                      className="w-full h-full object-cover opacity-80" 
-                      muted 
-                      playsInline 
-                      loop 
-                      autoPlay
-                    >
-                      <source src={portalConfig.residenceVideoUrl} />
-                    </video>
-                  ) : (
-                    <div className="flex flex-col items-center gap-2 opacity-10">
-                      <Video size={48} />
-                      <span className="text-[10px] font-black uppercase tracking-widest">No Video Staged</span>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
-
             <AdminSectionHeader title="Sanctuaries" onAdd={() => {
               const next = [...rooms, { id: `room-${Date.now()}`, name: "", basePrice: 0, description: "", image: "", maxOccupancy: 2, facilities: [] }];
               setRooms(next);
@@ -1035,6 +966,64 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                   </div>
                 </div>
               </div>
+
+              {/* PROPERTY OVERVIEW VIDEO SECTION */}
+              <div className="space-y-8 pt-8 border-t border-stone/5">
+                <div className="flex items-center gap-3">
+                  <Video size={18} className="text-aqua-primary" />
+                  <h5 className="text-[10px] font-black uppercase tracking-[0.4em] text-stone/20">PROPERTY OVERVIEW VIDEO (LANDING PAGE)</h5>
+                </div>
+                <div className="grid md:grid-cols-2 gap-10">
+                  <div className="space-y-6">
+                    <div className="space-y-2">
+                      <label className="text-[8px] font-black uppercase tracking-widest text-stone/10 px-1">VIDEO SOURCE URL</label>
+                      <input 
+                        value={portalConfig.residenceVideoUrl || ''} 
+                        onChange={e => setPortalConfig({...portalConfig, residenceVideoUrl: e.target.value})} 
+                        className="w-full bg-[#faf9f6] px-6 py-4 rounded-xl border border-stone/5 text-xs font-sans outline-none focus:border-aqua-primary/30 transition-all" 
+                        placeholder="Enter video URL..."
+                      />
+                    </div>
+                    <div className="space-y-4">
+                      <p className="text-[8px] font-black uppercase tracking-widest text-stone/10 px-1">UPLOAD LOCAL VIDEO</p>
+                      <input 
+                        type="file" 
+                        ref={residenceVideoFileInputRef} 
+                        onChange={handleResidenceVideoFileChange} 
+                        accept=".mp4,.mpeg,.mov,.avi,video/mp4,video/mpeg,video/quicktime,video/x-msvideo" 
+                        className="hidden" 
+                      />
+                      <button 
+                        onClick={() => residenceVideoFileInputRef.current?.click()} 
+                        className="w-full py-4 bg-[#111] text-white rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-3 hover:bg-stone-light transition-all"
+                      >
+                        <Upload size={14} /> SELECT VIDEO FILE
+                      </button>
+                      <p className="text-[8px] text-stone/30 font-bold uppercase tracking-widest text-center">MAX 300MB • MP4, MPEG, MOV, AVI</p>
+                    </div>
+                  </div>
+                  <div className="aspect-video bg-[#faf9f6] rounded-[2rem] border border-stone/5 overflow-hidden flex items-center justify-center relative shadow-inner">
+                    {portalConfig.residenceVideoUrl ? (
+                      <video 
+                        key={portalConfig.residenceVideoUrl} 
+                        className="w-full h-full object-cover opacity-80" 
+                        muted 
+                        playsInline 
+                        loop 
+                        autoPlay
+                      >
+                        <source src={portalConfig.residenceVideoUrl} />
+                      </video>
+                    ) : (
+                      <div className="flex flex-col items-center gap-2 opacity-10">
+                        <Video size={48} />
+                        <span className="text-[10px] font-black uppercase tracking-widest">No Video Staged</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+
               <div className="space-y-4">
                 <div className="flex items-center gap-3">
                   <AlertCircle size={16} className="text-aqua-primary" />
