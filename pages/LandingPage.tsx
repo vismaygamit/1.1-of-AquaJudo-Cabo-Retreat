@@ -94,8 +94,11 @@ export const LandingPage: React.FC<LandingPageProps> = ({ sessions, rooms, itine
       <section className="py-12 px-6 bg-white border-t border-stone/5">
         <div className="max-w-6xl mx-auto space-y-8">
           <div className="text-center space-y-4">
-            <p className="text-[11px] tracking-[0.5em] text-aqua-deep font-black uppercase opacity-40">Ocean-based training and judo fundamentals for structural recalibration.</p>
+            <p className="text-[11px] tracking-[0.5em] text-aqua-deep font-black uppercase opacity-40">ESSATE NARRATIVE</p>
             <h2 className="text-3xl md:text-5xl font-display font-light uppercase tracking-tighter">The Experience</h2>
+          </div>
+          <div className="text-center space-y-4">
+            <p className="text-[11px] tracking-[0.5em] text-aqua-deep font-black uppercase opacity-40">Ocean-based training and judo fundamentals for structural recalibration</p>
           </div>
           <div
             className="relative aspect-[13/9] sm:aspect-video rounded-[1rem] overflow-hidden shadow-2xl group cursor-pointer bg-parchment"
