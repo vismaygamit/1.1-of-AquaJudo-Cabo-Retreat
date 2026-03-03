@@ -118,20 +118,21 @@ export const LandingPage: React.FC<LandingPageProps> = ({ sessions, rooms, itine
           </div>
           <div
             className="relative aspect-[13/9] sm:aspect-video rounded-[1rem] overflow-hidden shadow-2xl group cursor-pointer bg-parchment"
-            onClick={togglePromoPlay}
+            onClick={() => {
+              if (!isPromoPlaying) togglePromoPlay();
+            }}
           >
             <video
               ref={videoRef}
               key={promoVideoUrl}
               src={promoVideoUrl}
-              autoPlay
               loop
               muted
               playsInline
               controls={isPromoPlaying}
               onPlay={() => setIsPromoPlaying(true)}
               onPause={() => setIsPromoPlaying(false)}
-              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000 opacity-90"
+              className={`w-full h-full object-cover transition-transform duration-1000 opacity-90 ${!isPromoPlaying ? 'group-hover:scale-105' : ''}`}
             />
             {!isPromoPlaying && (
               <div className="absolute inset-0 flex items-center justify-center bg-black/10 transition-colors">
@@ -156,8 +157,10 @@ export const LandingPage: React.FC<LandingPageProps> = ({ sessions, rooms, itine
 
         {/* RESIDENCE OVERVIEW VIDEO */}
         <div 
-          className="relative aspect-[16/9] md:aspect-[21/9] rounded-[2rem] overflow-hidden shadow-2xl group cursor-pointer mb-16 bg-stone/5"
-          onClick={toggleResidenceVideoPlay}
+          className="relative aspect-[16/9] md:aspect-[21/9] rounded-[1rem] overflow-hidden shadow-2xl group mb-16 bg-stone/5"
+          onClick={() => {
+            if (!isResidenceVideoPlaying) toggleResidenceVideoPlay();
+          }}
         >
           <video
             ref={residenceVideoRef}
@@ -166,17 +169,21 @@ export const LandingPage: React.FC<LandingPageProps> = ({ sessions, rooms, itine
             loop
             muted
             playsInline
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000"
+            controls={isResidenceVideoPlaying}
+            onEnded={() => setIsResidenceVideoPlaying(false)}
+            onPlay={() => setIsResidenceVideoPlaying(true)}
+            onPause={() => setIsResidenceVideoPlaying(false)}
+            className={`w-full h-full object-cover transition-transform duration-1000 ${!isResidenceVideoPlaying ? 'group-hover:scale-105' : ''}`}
           />
-          <div className="absolute inset-0 bg-black/20 flex flex-col items-center justify-between py-6 md:py-10">
-            {!isResidenceVideoPlaying && (
-              <div className="w-20 h-20 md:w-28 md:h-28 bg-white/20 backdrop-blur-xl rounded-full flex items-center justify-center border border-white/30 shadow-2xl transform group-hover:scale-110 transition-transform">
+          {!isResidenceVideoPlaying && (
+            <div className="absolute inset-0 bg-black/20 flex items-center justify-center group/overlay">
+              <div className="w-20 h-20 md:w-28 md:h-28 bg-white/20 backdrop-blur-xl rounded-full flex items-center justify-center border border-white/30 shadow-2xl transform group-hover:scale-110 transition-all duration-300">
                 <Play size={40} className="text-white fill-white ml-1" />
               </div>
-            )}
 
-            <h3 className="text-xl md:text-4xl font-display font-light text-white uppercase tracking-[0.3em] opacity-90">PROPERTY OVERVIEW</h3>
-          </div>
+              <h3 className="absolute bottom-6 md:bottom-10 left-0 right-0 text-center text-xl md:text-4xl font-display font-light text-white uppercase tracking-[0.3em] opacity-90">PROPERTY OVERVIEW</h3>
+            </div>
+          )}
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
