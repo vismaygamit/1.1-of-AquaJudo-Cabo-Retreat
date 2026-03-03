@@ -1,6 +1,6 @@
 
 import React, { useState, useRef } from 'react';
-import { Zap, Play, ChevronDown, Pause, MapPin } from 'lucide-react';
+import { Zap, Play, ChevronDown, Pause } from 'lucide-react';
 import { RoomDetailModal } from '../components/Modals';
 import { Room } from '../types';
 
@@ -78,7 +78,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ sessions, rooms, itine
           <source src={HERO_VIDEO_URL} type="video/mp4" />
         </video>
 
-        <div className="relative z-10 space-y-6 sm:space-y-8 max-w-5xl animate-fade-in flex flex-col items-center pt-10 sm:pt-4 pb-6">
+        <div className="relative z-10 space-y-6 sm:space-y-8 max-w-5xl animate-fade-in flex flex-col items-center pt-10 sm:pt-4">
           <div className="space-y-4 sm:space-y-6">
             <p className="text-[10px] sm:text-[12px] md:text-[14px] tracking-[0.3em] sm:tracking-[0.6em] text-stone font-black uppercase opacity-90">
               CABO SAN LUCAS • MEXICO
@@ -294,87 +294,6 @@ export const LandingPage: React.FC<LandingPageProps> = ({ sessions, rooms, itine
           </div>
           <div className="pt-8 text-center">
             <p className="text-[10px] font-black uppercase tracking-widest text-aqua-primary/60">Registry inclusions: Private SJD Transfer • All-Inclusive Estate Dining • Technical Guidance</p>
-          </div>
-        </div>
-      </section>
-
-      {/* ARRIVAL LOGISTICS */}
-      <section className="py-24 px-6 border-t border-stone/5 bg-[#faf9f6]">
-        <div className="max-w-4xl mx-auto space-y-12">
-          <div className="flex items-center gap-3">
-            <MapPin size={20} className="text-aqua-primary" />
-            <h2 className="text-[11px] tracking-[0.5em] text-aqua-deep font-black uppercase opacity-40">ARRIVAL LOGISTICS</h2>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-8">
-            {/* Estate Address */}
-            <div className="space-y-2">
-              <label className="text-[10px] font-black uppercase tracking-widest text-stone/40">ESTATE ADDRESS</label>
-              <div className="bg-white p-5 rounded-xl border border-stone/5 text-stone font-medium">
-                Calle Vista al Mar 104, Pedregal, Cabo San Lucas
-              </div>
-            </div>
-
-            {/* Google Maps Link */}
-            <div className="space-y-2">
-              <label className="text-[10px] font-black uppercase tracking-widest text-stone/40">GOOGLE MAPS LINK</label>
-              <a 
-                href="https://maps.google.com/?q=Calle+Vista+al+Mar+104,+Pedregal" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="block bg-white p-5 rounded-xl border border-aqua-primary/50 text-aqua-deep font-medium hover:bg-aqua-primary/5 transition-colors truncate"
-              >
-                https://maps.google.com/?q=Calle+Vista+al+Mar+104,+Pedregal
-              </a>
-            </div>
-
-            {/* Check-in Window */}
-            <div className="space-y-2">
-              <label className="text-[10px] font-black uppercase tracking-widest text-stone/40">CHECK-IN WINDOW</label>
-              <div className="bg-white p-5 rounded-xl border border-stone/5 text-stone font-medium">
-                3:00 PM
-              </div>
-            </div>
-
-            {/* Check-out Time */}
-            <div className="space-y-2">
-              <label className="text-[10px] font-black uppercase tracking-widest text-stone/40">CHECK-OUT TIME</label>
-              <div className="bg-white p-5 rounded-xl border border-stone/5 text-stone font-medium">
-                11:00 AM
-              </div>
-            </div>
-
-            {/* WhatsApp Contact */}
-            <div className="space-y-2">
-              <label className="text-[10px] font-black uppercase tracking-widest text-stone/40">WHATSAPP CONTACT</label>
-              <div className="bg-white p-5 rounded-xl border border-stone/5 text-stone font-medium">
-                +52 624 555 0192
-              </div>
-            </div>
-
-            {/* Email Contact */}
-            <div className="space-y-2">
-              <label className="text-[10px] font-black uppercase tracking-widest text-stone/40">EMAIL CONTACT</label>
-              <div className="bg-white p-5 rounded-xl border border-stone/5 text-stone font-medium">
-                concierge@aquajudo-cabo.com
-              </div>
-            </div>
-
-            {/* Emergency Phone */}
-            <div className="space-y-2">
-              <label className="text-[10px] font-black uppercase tracking-widest text-stone/40">EMERGENCY PHONE</label>
-              <div className="bg-white p-5 rounded-xl border border-stone/5 text-stone font-medium">
-                +52 624 555 9999
-              </div>
-            </div>
-
-            {/* Gated Access Instructions */}
-            <div className="col-span-full space-y-2">
-              <label className="text-[10px] font-black uppercase tracking-widest text-stone/40">GATED ACCESS INSTRUCTIONS</label>
-              <div className="bg-white p-5 rounded-xl border border-stone/5 text-stone font-medium leading-relaxed">
-                Present your registry ID to the Pedregal security gate. Mention "Estate Judo 104".
-              </div>
-            </div>
           </div>
         </div>
       </section>
