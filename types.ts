@@ -82,6 +82,14 @@ export interface AddOn {
   capacity?: number;
 }
 
+export interface EstateExperience {
+  id: string;
+  title: string;
+  technicalLevel: string;
+  frequency: string;
+  description: string;
+}
+
 export interface BookingState {
   sessionId: string;
   guestName: string;

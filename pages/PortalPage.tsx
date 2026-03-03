@@ -184,18 +184,14 @@ export const PortalPage: React.FC<PortalPageProps> = ({ guest, session, room, po
         <section className="space-y-8">
           <SectionHeader icon={Zap} title="Estate Experiences" subtitle="CURATED ACTIVITIES" />
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {[
-              { title: 'UKEMI ON THE SHORE', type: 'BEGINNER', desc: 'Mastering the art of safe falling on soft coastal sands, aligning breath with movement.', freq: 'DAILY' },
-              { title: 'BALANDRA INTEGRATION', type: 'RESTORATIVE', desc: 'A full-day expedition to the shallow lagoons for floating technical drills.', freq: 'ONCE' },
-              { title: 'COASTAL BOULDERING', type: 'TECHNICAL', desc: 'Natural terrain integration focusing on balance and weight distribution.', freq: 'ONCE' }
-            ].map((exp, i) => (
+            {(portalConfig.experiences || []).map((exp: any, i: number) => (
               <div key={i} className="bg-white p-10 rounded-[1rem] border border-stone/5 shadow-sm space-y-6">
                 <div className="flex justify-between items-start">
                   <h4 className="text-[14px] font-black uppercase tracking-tight text-stone">{exp.title}</h4>
-                  <span className="text-[8px] font-black px-2 py-1 bg-aqua-primary/10 text-aqua-primary rounded-full tracking-widest">{exp.type}</span>
+                  <span className="text-[8px] font-black px-2 py-1 bg-aqua-primary/10 text-aqua-primary rounded-full tracking-widest">{exp.technicalLevel?.toUpperCase()}</span>
                 </div>
-                <p className="text-[13px] font-serif italic text-stone/40 leading-relaxed">{exp.desc}</p>
-                <p className="text-[9px] font-black uppercase tracking-widest text-stone/20">FREQUENCY: {exp.freq}</p>
+                <p className="text-[13px] font-serif italic text-stone/40 leading-relaxed">{exp.description}</p>
+                <p className="text-[9px] font-black uppercase tracking-widest text-stone/20">FREQUENCY: {exp.frequency?.toUpperCase()}</p>
               </div>
             ))}
           </div>

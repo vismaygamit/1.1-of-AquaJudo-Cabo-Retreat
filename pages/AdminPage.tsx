@@ -1054,6 +1054,92 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                   </div>
                 </div>
               </div>
+
+              {/* ESTATE EXPERIENCES SECTION */}
+              <div className="space-y-8 pt-8 border-t border-stone/5">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <ShieldCheck size={18} className="text-aqua-primary" />
+                    <h5 className="text-[10px] font-black uppercase tracking-[0.4em] text-stone/20">ESTATE EXPERIENCES</h5>
+                  </div>
+                  <button 
+                    onClick={() => setPortalConfig({...portalConfig, experiences: [...(portalConfig.experiences || []), { id: Date.now().toString(), title: '', technicalLevel: '', frequency: '', description: '' }]})} 
+                    className="px-6 py-2 bg-[#111] text-white rounded-full text-[9px] font-black uppercase tracking-widest flex items-center gap-2 hover:scale-105 transition-all shadow-md"
+                  >
+                    <Plus size={12} /> ADD EXPERIENCE
+                  </button>
+                </div>
+                <div className="space-y-6">
+                  {(portalConfig.experiences || []).map((exp: any, idx: number) => (
+                    <div key={exp.id} className="bg-white p-10 rounded-[1.5rem] border border-stone/5 shadow-md space-y-8 relative group transition-all hover:shadow-xl">
+                      <button 
+                        onClick={() => {
+                          const n = portalConfig.experiences.filter((_: any, i: number) => i !== idx);
+                          setPortalConfig({...portalConfig, experiences: n});
+                        }} 
+                        className="absolute top-8 right-8 p-3 text-red-200 hover:text-red-500 hover:bg-red-50 rounded-full transition-all"
+                      >
+                        <Trash2 size={20} />
+                      </button>
+                      <div className="space-y-6">
+                        <div className="border-b border-stone/5 pb-4">
+                          <input 
+                            value={exp.title} 
+                            onChange={e => {
+                              const n = [...portalConfig.experiences];
+                              n[idx].title = e.target.value.toUpperCase();
+                              setPortalConfig({...portalConfig, experiences: n});
+                            }} 
+                            className="text-2xl font-black uppercase tracking-tight text-stone w-full bg-transparent outline-none focus:text-aqua-primary transition-colors" 
+                            placeholder="EXPERIENCE TITLE"
+                          />
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                          <div className="space-y-2">
+                            <label className="text-[9px] font-black uppercase tracking-[0.2em] text-stone/20 px-1">TECHNICAL LEVEL</label>
+                            <input 
+                              value={exp.technicalLevel} 
+                              onChange={e => {
+                                const n = [...portalConfig.experiences];
+                                n[idx].technicalLevel = e.target.value;
+                                setPortalConfig({...portalConfig, experiences: n});
+                              }} 
+                              className="w-full bg-[#faf9f6] px-8 py-4 rounded-2xl border border-stone/5 text-[13px] font-black text-stone outline-none focus:border-aqua-primary/30 transition-all shadow-sm" 
+                              placeholder="e.g. Beginner"
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <label className="text-[9px] font-black uppercase tracking-[0.2em] text-stone/20 px-1">FREQUENCY</label>
+                            <input 
+                              value={exp.frequency} 
+                              onChange={e => {
+                                const n = [...portalConfig.experiences];
+                                n[idx].frequency = e.target.value;
+                                setPortalConfig({...portalConfig, experiences: n});
+                              }} 
+                              className="w-full bg-[#faf9f6] px-8 py-4 rounded-2xl border border-stone/5 text-[13px] font-black text-stone outline-none focus:border-aqua-primary/30 transition-all shadow-sm" 
+                              placeholder="e.g. Daily"
+                            />
+                          </div>
+                        </div>
+                        <div className="space-y-2">
+                          <textarea 
+                            value={exp.description} 
+                            onChange={e => {
+                              const n = [...portalConfig.experiences];
+                              n[idx].description = e.target.value;
+                              setPortalConfig({...portalConfig, experiences: n});
+                            }} 
+                            className="w-full bg-[#faf9f6] p-8 rounded-[2rem] border border-stone/5 text-[15px] font-serif italic text-stone/60 outline-none min-h-[120px] resize-none leading-relaxed focus:border-aqua-primary/30 transition-all shadow-inner" 
+                            placeholder="Provide a technical description of the experience..."
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
               <div className="space-y-8">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
