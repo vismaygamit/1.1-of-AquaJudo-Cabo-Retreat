@@ -157,7 +157,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ sessions, rooms, itine
         </div>
 
         {/* RESIDENCE OVERVIEW VIDEO */}
-        <div 
+        <div
           className="relative aspect-[16/9] md:aspect-[21/9] rounded-[1rem] overflow-hidden shadow-2xl group mb-16 bg-stone/5"
           onClick={() => {
             if (!isResidenceVideoPlaying) toggleResidenceVideoPlay();
@@ -295,87 +295,6 @@ export const LandingPage: React.FC<LandingPageProps> = ({ sessions, rooms, itine
           </div>
           <div className="pt-8 text-center">
             <p className="text-[10px] font-black uppercase tracking-widest text-aqua-primary/60">Registry inclusions: Private SJD Transfer • All-Inclusive Estate Dining • Technical Guidance</p>
-          </div>
-        </div>
-      </section>
-
-      {/* ARRIVAL LOGISTICS */}
-      <section className="py-24 px-6 border-t border-stone/5 bg-[#faf9f6]">
-        <div className="max-w-4xl mx-auto space-y-12">
-          <div className="flex items-center gap-3">
-            <MapPin size={20} className="text-aqua-primary" />
-            <h2 className="text-[11px] tracking-[0.5em] text-aqua-deep font-black uppercase opacity-40">ARRIVAL LOGISTICS</h2>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-8">
-            {/* Estate Address */}
-            <div className="space-y-2">
-              <label className="text-[10px] font-black uppercase tracking-widest text-stone/40">ESTATE ADDRESS</label>
-              <div className="bg-white p-5 rounded-xl border border-stone/5 text-stone font-medium">
-                {portalConfig.logistics.address}
-              </div>
-            </div>
-
-            {/* Google Maps Link */}
-            <div className="space-y-2">
-              <label className="text-[10px] font-black uppercase tracking-widest text-stone/40">GOOGLE MAPS LINK</label>
-              <a 
-                href={portalConfig.logistics.googleMapsLink} 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="block bg-white p-5 rounded-xl border border-aqua-primary/50 text-aqua-deep font-medium hover:bg-aqua-primary/5 transition-colors truncate"
-              >
-                {portalConfig.logistics.googleMapsLink}
-              </a>
-            </div>
-
-            {/* Check-in Window */}
-            <div className="space-y-2">
-              <label className="text-[10px] font-black uppercase tracking-widest text-stone/40">CHECK-IN WINDOW</label>
-              <div className="bg-white p-5 rounded-xl border border-stone/5 text-stone font-medium">
-                {portalConfig.logistics.checkInWindow}
-              </div>
-            </div>
-
-            {/* Check-out Time */}
-            <div className="space-y-2">
-              <label className="text-[10px] font-black uppercase tracking-widest text-stone/40">CHECK-OUT TIME</label>
-              <div className="bg-white p-5 rounded-xl border border-stone/5 text-stone font-medium">
-                {portalConfig.logistics.checkOutTime}
-              </div>
-            </div>
-
-            {/* WhatsApp Contact */}
-            <div className="space-y-2">
-              <label className="text-[10px] font-black uppercase tracking-widest text-stone/40">WHATSAPP CONTACT</label>
-              <div className="bg-white p-5 rounded-xl border border-stone/5 text-stone font-medium">
-                {portalConfig.logistics.whatsappContact}
-              </div>
-            </div>
-
-            {/* Email Contact */}
-            <div className="space-y-2">
-              <label className="text-[10px] font-black uppercase tracking-widest text-stone/40">EMAIL CONTACT</label>
-              <div className="bg-white p-5 rounded-xl border border-stone/5 text-stone font-medium">
-                {portalConfig.logistics.emailContact}
-              </div>
-            </div>
-
-            {/* Emergency Phone */}
-            <div className="space-y-2">
-              <label className="text-[10px] font-black uppercase tracking-widest text-stone/40">EMERGENCY PHONE</label>
-              <div className="bg-white p-5 rounded-xl border border-stone/5 text-stone font-medium">
-                {portalConfig.logistics.emergencyPhone}
-              </div>
-            </div>
-
-            {/* Gated Access Instructions */}
-            <div className="col-span-full space-y-2">
-              <label className="text-[10px] font-black uppercase tracking-widest text-stone/40">GATED ACCESS INSTRUCTIONS</label>
-              <div className="bg-white p-5 rounded-xl border border-stone/5 text-stone font-medium leading-relaxed">
-                {portalConfig.logistics.gateInstructions}
-              </div>
-            </div>
           </div>
         </div>
       </section>
