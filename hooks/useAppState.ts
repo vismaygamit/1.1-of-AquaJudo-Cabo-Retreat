@@ -44,7 +44,8 @@ const DEFAULT_PORTAL_CONFIG = {
     gateInstructions: 'Present your registry ID to the Pedregal security gate. Mention "Estate Judo 104".',
     checkInWindow: 'Access begins at 3:00 PM on your arrival date. Private SJD transfer included.'
   },
-  promoVideoUrl: INITIAL_PROMO_VIDEO_URL
+  promoVideoUrl: INITIAL_PROMO_VIDEO_URL,
+  residenceVideoUrl: "https://player.vimeo.com/external/517089432.hd.mp4?s=1af73913914e6e665d956965413147e8003668f4&profile_id=174"
 };
 
 const FETCH_THROTTLE_MS = 2000;
@@ -300,7 +301,10 @@ export const useAppState = () => {
           },
           promoVideoUrl: api.estateNarrativeVideoPath 
             ? (api.estateNarrativeVideoPath.startsWith('http') ? api.estateNarrativeVideoPath : `${API_ROOT}${api.estateNarrativeVideoPath}`) 
-            : DEFAULT_PORTAL_CONFIG.promoVideoUrl
+            : DEFAULT_PORTAL_CONFIG.promoVideoUrl,
+          residenceVideoUrl: api.residenceVideoPath
+            ? (api.residenceVideoPath.startsWith('http') ? api.residenceVideoPath : `${API_ROOT}${api.residenceVideoPath}`)
+            : DEFAULT_PORTAL_CONFIG.residenceVideoUrl
         };
         setPortalConfig(mappedPortal);
       }
@@ -311,9 +315,10 @@ export const useAppState = () => {
     }
   }, []);
 
-  const savePortalConfigToApi = async (config: typeof DEFAULT_PORTAL_CONFIG, videoFile?: File) => {
+  const savePortalConfigToApi = async (config: typeof DEFAULT_PORTAL_CONFIG, videoFile?: File, residenceVideoFile?: File) => {
     const formData = new FormData();
     if (videoFile) formData.append('estateNarrativeVideo', videoFile);
+    if (residenceVideoFile) formData.append('residenceVideo', residenceVideoFile);
     formData.append('welcomeMessage', config.welcomeParagraph);
     formData.append('portalNote', config.portalNote || '');
     formData.append('arrivalLogistics', JSON.stringify({

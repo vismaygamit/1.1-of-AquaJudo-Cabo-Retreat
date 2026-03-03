@@ -12,14 +12,17 @@ interface LandingPageProps {
   itinerary: any[];
   faqs: any[];
   promoVideoUrl: string;
+  residenceVideoUrl: string;
   onApplyClick: (sessionId?: string, roomId?: string) => void;
 }
 
-export const LandingPage: React.FC<LandingPageProps> = ({ sessions, rooms, itinerary, faqs, promoVideoUrl, onApplyClick }) => {
+export const LandingPage: React.FC<LandingPageProps> = ({ sessions, rooms, itinerary, faqs, promoVideoUrl, residenceVideoUrl, onApplyClick }) => {
   const [openFaqId, setOpenFaqId] = useState<string | null>(null);
   const [selectedRoomDetail, setSelectedRoomDetail] = useState<Room | null>(null);
   const [isPromoPlaying, setIsPromoPlaying] = useState(false);
+  const [isResidenceVideoPlaying, setIsResidenceVideoPlaying] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
+  const residenceVideoRef = useRef<HTMLVideoElement>(null);
   const availabilityRef = useRef<HTMLElement>(null);
 
   const scrollToAvailability = () => {
@@ -35,6 +38,19 @@ export const LandingPage: React.FC<LandingPageProps> = ({ sessions, rooms, itine
       } else {
         videoRef.current.pause();
         setIsPromoPlaying(false);
+      }
+    }
+  };
+
+  const toggleResidenceVideoPlay = () => {
+    if (residenceVideoRef.current) {
+      if (residenceVideoRef.current.paused) {
+        residenceVideoRef.current.play();
+        residenceVideoRef.current.muted = false;
+        setIsResidenceVideoPlaying(true);
+      } else {
+        residenceVideoRef.current.pause();
+        setIsResidenceVideoPlaying(false);
       }
     }
   };
@@ -94,11 +110,11 @@ export const LandingPage: React.FC<LandingPageProps> = ({ sessions, rooms, itine
       <section className="py-12 px-6 bg-white border-t border-stone/5">
         <div className="max-w-6xl mx-auto space-y-8">
           <div className="text-center space-y-4">
-            <p className="text-[11px] tracking-[0.5em] text-aqua-deep font-black uppercase opacity-40">ESSATE NARRATIVE</p>
+            <p className="text-[11px] tracking-[0.5em] text-aqua-deep font-black uppercase">ESSATE NARRATIVE</p>
             <h2 className="text-3xl md:text-5xl font-display font-light uppercase tracking-tighter">The Experience</h2>
           </div>
           <div className="text-center space-y-4">
-            <p className="text-[11px] tracking-[0.5em] text-aqua-deep font-black uppercase opacity-40">Ocean-based training and judo fundamentals for structural recalibration</p>
+            <p className="text-[15px] font-medium tracking-tight text-stone leading-[0.95] sm:leading-[0.9] font-black">Ocean-based training and judo fundamentals for structural recalibration</p>
           </div>
           <div
             className="relative aspect-[13/9] sm:aspect-video rounded-[1rem] overflow-hidden shadow-2xl group cursor-pointer bg-parchment"
@@ -131,9 +147,38 @@ export const LandingPage: React.FC<LandingPageProps> = ({ sessions, rooms, itine
       {/* ROOMS GRID */}
       <section className="py-24 px-6 max-w-6xl mx-auto">
         <div className="text-center space-y-6 mb-20 animate-fade-in">
+          <p className="text-[11px] tracking-[0.5em] text-aqua-deep font-black uppercase opacity-40">Three guest chambers. One private residence.</p>
           <h2 className="text-3xl md:text-5xl font-display font-light uppercase tracking-tighter">THE RESIDENCE</h2>
-          <p className="text-[11px] tracking-[0.5em] text-aqua-deep font-black uppercase opacity-40">A private coastal sanctuary in the gated community of Cabo Bello with semi-private beach access.</p>
         </div>
+        <div className="text-center space-y-4 mb-12">
+          <p className="text-[15px] font-medium tracking-tight text-stone leading-[0.95] sm:leading-[0.9] font-black">A private coastal sanctuary in the gated community of Cabo Bello with semi-private beach access.</p>
+        </div>
+
+        {/* RESIDENCE OVERVIEW VIDEO */}
+        <div 
+          className="relative aspect-[16/9] md:aspect-[21/9] rounded-[2rem] overflow-hidden shadow-2xl group cursor-pointer mb-16 bg-stone/5"
+          onClick={toggleResidenceVideoPlay}
+        >
+          <video
+            ref={residenceVideoRef}
+            key={residenceVideoUrl}
+            src={residenceVideoUrl}
+            loop
+            muted
+            playsInline
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000"
+          />
+          <div className="absolute inset-0 bg-black/20 flex flex-col items-center justify-between py-6 md:py-10">
+            {!isResidenceVideoPlaying && (
+              <div className="w-20 h-20 md:w-28 md:h-28 bg-white/20 backdrop-blur-xl rounded-full flex items-center justify-center border border-white/30 shadow-2xl transform group-hover:scale-110 transition-transform">
+                <Play size={40} className="text-white fill-white ml-1" />
+              </div>
+            )}
+
+            <h3 className="text-xl md:text-4xl font-display font-light text-white uppercase tracking-[0.3em] opacity-90">PROPERTY OVERVIEW</h3>
+          </div>
+        </div>
+
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {rooms.map((room) => (
             <button

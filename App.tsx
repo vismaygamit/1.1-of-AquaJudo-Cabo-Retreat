@@ -211,6 +211,7 @@ const App: React.FC = () => {
         itinerary={state.itinerary} 
         faqs={state.faqs} 
         promoVideoUrl={state.portalConfig.promoVideoUrl} 
+        residenceVideoUrl={state.portalConfig.residenceVideoUrl}
         onApplyClick={openApply} 
       />
     );
