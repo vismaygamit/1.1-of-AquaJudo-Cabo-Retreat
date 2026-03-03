@@ -4,7 +4,7 @@ import {
   API_BASE_URL,
   API_ROOT
 } from '../constants';
-import { BookingState, Room, ResidencySession, SessionStatus, Application, FAQItem, ApplicationStatus, PaymentDetails } from '../types';
+import { BookingState, Room, ResidencySession, SessionStatus, Application, FAQItem, ApplicationStatus, PaymentDetails, EstateExperience } from '../types';
 
 const INITIAL_PROMO_VIDEO_URL = "https://player.vimeo.com/external/517042307.hd.mp4?s=d946d0a7a4073a9e34c9c7379201509a2503254e&profile_id=174";
 
@@ -44,6 +44,29 @@ const DEFAULT_PORTAL_CONFIG = {
     gateInstructions: 'Present your registry ID to the Pedregal security gate. Mention "Estate Judo 104".',
     checkInWindow: 'Access begins at 3:00 PM on your arrival date. Private SJD transfer included.'
   },
+  estateExperiences: [
+    {
+      id: '1',
+      title: 'UKEMI ON THE SHORE',
+      technicalLevel: 'Beginner',
+      frequency: 'Daily',
+      description: 'Mastering the art of safe falling on soft coastal sands, aligning breath with movement.'
+    },
+    {
+      id: '2',
+      title: 'BALANDRA INTEGRATION',
+      technicalLevel: 'Restorative',
+      frequency: 'Once',
+      description: 'A full-day expedition to the shallow lagoons for floating technical drills.'
+    },
+    {
+      id: '3',
+      title: 'COASTAL BOULDERING',
+      technicalLevel: 'Technical',
+      frequency: 'Once',
+      description: 'Natural terrain integration focusing on balance and weight distribution.'
+    }
+  ] as EstateExperience[],
   promoVideoUrl: INITIAL_PROMO_VIDEO_URL,
   residenceVideoUrl: "https://player.vimeo.com/external/517089432.hd.mp4?s=1af73913914e6e665d956965413147e8003668f4&profile_id=174"
 };
@@ -299,6 +322,9 @@ export const useAppState = () => {
             gateInstructions: api.arrivalLogistics?.gatedAccessInstructions || DEFAULT_PORTAL_CONFIG.logistics.gateInstructions,
             checkInWindow: api.arrivalLogistics?.checkInWindow || DEFAULT_PORTAL_CONFIG.logistics.checkInWindow
           },
+          estateExperiences: (Array.isArray(api.estateExperiences) && api.estateExperiences.length > 0)
+            ? api.estateExperiences
+            : DEFAULT_PORTAL_CONFIG.estateExperiences,
           promoVideoUrl: api.estateNarrativeVideoPath 
             ? (api.estateNarrativeVideoPath.startsWith('http') ? api.estateNarrativeVideoPath : `${API_ROOT}${api.estateNarrativeVideoPath}`) 
             : DEFAULT_PORTAL_CONFIG.promoVideoUrl,
@@ -331,6 +357,7 @@ export const useAppState = () => {
       title: g.title,
       description: g.desc
     }))));
+    formData.append('estateExperiences', JSON.stringify(config.estateExperiences));
 
     const response = await fetch(`${API_BASE_URL}/updatePortalSettings`, {
       method: 'PUT',
