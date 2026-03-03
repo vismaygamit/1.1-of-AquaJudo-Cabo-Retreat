@@ -120,11 +120,11 @@ export const PortalPage: React.FC<PortalPageProps> = ({ guest, session, room, po
             <div className="bg-white p-10 rounded-[1rem] border border-stone/5 shadow-sm grid grid-cols-2 gap-8">
               <div className="space-y-1">
                 <p className="text-[10px] font-black text-stone/20 uppercase tracking-widest">CHECK-IN</p>
-                <p className="text-2xl font-black uppercase tracking-tight text-stone">3:00 PM</p>
+                <p className="text-2xl font-black uppercase tracking-tight text-stone">{portalConfig.logistics.checkInWindow || '3:00 PM'}</p>
               </div>
               <div className="space-y-1">
                 <p className="text-[10px] font-black text-stone/20 uppercase tracking-widest">CHECK-OUT</p>
-                <p className="text-2xl font-black uppercase tracking-tight text-stone">11:00 AM</p>
+                <p className="text-2xl font-black uppercase tracking-tight text-stone">{portalConfig.logistics.checkOutTime || '11:00 AM'}</p>
               </div>
               <div className="col-span-2 pt-4">
                 <p className="text-[11px] font-serif italic text-stone/40 leading-relaxed">
@@ -328,7 +328,7 @@ export const PortalPage: React.FC<PortalPageProps> = ({ guest, session, room, po
               </p>
             </div>
             <a 
-              href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(portalConfig.logistics.address)}`}
+              href={portalConfig.logistics.googleMapsLink || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(portalConfig.logistics.address)}`}
               target="_blank"
               rel="noopener noreferrer"
               className="relative px-8 py-4 bg-white/10 hover:bg-white/20 border border-white/10 rounded-full text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-3 w-fit"
@@ -345,21 +345,15 @@ export const PortalPage: React.FC<PortalPageProps> = ({ guest, session, room, po
           <div className="space-y-8">
             <div className="space-y-2">
               <p className="text-[10px] font-black uppercase tracking-widest text-stone/30">ARRIVAL WINDOW</p>
-              <p className="text-2xl font-black uppercase tracking-tight text-stone">3:00 PM</p>
+              <p className="text-2xl font-black uppercase tracking-tight text-stone">{portalConfig.logistics.checkInWindow}</p>
             </div>
             <div className="space-y-6">
               <p className="text-[13px] font-serif italic text-stone/50">Upon arrival:</p>
-              {[
-                'ENTER THROUGH THE MAIN GATE.',
-                'USE THE PROVIDED ACCESS CODE (SENT 24 HOURS BEFORE ARRIVAL).',
-                'PROCEED TO THE MAIN ENTRANCE.',
-                'YOUR CHAMBER WILL BE PREPARED.'
-              ].map((step, i) => (
-                <div key={i} className="flex items-start gap-6 group">
-                  <span className="text-[11px] font-black text-aqua-primary/40 group-hover:text-aqua-primary transition-colors">{String(i + 1).padStart(2, '0')}</span>
-                  <span className="text-[12px] font-black uppercase tracking-widest text-stone">{step}</span>
-                </div>
-              ))}
+              <div className="bg-white p-8 rounded-2xl border border-stone/5 shadow-sm">
+                <p className="text-[14px] font-black uppercase tracking-widest text-stone leading-relaxed">
+                  {portalConfig.logistics.gateInstructions}
+                </p>
+              </div>
             </div>
             <p className="text-[11px] font-serif italic text-stone/30">If delayed, notify via WhatsApp immediately.</p>
           </div>
@@ -395,16 +389,16 @@ export const PortalPage: React.FC<PortalPageProps> = ({ guest, session, room, po
           <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
             <div className="space-y-2">
               <p className="text-[9px] font-black uppercase tracking-widest text-stone/30">PRIMARY WHATSAPP</p>
-              <p className="text-[16px] font-black uppercase tracking-tight text-stone">+1 (437) 434-0686</p>
+              <p className="text-[16px] font-black uppercase tracking-tight text-stone">{portalConfig.logistics.whatsappContact}</p>
             </div>
             <div className="space-y-2">
               <p className="text-[9px] font-black uppercase tracking-widest text-stone/30">EMAIL</p>
-              <p className="text-[16px] font-black uppercase tracking-tight text-stone">residency@aquajudo.com</p>
+              <p className="text-[16px] font-black uppercase tracking-tight text-stone">{portalConfig.logistics.emailContact}</p>
             </div>
-            {/* <div className="space-y-2">
+            <div className="space-y-2">
               <p className="text-[9px] font-black uppercase tracking-widest text-red-400/40">EMERGENCY ONLY</p>
-              <p className="text-[16px] font-black uppercase tracking-tight text-red-400">+52 624 555 9999</p>
-            </div> */}
+              <p className="text-[16px] font-black uppercase tracking-tight text-red-400">{portalConfig.logistics.emergencyPhone}</p>
+            </div>
           </div>
           <p className="text-[11px] font-serif italic text-stone/30">Please review this page before reaching out with questions.</p>
         </section>

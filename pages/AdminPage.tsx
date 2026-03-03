@@ -1049,8 +1049,32 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                     <input value={portalConfig.logistics.address} onChange={e => setPortalConfig({...portalConfig, logistics: {...portalConfig.logistics, address: e.target.value}})} className="w-full bg-[#faf9f6] px-6 py-4 rounded-xl border border-stone/5 text-xs outline-none focus:border-aqua-primary/30 transition-all" />
                   </div>
                   <div className="space-y-2">
+                    <label className="text-[8px] font-black uppercase tracking-widest text-stone/10 px-1">GOOGLE MAPS LINK</label>
+                    <input value={portalConfig.logistics.googleMapsLink} onChange={e => setPortalConfig({...portalConfig, logistics: {...portalConfig.logistics, googleMapsLink: e.target.value}})} className="w-full bg-[#faf9f6] px-6 py-4 rounded-xl border border-stone/5 text-xs outline-none focus:border-aqua-primary/30 transition-all" />
+                  </div>
+                  <div className="space-y-2">
                     <label className="text-[8px] font-black uppercase tracking-widest text-stone/10 px-1">CHECK-IN WINDOW</label>
                     <input value={portalConfig.logistics.checkInWindow} onChange={e => setPortalConfig({...portalConfig, logistics: {...portalConfig.logistics, checkInWindow: e.target.value}})} className="w-full bg-[#faf9f6] px-6 py-4 rounded-xl border border-stone/5 text-xs outline-none focus:border-aqua-primary/30 transition-all" />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-[8px] font-black uppercase tracking-widest text-stone/10 px-1">CHECK-OUT TIME</label>
+                    <input value={portalConfig.logistics.checkOutTime} onChange={e => setPortalConfig({...portalConfig, logistics: {...portalConfig.logistics, checkOutTime: e.target.value}})} className="w-full bg-[#faf9f6] px-6 py-4 rounded-xl border border-stone/5 text-xs outline-none focus:border-aqua-primary/30 transition-all" />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-[8px] font-black uppercase tracking-widest text-stone/10 px-1">WHATSAPP CONTACT</label>
+                    <input value={portalConfig.logistics.whatsappContact} onChange={e => setPortalConfig({...portalConfig, logistics: {...portalConfig.logistics, whatsappContact: e.target.value}})} className="w-full bg-[#faf9f6] px-6 py-4 rounded-xl border border-stone/5 text-xs outline-none focus:border-aqua-primary/30 transition-all" />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-[8px] font-black uppercase tracking-widest text-stone/10 px-1">EMAIL CONTACT</label>
+                    <input value={portalConfig.logistics.emailContact} onChange={e => setPortalConfig({...portalConfig, logistics: {...portalConfig.logistics, emailContact: e.target.value}})} className="w-full bg-[#faf9f6] px-6 py-4 rounded-xl border border-stone/5 text-xs outline-none focus:border-aqua-primary/30 transition-all" />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-[8px] font-black uppercase tracking-widest text-stone/10 px-1">EMERGENCY PHONE</label>
+                    <input value={portalConfig.logistics.emergencyPhone} onChange={e => setPortalConfig({...portalConfig, logistics: {...portalConfig.logistics, emergencyPhone: e.target.value}})} className="w-full bg-[#faf9f6] px-6 py-4 rounded-xl border border-stone/5 text-xs outline-none focus:border-aqua-primary/30 transition-all" />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-[8px] font-black uppercase tracking-widest text-stone/10 px-1">GATED ACCESS INSTRUCTIONS</label>
+                    <input value={portalConfig.logistics.gateInstructions} onChange={e => setPortalConfig({...portalConfig, logistics: {...portalConfig.logistics, gateInstructions: e.target.value}})} className="w-full bg-[#faf9f6] px-6 py-4 rounded-xl border border-stone/5 text-xs outline-none focus:border-aqua-primary/30 transition-all" />
                   </div>
                 </div>
               </div>
