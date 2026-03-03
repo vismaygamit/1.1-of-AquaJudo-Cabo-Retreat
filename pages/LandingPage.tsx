@@ -78,7 +78,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ sessions, rooms, itine
           <source src={HERO_VIDEO_URL} type="video/mp4" />
         </video>
 
-        <div className="relative z-10 space-y-6 sm:space-y-8 max-w-5xl animate-fade-in flex flex-col items-center pt-10 sm:pt-4">
+        <div className="relative z-10 space-y-6 sm:space-y-8 max-w-5xl animate-fade-in flex flex-col items-center pt-10 sm:pt-4 pb-6">
           <div className="space-y-4 sm:space-y-6">
             <p className="text-[10px] sm:text-[12px] md:text-[14px] tracking-[0.3em] sm:tracking-[0.6em] text-stone font-black uppercase opacity-90">
               CABO SAN LUCAS • MEXICO
