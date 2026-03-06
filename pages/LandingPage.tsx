@@ -233,31 +233,6 @@ export const LandingPage: React.FC<LandingPageProps> = ({ sessions, rooms, itine
         </div>
       </section>
 
-      {/* INSTRUCTOR */}
-      <section className="py-24 bg-white px-6 border-t border-stone/5">
-        <div className="max-w-4xl mx-auto space-y-16">
-          <div className="text-center space-y-4">
-            <p className="text-[11px] tracking-[0.5em] text-aqua-deep font-black uppercase opacity-40">TECHNICAL LEADERSHIP</p>
-            <h2 className="text-3xl md:text-5xl font-display font-light uppercase tracking-tighter">Instructor</h2>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6 max-w-3xl mx-auto px-4">
-            {[
-              "Black Belt Judo Instructor",
-              "NCCP Certified Coach",
-              "Anti-Racism in Coaching",
-              "Safe Sport Training",
-              "Mental Health in Sport",
-              "Emergency Action Plan Certified"
-            ].map((item, idx) => (
-              <div key={idx} className="flex items-center gap-4 group">
-                <div className="w-1.5 h-1.5 rounded-full bg-aqua-primary group-hover:scale-150 transition-transform" />
-                <p className="text-[12px] font-black uppercase tracking-widest text-stone/60 group-hover:text-stone transition-colors">{item}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
       {/* SESSIONS */}
       <section ref={availabilityRef} className="py-24 bg-[#faf9f6] px-6 border-t border-stone/5">
         <div className="max-w-5xl mx-auto space-y-16">
@@ -295,6 +270,31 @@ export const LandingPage: React.FC<LandingPageProps> = ({ sessions, rooms, itine
                 </div>
               ))
             )}
+          </div>
+        </div>
+      </section>
+
+    {/* INSTRUCTOR */}
+      <section className="py-24 bg-white px-6 border-t border-stone/5">
+        <div className="max-w-4xl mx-auto space-y-16">
+          <div className="text-center space-y-4">
+            <p className="text-[11px] tracking-[0.5em] text-aqua-deep font-black uppercase opacity-40">TECHNICAL LEADERSHIP</p>
+            <h2 className="text-3xl md:text-5xl font-display font-light uppercase tracking-tighter">Instructor</h2>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6 max-w-3xl mx-auto px-4">
+            {[
+              "Black Belt Judo Instructor",
+              "NCCP Certified Coach",
+              "Anti-Racism in Coaching",
+              "Safe Sport Training",
+              "Mental Health in Sport",
+              "Emergency Action Plan Certified"
+            ].map((item, idx) => (
+              <div key={idx} className="flex items-center gap-4 group">
+                <div className="w-1.5 h-1.5 rounded-full bg-aqua-primary group-hover:scale-150 transition-transform" />
+                <p className="text-[12px] font-black uppercase tracking-widest text-stone/60 group-hover:text-stone transition-colors">{item}</p>
+              </div>
+            ))}
           </div>
         </div>
       </section>
