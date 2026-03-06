@@ -9,7 +9,6 @@ interface MainLayoutProps {
   onAdminClick: () => void;
   onPrivacyClick: () => void;
   onTermsClick: () => void;
-  onAgreementClick: () => void;
   isPortalView?: boolean;
   onExitPortal?: () => void;
 }
@@ -21,7 +20,6 @@ export const MainLayout: React.FC<MainLayoutProps> = ({
   onAdminClick, 
   onPrivacyClick,
   onTermsClick,
-  onAgreementClick,
   isPortalView,
   onExitPortal 
 }) => {
