@@ -119,7 +119,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ sessions, rooms, itine
             <h2 className="text-3xl md:text-5xl font-display font-light uppercase tracking-tighter">The Experience</h2>
           </div>
           <div className="text-center space-y-4">
-            <p className="text-[10px] font-black uppercase">Ocean-based training and foundational judo for structural recalibration<br/>The residency follows the Aqua Judo Coastal Method — a structured training framework integrating terrain movement, ocean immersion, and foundational judo mechanics.</p>
+            <p className="text-[10px] font-black uppercase">Ocean-based training and foundational judo for structural recalibration<br />The residency follows the Aqua Judo Coastal Method — a structured training framework integrating terrain movement, ocean immersion, and foundational judo mechanics.</p>
           </div>
           <div
             className="relative aspect-[13/9] sm:aspect-video rounded-[1rem] overflow-hidden shadow-2xl group cursor-pointer bg-parchment"
@@ -276,10 +276,10 @@ export const LandingPage: React.FC<LandingPageProps> = ({ sessions, rooms, itine
                     <div className="flex justify-between items-start">
                       <p className="text-[10px] font-black uppercase tracking-[0.3em] text-aqua-primary">{new Date(s.startDate).getFullYear()}</p>
                       <span className="px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest bg-stone/5">{s.status}</span>
+                      <p className="text-[9px] font-black uppercase tracking-[0.2em] text-stone/30 text-center">Applications are reviewed to maintain the integrity of the residency.</p>
                     </div>
                     <h4 className="text-3xl font-black uppercase tracking-tighter text-stone">{new Date(s.startDate).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}</h4>
                     <p className="text-sm font-serif italic text-stone/40">{new Date(s.startDate).toLocaleDateString()} — {new Date(s.endDate).toLocaleDateString()}</p>
-                    <p className="text-[9px] font-black uppercase tracking-[0.2em] text-stone/30 text-center">Applications are reviewed to maintain the integrity of the residency.</p>
                   </div>
                   <div className="space-y-3">
                     <button
