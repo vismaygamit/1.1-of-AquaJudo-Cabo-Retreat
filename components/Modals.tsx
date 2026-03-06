@@ -649,18 +649,6 @@ export const ApplyModal: React.FC<ApplyModalProps> = ({ sessions, rooms, initial
                 <button onClick={() => setStep(2)} className="flex-1 bg-[#faf9f6] text-stone py-6 rounded-full text-[12px] font-black uppercase flex items-center justify-center gap-2"><ChevronLeft size={16} /> Back</button>
                 <button onClick={() => setStep(4)} disabled={!form.bathroomConsent || !form.alcoholConsent || !form.residencyAgreement} className="flex-[2] bg-[#111] text-white py-6 rounded-full text-[12px] font-black uppercase shadow-xl disabled:opacity-20">Continue</button>
               </div>
-
-              {showAgreementModal && (
-                <ResidencyAgreementModal 
-                  onAccept={() => {
-                    setForm({...form, residencyAgreement: true});
-                    setShowAgreementModal(false);
-                  }}
-                  onCancel={() => {
-                    setShowAgreementModal(false);
-                  }}
-                />
-              )}
             </div>
           )}
 
@@ -699,6 +687,19 @@ export const ApplyModal: React.FC<ApplyModalProps> = ({ sessions, rooms, initial
           )}
         </div>
       </div>
+
+      {/* Separate Modal Layer for Agreement */}
+      {showAgreementModal && (
+        <ResidencyAgreementModal 
+          onAccept={() => {
+            setForm({...form, residencyAgreement: true});
+            setShowAgreementModal(false);
+          }}
+          onCancel={() => {
+            setShowAgreementModal(false);
+          }}
+        />
+      )}
     </div>
   );
 };
