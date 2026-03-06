@@ -278,7 +278,6 @@ export const LandingPage: React.FC<LandingPageProps> = ({ sessions, rooms, itine
                       <p className="text-[10px] font-black uppercase tracking-[0.3em] text-aqua-primary">{new Date(s.startDate).getFullYear()}</p>
                       <span className="px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest bg-stone/5">{s.status}</span>
                     </div>
-                    <p className="text-[9px] font-black uppercase tracking-[0.2em] text-center">Applications are reviewed to maintain the integrity of the residency.</p>
                     <h4 className="text-3xl font-black uppercase tracking-tighter text-stone">{new Date(s.startDate).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}</h4>
                     <p className="text-sm font-serif italic text-stone/40">{new Date(s.startDate).toLocaleDateString()} — {new Date(s.endDate).toLocaleDateString()}</p>
                   </div>
@@ -290,6 +289,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ sessions, rooms, itine
                     >
                       {s.status === 'Full' ? 'WAITLIST ONLY' : 'REQUEST ENTRY'}
                     </button>
+                    <p className="text-[9px] font-black uppercase tracking-[0.2em] text-center">Applications are reviewed to maintain the integrity of the residency.</p>
                     <p className="text-[9px] font-black uppercase tracking-[0.2em] text-stone/30 text-center">Maximum 3 residents per session</p>
                   </div>
                 </div>
