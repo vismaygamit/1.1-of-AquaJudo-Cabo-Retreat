@@ -262,6 +262,69 @@ export const TermsModal: React.FC<{ isOpen?: boolean; onClose: () => void }> = (
   );
 };
 
+export const ResidencyAgreementModal: React.FC<{ onAccept?: () => void; onCancel?: () => void; onClose?: () => void }> = ({ onAccept, onCancel, onClose }) => {
+  const isGlobalView = !!onClose;
+  
+  return (
+    <div className="fixed inset-0 z-[2100] bg-stone/40 backdrop-blur-md flex items-center justify-center p-6 animate-fade-in">
+      <div className="bg-white w-full max-w-2xl p-12 rounded-[2rem] space-y-8 relative shadow-3xl border border-white overflow-y-auto max-h-[90vh] no-scrollbar">
+        {isGlobalView && (
+          <button onClick={onClose} className="absolute top-8 right-8 text-stone/20 hover:text-stone transition-all">
+            <X size={24} />
+          </button>
+        )}
+        
+        <div className="space-y-6">
+          <div className="space-y-2">
+            <h2 className="text-4xl font-display font-light uppercase tracking-tight text-stone">Residency Participation Agreement</h2>
+            <p className="text-[10px] font-black uppercase tracking-widest text-stone/30">Aqua Judo Cabo • Liability & Safety</p>
+          </div>
+
+          <div className="space-y-6 text-stone/60 font-serif italic text-sm leading-relaxed">
+            <p>Aqua Judo Cabo is a private coastal residency involving physical training, ocean activity, and outdoor movement, including judo practice, swimming, paddle boarding, snorkeling, and terrain-based movement.</p>
+            
+            <p>Participation is voluntary. By continuing, you confirm that you are physically capable of moderate activity and comfortable in ocean environments.</p>
+            
+            <p>Residents are responsible for their own participation and must disclose any medical conditions or injuries that could affect their ability to take part. Aqua Judo Cabo does not provide medical treatment or supervision.</p>
+            
+            <p>Activities take place in natural coastal environments where ocean conditions, terrain, and weather may vary. Participants agree to follow safety guidance and act within their personal limits.</p>
+            
+            <p>Residents must respect the property, shared spaces, and residency guidelines provided in the guest portal.</p>
+            
+            <p>Failure to follow safety guidance or residency standards may result in removal from activities or dismissal from the residency.</p>
+            
+            <p>By selecting Accept, you confirm that you have read and understood this agreement and accept responsibility for your participation.</p>
+          </div>
+        </div>
+
+        {isGlobalView ? (
+          <button 
+            onClick={onClose}
+            className="w-full py-5 bg-stone text-white rounded-2xl text-[11px] font-black uppercase tracking-[0.3em] hover:bg-aqua-primary transition-all"
+          >
+            ACKNOWLEDGE
+          </button>
+        ) : (
+          <div className="flex gap-4 pt-4">
+            <button 
+              onClick={onCancel}
+              className="flex-1 py-5 bg-[#faf9f6] text-stone rounded-2xl text-[11px] font-black uppercase tracking-[0.2em] hover:bg-stone/5 transition-all"
+            >
+              Cancel
+            </button>
+            <button 
+              onClick={onAccept}
+              className="flex-[2] py-5 bg-stone text-white rounded-2xl text-[11px] font-black uppercase tracking-[0.2em] hover:bg-aqua-primary hover:text-stone transition-all shadow-xl"
+            >
+              Accept & Continue
+            </button>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
 export const RoomDetailModal: React.FC<{
   room: Room;
   onClose: () => void;
@@ -365,11 +428,12 @@ export const ApplyModal: React.FC<ApplyModalProps> = ({ sessions, rooms, initial
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [availableRooms, setAvailableRooms] = useState<Room[]>([]);
   const [isLoadingRooms, setIsLoadingRooms] = useState(false);
+  const [showAgreementModal, setShowAgreementModal] = useState(false);
   const [form, setForm] = useState<BookingState>({
     sessionId: initialSessionId, guestName: '', guestEmail: '', guestPhone: '', gender: '',
     bookingType: 'solo', companionName: '', roomPreferenceId: initialRoomId || '',
     healthNotes: '', oneOnOneInterest: false, bathroomConsent: false,
-    alcoholConsent: false, language: 'English', notes: '', isConfirmed: false
+    alcoholConsent: false, residencyAgreement: false, language: 'English', notes: '', isConfirmed: false
   });
 
   useEffect(() => {
@@ -564,11 +628,26 @@ export const ApplyModal: React.FC<ApplyModalProps> = ({ sessions, rooms, initial
                     <input type="checkbox" checked={form.alcoholConsent} onChange={e => setForm({...form, alcoholConsent: e.target.checked})} className="w-5 h-5 accent-aqua-primary" />
                     <span className="text-[11px] font-black uppercase tracking-widest text-stone/60">Accept Alcohol-Free commitment</span>
                   </label>
+                  <label className="flex items-center gap-5 p-6 border border-stone/10 bg-white rounded-[2rem] cursor-pointer">
+                    <input 
+                      type="checkbox" 
+                      checked={form.residencyAgreement} 
+                      onChange={(e) => {
+                        if (e.target.checked) {
+                          setShowAgreementModal(true);
+                        } else {
+                          setForm({...form, residencyAgreement: false});
+                        }
+                      }} 
+                      className="w-5 h-5 accent-aqua-primary" 
+                    />
+                    <span className="text-[11px] font-black uppercase tracking-widest text-stone/60">Residency Participation Agreement</span>
+                  </label>
                 </div>
               </div>
               <div className="flex gap-4">
                 <button onClick={() => setStep(2)} className="flex-1 bg-[#faf9f6] text-stone py-6 rounded-full text-[12px] font-black uppercase flex items-center justify-center gap-2"><ChevronLeft size={16} /> Back</button>
-                <button onClick={() => setStep(4)} disabled={!form.bathroomConsent || !form.alcoholConsent} className="flex-[2] bg-[#111] text-white py-6 rounded-full text-[12px] font-black uppercase shadow-xl disabled:opacity-20">Continue</button>
+                <button onClick={() => setStep(4)} disabled={!form.bathroomConsent || !form.alcoholConsent || !form.residencyAgreement} className="flex-[2] bg-[#111] text-white py-6 rounded-full text-[12px] font-black uppercase shadow-xl disabled:opacity-20">Continue</button>
               </div>
             </div>
           )}
@@ -608,6 +687,19 @@ export const ApplyModal: React.FC<ApplyModalProps> = ({ sessions, rooms, initial
           )}
         </div>
       </div>
+
+      {/* Separate Modal Layer for Agreement */}
+      {showAgreementModal && (
+        <ResidencyAgreementModal 
+          onAccept={() => {
+            setForm({...form, residencyAgreement: true});
+            setShowAgreementModal(false);
+          }}
+          onCancel={() => {
+            setShowAgreementModal(false);
+          }}
+        />
+      )}
     </div>
   );
 };

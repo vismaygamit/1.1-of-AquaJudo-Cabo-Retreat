@@ -28,6 +28,7 @@ export interface Application {
   assignedRoomId?: string;
   consentBathroom: boolean;
   consentAlcohol: boolean;
+  residencyAgreement: boolean;
   healthNotes?: string;
   language?: string;
   oneOnOneInterest?: boolean;
@@ -103,6 +104,7 @@ export interface BookingState {
   oneOnOneInterest: boolean;
   bathroomConsent: boolean;
   alcoholConsent: boolean;
+  residencyAgreement: boolean;
   language: string;
   notes: string;
   isConfirmed: boolean;
