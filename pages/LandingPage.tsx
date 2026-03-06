@@ -189,7 +189,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ sessions, rooms, itine
             </div>
           )}
         </div>
-        <div className="text-center space-y-4 mb-5">
+        <div className="text-center space-y-4 mb-10">
           <p className="text-[11px] tracking-[0.5em] font-black uppercase text-center">Three guest chambers. One private residence.</p>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
