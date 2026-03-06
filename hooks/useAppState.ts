@@ -148,6 +148,7 @@ export const useAppState = () => {
             status: (apiInquiry.status.charAt(0).toUpperCase() + apiInquiry.status.slice(1)) as ApplicationStatus,
             consentBathroom: apiInquiry.isBathroomProtocolChecked,
             consentAlcohol: apiInquiry.isAlcoholFreeEstateChecked,
+            residencyAgreement: apiInquiry.isResidencyAgreementChecked || false,
             totalPrice: 0,
             depositPaid: false,
             timestamp: new Date(apiInquiry.createdAt).getTime(),
@@ -467,7 +468,8 @@ export const useAppState = () => {
         sessionId: form.sessionId,
         backgroundDescription: form.healthNotes,
         isBathroomProtocolChecked: form.bathroomConsent,
-        isAlcoholFreeEstateChecked: form.alcoholConsent
+        isAlcoholFreeEstateChecked: form.alcoholConsent,
+        isResidencyAgreementChecked: form.residencyAgreement
       }),
       credentials: 'omit'
     });
@@ -536,6 +538,7 @@ export const useAppState = () => {
             roomPreferenceId: apiInquiry.roomId || apiInquiry.roomPreferenceId || (apiInquiry.room && (apiInquiry.room._id || apiInquiry.room.id)),
             consentBathroom: apiInquiry.isBathroomProtocolChecked || apiInquiry.consentBathroom || false,
             consentAlcohol: apiInquiry.isAlcoholFreeEstateChecked || apiInquiry.consentAlcohol || false,
+            residencyAgreement: apiInquiry.isResidencyAgreementChecked || apiInquiry.residencyAgreement || false,
             depositPaid: apiInquiry.depositPaid || false,
             totalPrice: apiInquiry.totalPrice || 0,
             timestamp: new Date(apiInquiry.createdAt || Date.now()).getTime(),

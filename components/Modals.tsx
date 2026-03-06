@@ -369,7 +369,7 @@ export const ApplyModal: React.FC<ApplyModalProps> = ({ sessions, rooms, initial
     sessionId: initialSessionId, guestName: '', guestEmail: '', guestPhone: '', gender: '',
     bookingType: 'solo', companionName: '', roomPreferenceId: initialRoomId || '',
     healthNotes: '', oneOnOneInterest: false, bathroomConsent: false,
-    alcoholConsent: false, language: 'English', notes: '', isConfirmed: false
+    alcoholConsent: false, residencyAgreement: false, language: 'English', notes: '', isConfirmed: false
   });
 
   useEffect(() => {
@@ -564,11 +564,15 @@ export const ApplyModal: React.FC<ApplyModalProps> = ({ sessions, rooms, initial
                     <input type="checkbox" checked={form.alcoholConsent} onChange={e => setForm({...form, alcoholConsent: e.target.checked})} className="w-5 h-5 accent-aqua-primary" />
                     <span className="text-[11px] font-black uppercase tracking-widest text-stone/60">Accept Alcohol-Free commitment</span>
                   </label>
+                  <label className="flex items-center gap-5 p-6 border border-stone/10 bg-white rounded-[2rem] cursor-pointer">
+                    <input type="checkbox" checked={form.residencyAgreement} onChange={e => setForm({...form, residencyAgreement: e.target.checked})} className="w-5 h-5 accent-aqua-primary" />
+                    <span className="text-[11px] font-black uppercase tracking-widest text-stone/60">Residency Participation Agreement</span>
+                  </label>
                 </div>
               </div>
               <div className="flex gap-4">
                 <button onClick={() => setStep(2)} className="flex-1 bg-[#faf9f6] text-stone py-6 rounded-full text-[12px] font-black uppercase flex items-center justify-center gap-2"><ChevronLeft size={16} /> Back</button>
-                <button onClick={() => setStep(4)} disabled={!form.bathroomConsent || !form.alcoholConsent} className="flex-[2] bg-[#111] text-white py-6 rounded-full text-[12px] font-black uppercase shadow-xl disabled:opacity-20">Continue</button>
+                <button onClick={() => setStep(4)} disabled={!form.bathroomConsent || !form.alcoholConsent || !form.residencyAgreement} className="flex-[2] bg-[#111] text-white py-6 rounded-full text-[12px] font-black uppercase shadow-xl disabled:opacity-20">Continue</button>
               </div>
             </div>
           )}
