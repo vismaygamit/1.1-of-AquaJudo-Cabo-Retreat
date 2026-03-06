@@ -119,7 +119,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ sessions, rooms, itine
             <h2 className="text-3xl md:text-5xl font-display font-light uppercase tracking-tighter">The Experience</h2>
           </div>
           <div className="text-center space-y-4">
-            <p className="text-[15px] tracking-tight text-stone leading-[0.95] sm:leading-[0.9] font-black">Ocean-based training and foundational judo for structural recalibration</p>
+            <p className="text-[10px] font-black uppercase">Ocean-based training and foundational judo for structural recalibration<br/>The residency follows the Aqua Judo Coastal Method — a structured training framework integrating terrain movement, ocean immersion, and foundational judo mechanics.</p>
           </div>
           <div
             className="relative aspect-[13/9] sm:aspect-video rounded-[1rem] overflow-hidden shadow-2xl group cursor-pointer bg-parchment"
@@ -152,12 +152,11 @@ export const LandingPage: React.FC<LandingPageProps> = ({ sessions, rooms, itine
 
       {/* ROOMS GRID */}
       <section className="py-24 px-6 max-w-6xl mx-auto">
-        <div className="text-center space-y-6 mb-20 animate-fade-in">
-          <p className="text-[11px] tracking-[0.5em] text-aqua-deep font-black uppercase opacity-40">Three guest chambers. One private residence.</p>
+        <div className="text-center space-y-6 mb-5 animate-fade-in">
           <h2 className="text-3xl md:text-5xl font-display font-light uppercase tracking-tighter">THE RESIDENCE</h2>
         </div>
-        <div className="text-center space-y-4 mb-12">
-          <p className="text-[15px] font-medium tracking-tight text-stone leading-[0.95] sm:leading-[0.9] font-black">A private coastal sanctuary in the gated community of Cabo Bello with semi-private beach access.</p>
+        <div className="text-center space-y-4 mb-5">
+          <p className="text-[10px] tracking-[0.5em] font-black uppercase">A private coastal sanctuary in the gated community of Cabo Bello with semi-private beach access.</p>
         </div>
 
         {/* RESIDENCE OVERVIEW VIDEO */}
@@ -191,6 +190,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ sessions, rooms, itine
           )}
         </div>
 
+        <p className="text-[10px] tracking-[0.5em] font-black uppercase text-center">Three guest chambers. One private residence.</p>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {rooms.map((room) => (
             <button
@@ -202,6 +202,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ sessions, rooms, itine
               <div className="absolute inset-0 bg-gradient-to-t from-stone/90 via-stone/20 to-transparent opacity-80 group-hover:opacity-100 transition-opacity"></div>
               <div className="absolute top-8 left-8 z-10">
                 <h4 className="text-2xl font-black uppercase leading-tight text-white tracking-tighter">{room.name}</h4>
+                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-stone/40">{room.name == "Balance CHAMBER" ? "A private chamber oriented toward recovery and equilibrium." : room.name == "Structure CHAMBER" ? "Designed for participants focused on movement and terrain training." : "A quiet chamber supporting breath practice and restoration."}</p>
               </div>
             </button>
           ))}
@@ -231,6 +232,31 @@ export const LandingPage: React.FC<LandingPageProps> = ({ sessions, rooms, itine
         </div>
       </section>
 
+      {/* INSTRUCTOR */}
+      <section className="py-24 bg-white px-6 border-t border-stone/5">
+        <div className="max-w-4xl mx-auto space-y-16">
+          <div className="text-center space-y-4">
+            <p className="text-[11px] tracking-[0.5em] text-aqua-deep font-black uppercase opacity-40">TECHNICAL LEADERSHIP</p>
+            <h2 className="text-3xl md:text-5xl font-display font-light uppercase tracking-tighter">Instructor</h2>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6 max-w-3xl mx-auto px-4">
+            {[
+              "Black Belt Judo Instructor",
+              "NCCP Certified Coach",
+              "Anti-Racism in Coaching",
+              "Safe Sport Training",
+              "Mental Health in Sport",
+              "Emergency Action Plan Certified"
+            ].map((item, idx) => (
+              <div key={idx} className="flex items-center gap-4 group">
+                <div className="w-1.5 h-1.5 rounded-full bg-aqua-primary group-hover:scale-150 transition-transform" />
+                <p className="text-[12px] font-black uppercase tracking-widest text-stone/60 group-hover:text-stone transition-colors">{item}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* SESSIONS */}
       <section ref={availabilityRef} className="py-24 bg-[#faf9f6] px-6 border-t border-stone/5">
         <div className="max-w-5xl mx-auto space-y-16">
@@ -253,6 +279,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ sessions, rooms, itine
                     </div>
                     <h4 className="text-3xl font-black uppercase tracking-tighter text-stone">{new Date(s.startDate).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}</h4>
                     <p className="text-sm font-serif italic text-stone/40">{new Date(s.startDate).toLocaleDateString()} — {new Date(s.endDate).toLocaleDateString()}</p>
+                    <p className="text-[9px] font-black uppercase tracking-[0.2em] text-stone/30 text-center">Applications are reviewed to maintain the integrity of the residency.</p>
                   </div>
                   <div className="space-y-3">
                     <button
