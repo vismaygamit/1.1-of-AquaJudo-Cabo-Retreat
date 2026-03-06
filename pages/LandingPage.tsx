@@ -1,6 +1,5 @@
-
 import React, { useState, useRef } from 'react';
-import { Zap, Play, ChevronDown, Pause, MapPin } from 'lucide-react';
+import { Zap, Play, ChevronDown } from 'lucide-react';
 import { RoomDetailModal } from '../components/Modals';
 import { Room } from '../types';
 
@@ -80,8 +79,8 @@ export const LandingPage: React.FC<LandingPageProps> = ({ sessions, rooms, itine
         </video>
 
         <div className="relative z-10 max-w-5xl animate-fade-in flex flex-col items-center pt-10 sm:pt-4 pb-6">
-          <div className="border border-aqua-primary p-4 sm:p-6 md:p-8">
-            <div className="border border-aqua-primary/40 p-8 sm:p-12 md:p-16 space-y-6 sm:space-y-8 flex flex-col items-center">
+          <div className="p-4 sm:p-6 md:p-8">
+            <div className="p-8 sm:p-12 md:p-16 space-y-6 sm:space-y-8 flex flex-col items-center">
               <div className="space-y-4 sm:space-y-6 text-center">
                 <p className="text-[10px] sm:text-[12px] md:text-[14px] tracking-[0.3em] sm:tracking-[0.6em] text-stone font-black uppercase opacity-90">
                   CABO SAN LUCAS • MEXICO
@@ -119,7 +118,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ sessions, rooms, itine
             <h2 className="text-3xl md:text-5xl font-display font-light uppercase tracking-tighter">The Experience</h2>
           </div>
           <div className="text-center space-y-4">
-            <p className="text-[15px] font-medium tracking-tight text-stone leading-[0.95] sm:leading-[0.9] font-black">Ocean-based training and judo fundamentals for structural recalibration</p>
+            <p className="text-[15px] tracking-tight text-stone leading-[0.95] sm:leading-[0.9] font-black">Ocean-based training and judo fundamentals for structural recalibration</p>
           </div>
           <div
             className="relative aspect-[13/9] sm:aspect-video rounded-[1rem] overflow-hidden shadow-2xl group cursor-pointer bg-parchment"
