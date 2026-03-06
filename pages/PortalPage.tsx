@@ -6,6 +6,7 @@ import {
   ArrowRight, ExternalLink, Check, Send, X, AlertCircle
 } from 'lucide-react';
 import { Logo } from '../components/Shared';
+import { PrivacyPolicyModal } from '../components/Modals';
 
 interface PortalPageProps {
   guest: any;
@@ -17,6 +18,7 @@ interface PortalPageProps {
 }
 
 export const PortalPage: React.FC<PortalPageProps> = ({ guest, session, room, portalConfig, itinerary, onExit }) => {
+  const [isPrivacyModalOpen, setIsPrivacyModalOpen] = useState(false);
   const [travelForm, setTravelForm] = useState({
     airline: '',
     flightNumber: '',
@@ -409,12 +411,24 @@ export const PortalPage: React.FC<PortalPageProps> = ({ guest, session, room, po
             <p className="text-[9px] font-black uppercase tracking-widest text-stone/20">PORTAL ACCESS</p>
             <p className="text-[11px] font-serif italic text-stone/30">Your access to this page will expire three days after the residency concludes.</p>
           </div>
-          <p className="text-[10px] font-black uppercase tracking-[0.4em] text-stone/10">END OF PORTAL</p>
+          <div className="flex flex-col items-center gap-4">
+            <button 
+              onClick={() => setIsPrivacyModalOpen(true)}
+              className="text-[10px] font-black uppercase tracking-widest text-stone/30 hover:text-aqua-primary transition-colors flex items-center gap-2"
+            >
+              <Shield size={12} /> Privacy Policy
+            </button>
+            <p className="text-[10px] font-black uppercase tracking-[0.4em] text-stone/10">END OF PORTAL</p>
+          </div>
           <div className="pt-6 opacity-10">
             <Logo className="w-12 h-12 mx-auto" />
           </div>
         </footer>
 
+        <PrivacyPolicyModal 
+          isOpen={isPrivacyModalOpen}
+          onClose={() => setIsPrivacyModalOpen(false)}
+        />
       </main>
     </div>
   );

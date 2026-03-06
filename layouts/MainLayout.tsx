@@ -7,6 +7,8 @@ interface MainLayoutProps {
   activePortalGuest?: any;
   onPortalClick: () => void;
   onAdminClick: () => void;
+  onPrivacyClick: () => void;
+  onTermsClick: () => void;
   isPortalView?: boolean;
   onExitPortal?: () => void;
 }
@@ -16,6 +18,8 @@ export const MainLayout: React.FC<MainLayoutProps> = ({
   activePortalGuest, 
   onPortalClick, 
   onAdminClick, 
+  onPrivacyClick,
+  onTermsClick,
   isPortalView,
   onExitPortal 
 }) => {
@@ -53,8 +57,8 @@ export const MainLayout: React.FC<MainLayoutProps> = ({
             <p className="text-[10px] tracking-[0.6em] font-black text-stone/20 uppercase">ESTATE CABO</p>
           </div>
           <div className="flex gap-8">
-            <button className="text-[9px] font-bold uppercase tracking-widest text-stone/30 hover:text-aqua-primary transition-colors">Privacy Policy</button>
-            <button className="text-[9px] font-bold uppercase tracking-widest text-stone/30 hover:text-aqua-primary transition-colors">Terms of Use</button>
+            <button onClick={onPrivacyClick} className="text-[9px] font-bold uppercase tracking-widest text-stone/30 hover:text-aqua-primary transition-colors">Privacy Policy</button>
+            <button onClick={onTermsClick} className="text-[9px] font-bold uppercase tracking-widest text-stone/30 hover:text-aqua-primary transition-colors">Terms of Use</button>
             <button onClick={onAdminClick} className="px-3 py-1 bg-stone/5 hover:bg-stone/10 text-stone/40 hover:text-stone text-[9px] font-bold uppercase tracking-widest rounded-full transition-all flex items-center gap-2">
               <ShieldCheck size={10} /> Admin
             </button>

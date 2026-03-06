@@ -79,23 +79,27 @@ export const LandingPage: React.FC<LandingPageProps> = ({ sessions, rooms, itine
           <source src={HERO_VIDEO_URL} type="video/mp4" />
         </video>
 
-        <div className="relative z-10 space-y-6 sm:space-y-8 max-w-5xl animate-fade-in flex flex-col items-center pt-10 sm:pt-4 pb-6">
-          <div className="space-y-4 sm:space-y-6">
-            <p className="text-[10px] sm:text-[12px] md:text-[14px] tracking-[0.3em] sm:tracking-[0.6em] text-stone font-black uppercase opacity-90">
-              CABO SAN LUCAS • MEXICO
-            </p>
+        <div className="relative z-10 max-w-5xl animate-fade-in flex flex-col items-center pt-10 sm:pt-4 pb-6">
+          <div className="border border-aqua-primary p-4 sm:p-6 md:p-8">
+            <div className="border border-aqua-primary/40 p-8 sm:p-12 md:p-16 space-y-6 sm:space-y-8 flex flex-col items-center">
+              <div className="space-y-4 sm:space-y-6 text-center">
+                <p className="text-[10px] sm:text-[12px] md:text-[14px] tracking-[0.3em] sm:tracking-[0.6em] text-stone font-black uppercase opacity-90">
+                  CABO SAN LUCAS • MEXICO
+                </p>
 
-            <div className="space-y-2">
-              <h1 className="text-4xl sm:text-6xl md:text-8xl font-display font-medium uppercase tracking-tight text-stone leading-[0.95] sm:leading-[0.9]">
-                AQUA JUDO CABO
-              </h1>
-              <p className="text-aqua-primary italic font-serif lowercase text-xl sm:text-3xl md:text-4xl tracking-normal">
-                A 7-day private coastal residency for men who want a reset
-              </p>
+                <div className="space-y-2">
+                  <h1 className="text-4xl sm:text-6xl md:text-8xl font-display font-medium uppercase tracking-tight text-stone leading-[0.95] sm:leading-[0.9]">
+                    AQUA JUDO CABO
+                  </h1>
+                  <p className="text-aqua-primary italic font-serif lowercase text-xl sm:text-3xl md:text-4xl tracking-normal">
+                    a 7-day private coastal residency for men who want a reset
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
 
-          <div className="pt-4 w-full flex justify-center">
+          <div className="pt-8 w-full flex justify-center">
             <button
               onClick={scrollToAvailability}
               className="bg-[#111] text-white px-8 sm:px-12 py-4 sm:py-5 rounded-full text-[11px] sm:text-[13px] tracking-[0.15em] sm:tracking-[0.2em] font-black uppercase shadow-[0_20px_50px_rgba(0,0,0,0.1)] hover:scale-105 active:scale-95 transition-all flex items-center gap-3 sm:gap-4 group whitespace-nowrap"
