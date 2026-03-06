@@ -262,10 +262,18 @@ export const TermsModal: React.FC<{ isOpen?: boolean; onClose: () => void }> = (
   );
 };
 
-export const ResidencyAgreementModal: React.FC<{ onAccept: () => void; onCancel: () => void }> = ({ onAccept, onCancel }) => {
+export const ResidencyAgreementModal: React.FC<{ onAccept?: () => void; onCancel?: () => void; onClose?: () => void }> = ({ onAccept, onCancel, onClose }) => {
+  const isGlobalView = !!onClose;
+  
   return (
     <div className="fixed inset-0 z-[2100] bg-stone/40 backdrop-blur-md flex items-center justify-center p-6 animate-fade-in">
       <div className="bg-white w-full max-w-2xl p-12 rounded-[2rem] space-y-8 relative shadow-3xl border border-white overflow-y-auto max-h-[90vh] no-scrollbar">
+        {isGlobalView && (
+          <button onClick={onClose} className="absolute top-8 right-8 text-stone/20 hover:text-stone transition-all">
+            <X size={24} />
+          </button>
+        )}
+        
         <div className="space-y-6">
           <div className="space-y-2">
             <h2 className="text-4xl font-display font-light uppercase tracking-tight text-stone">Residency Participation Agreement</h2>
@@ -289,20 +297,29 @@ export const ResidencyAgreementModal: React.FC<{ onAccept: () => void; onCancel:
           </div>
         </div>
 
-        <div className="flex gap-4 pt-4">
+        {isGlobalView ? (
           <button 
-            onClick={onCancel}
-            className="flex-1 py-5 bg-[#faf9f6] text-stone rounded-2xl text-[11px] font-black uppercase tracking-[0.2em] hover:bg-stone/5 transition-all"
+            onClick={onClose}
+            className="w-full py-5 bg-stone text-white rounded-2xl text-[11px] font-black uppercase tracking-[0.3em] hover:bg-aqua-primary transition-all"
           >
-            Cancel
+            ACKNOWLEDGE
           </button>
-          <button 
-            onClick={onAccept}
-            className="flex-[2] py-5 bg-stone text-white rounded-2xl text-[11px] font-black uppercase tracking-[0.2em] hover:bg-aqua-primary hover:text-stone transition-all shadow-xl"
-          >
-            Accept & Continue
-          </button>
-        </div>
+        ) : (
+          <div className="flex gap-4 pt-4">
+            <button 
+              onClick={onCancel}
+              className="flex-1 py-5 bg-[#faf9f6] text-stone rounded-2xl text-[11px] font-black uppercase tracking-[0.2em] hover:bg-stone/5 transition-all"
+            >
+              Cancel
+            </button>
+            <button 
+              onClick={onAccept}
+              className="flex-[2] py-5 bg-stone text-white rounded-2xl text-[11px] font-black uppercase tracking-[0.2em] hover:bg-aqua-primary hover:text-stone transition-all shadow-xl"
+            >
+              Accept & Continue
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );

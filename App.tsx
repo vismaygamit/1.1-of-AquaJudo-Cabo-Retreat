@@ -6,7 +6,7 @@ import { LandingPage } from './pages/LandingPage';
 import { PortalPage } from './pages/PortalPage';
 import { AdminPage } from './pages/AdminPage';
 import { PaymentSuccessPage, PaymentFailPage } from './pages/PaymentStatusPages';
-import { LoginModal, ApplyModal, PrivacyPolicyModal, TermsModal } from './components/Modals';
+import { LoginModal, ApplyModal, PrivacyPolicyModal, TermsModal, ResidencyAgreementModal } from './components/Modals';
 import { Toast } from './components/Shared';
 import { API_BASE_URL } from './constants';
 
@@ -19,6 +19,7 @@ const App: React.FC = () => {
   const [showApplyModal, setShowApplyModal] = useState(false);
   const [showPrivacyModal, setShowPrivacyModal] = useState(false);
   const [showTermsModal, setShowTermsModal] = useState(false);
+  const [showGlobalAgreementModal, setShowGlobalAgreementModal] = useState(false);
   const [targetSessionId, setTargetSessionId] = useState('');
   const [targetRoomId, setTargetRoomId] = useState('');
   const hasFetchedPayment = React.useRef(false);
@@ -228,6 +229,7 @@ const App: React.FC = () => {
       onAdminClick={() => setShowLoginModal(true)}
       onPrivacyClick={() => setShowPrivacyModal(true)}
       onTermsClick={() => setShowTermsModal(true)}
+      onAgreementClick={() => setShowGlobalAgreementModal(true)}
       onExitPortal={exitPortal}
     >
       {renderContent()}
@@ -262,6 +264,12 @@ const App: React.FC = () => {
       {showTermsModal && (
         <TermsModal 
           onClose={() => setShowTermsModal(false)}
+        />
+      )}
+
+      {showGlobalAgreementModal && (
+        <ResidencyAgreementModal 
+          onClose={() => setShowGlobalAgreementModal(false)}
         />
       )}
 
