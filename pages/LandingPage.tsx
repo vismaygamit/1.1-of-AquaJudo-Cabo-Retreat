@@ -91,14 +91,14 @@ export const LandingPage: React.FC<LandingPageProps> = ({ sessions, rooms, itine
                     AQUA JUDO CABO
                   </h1>
                   <p className="text-aqua-primary italic font-serif lowercase text-xl sm:text-3xl md:text-4xl tracking-normal">
-                    a 7-day private coastal residency for men who want a reset
+                    a 7-day private coastal residency for men seeking structural recalibration
                   </p>
                 </div>
               </div>
             </div>
           </div>
 
-          <div className="pt-8 w-full flex justify-center">
+          <div className="pt-8 w-full flex flex-col items-center gap-4">
             <button
               onClick={scrollToAvailability}
               className="bg-[#111] text-white px-8 sm:px-12 py-4 sm:py-5 rounded-full text-[11px] sm:text-[13px] tracking-[0.15em] sm:tracking-[0.2em] font-black uppercase shadow-[0_20px_50px_rgba(0,0,0,0.1)] hover:scale-105 active:scale-95 transition-all flex items-center gap-3 sm:gap-4 group whitespace-nowrap"
@@ -106,6 +106,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ sessions, rooms, itine
               APPLY FOR RESIDENCY
               <Zap size={18} className="text-aqua-primary fill-aqua-primary group-hover:rotate-12 transition-transform shrink-0" />
             </button>
+            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-stone/40">Maximum 3 residents per session</p>
           </div>
         </div>
       </header>
@@ -114,11 +115,11 @@ export const LandingPage: React.FC<LandingPageProps> = ({ sessions, rooms, itine
       <section className="py-12 px-6 bg-white border-t border-stone/5">
         <div className="max-w-6xl mx-auto space-y-8">
           <div className="text-center space-y-4">
-            <p className="text-[11px] tracking-[0.5em] text-aqua-deep font-black uppercase">ESSATE NARRATIVE</p>
+            <p className="text-[11px] tracking-[0.5em] text-aqua-deep font-black uppercase">ESTATE NARRATIVE</p>
             <h2 className="text-3xl md:text-5xl font-display font-light uppercase tracking-tighter">The Experience</h2>
           </div>
           <div className="text-center space-y-4">
-            <p className="text-[15px] tracking-tight text-stone leading-[0.95] sm:leading-[0.9] font-black">Ocean-based training and judo fundamentals for structural recalibration</p>
+            <p className="text-[15px] tracking-tight text-stone leading-[0.95] sm:leading-[0.9] font-black">Ocean-based training and foundational judo for structural recalibration</p>
           </div>
           <div
             className="relative aspect-[13/9] sm:aspect-video rounded-[1rem] overflow-hidden shadow-2xl group cursor-pointer bg-parchment"
@@ -253,13 +254,16 @@ export const LandingPage: React.FC<LandingPageProps> = ({ sessions, rooms, itine
                     <h4 className="text-3xl font-black uppercase tracking-tighter text-stone">{new Date(s.startDate).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}</h4>
                     <p className="text-sm font-serif italic text-stone/40">{new Date(s.startDate).toLocaleDateString()} — {new Date(s.endDate).toLocaleDateString()}</p>
                   </div>
-                  <button
-                    onClick={() => onApplyClick(s.id)}
-                    disabled={s.status === 'Full'}
-                    className={`w-full py-5 rounded-full text-[11px] font-black uppercase tracking-[0.2em] shadow-lg transition-all ${s.status === 'Full' ? 'bg-stone/5 text-stone/20 cursor-not-allowed' : 'bg-stone text-white hover:bg-aqua-primary hover:text-stone'}`}
-                  >
-                    {s.status === 'Full' ? 'WAITLIST ONLY' : 'REQUEST ENTRY'}
-                  </button>
+                  <div className="space-y-3">
+                    <button
+                      onClick={() => onApplyClick(s.id)}
+                      disabled={s.status === 'Full'}
+                      className={`w-full py-5 rounded-full text-[11px] font-black uppercase tracking-[0.2em] shadow-lg transition-all ${s.status === 'Full' ? 'bg-stone/5 text-stone/20 cursor-not-allowed' : 'bg-stone text-white hover:bg-aqua-primary hover:text-stone'}`}
+                    >
+                      {s.status === 'Full' ? 'WAITLIST ONLY' : 'REQUEST ENTRY'}
+                    </button>
+                    <p className="text-[9px] font-black uppercase tracking-[0.2em] text-stone/30 text-center">Maximum 3 residents per session</p>
+                  </div>
                 </div>
               ))
             )}
