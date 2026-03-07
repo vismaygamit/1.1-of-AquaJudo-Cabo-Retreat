@@ -194,18 +194,40 @@ export const LandingPage: React.FC<LandingPageProps> = ({ sessions, rooms, itine
         <div className="text-center space-y-4 mb-10">
           <p className="text-[11px] font-black uppercase text-center opacity-80">Three guest chambers. One private residence.</p>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {rooms.map((room) => (
             <button
               key={room.id}
               onClick={() => setSelectedRoomDetail(room)}
-              className="relative group rounded-[2.5rem] overflow-hidden aspect-[3/2] shadow-2xl text-left"
+              className="group bg-white rounded-[2.5rem] overflow-hidden shadow-2xl text-left flex flex-col transition-transform hover:-translate-y-1 duration-500"
             >
-              <img src={room.image} alt={room.name} className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000" />
-              <div className="absolute inset-0 bg-gradient-to-t from-stone/90 via-stone/20 to-transparent opacity-80 group-hover:opacity-100 transition-opacity"></div>
-              <div className="absolute top-8 left-8 z-10">
-                <h4 className="text-2xl font-black uppercase leading-tight text-white tracking-tighter">{room.name}</h4>
-                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-stone/40">{room.name == "Balance CHAMBER" ? "A private chamber oriented toward recovery and equilibrium." : room.name == "Structure CHAMBER" ? "Designed for participants focused on movement and terrain training." : "A quiet chamber supporting breath practice and restoration."}</p>
+              {/* Top Image Section */}
+              <div className="relative aspect-[4/3] overflow-hidden">
+                <img 
+                  src={room.image} 
+                  alt={room.name} 
+                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000" 
+                />
+                <div className="absolute inset-0 bg-black/10 group-hover:bg-black/0 transition-colors duration-500"></div>
+                <div className="absolute top-6 left-6 z-10">
+                  <h4 className="text-xl font-black uppercase leading-tight text-white tracking-tight drop-shadow-md">
+                    {room.name}
+                  </h4>
+                </div>
+              </div>
+
+              {/* Bottom Text Section */}
+              <div className="p-8 pb-10 space-y-3 flex-1 flex flex-col justify-center">
+                <h4 className="text-xl font-black uppercase tracking-tight text-stone">
+                  {room.name}
+                </h4>
+                <p className="text-[13px] font-medium text-stone/60 leading-relaxed">
+                  {room.name.toUpperCase().includes("BALANCE") 
+                    ? "A private chamber oriented toward recovery and equilibrium." 
+                    : room.name.toUpperCase().includes("STRUCTURE") 
+                    ? "Designed for participants focused on movement and terrain training." 
+                    : "A quiet chamber supporting breath practice and restoration."}
+                </p>
               </div>
             </button>
           ))}
