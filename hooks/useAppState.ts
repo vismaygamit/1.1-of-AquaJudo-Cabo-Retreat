@@ -510,7 +510,7 @@ export const useAppState = () => {
           checkInDate: data.checkInDate || data.startDate || '',
           checkOutDate: data.checkOutDate || data.endDate || '',
           transactionDate: data.created ? new Date(data.created * 1000).toISOString() : (data.transactionDate || data.createdAt || new Date().toISOString()),
-          amount: data.amount_total !== undefined ? `CAD ${(data.amount_total / 100).toFixed(2)}` : (data.amount || 0),
+          amount: data.amount_total !== undefined ? `USD ${(data.amount_total / 100).toFixed(2)}` : (data.amount || 0),
           status: data.payment_status || data.status || 'success',
           inquiryId: data.metadata?.inquiryId || data.inquiryId || '',
           magicUrl: data.magicUrl || ''
