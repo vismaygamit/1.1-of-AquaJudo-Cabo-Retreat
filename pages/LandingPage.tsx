@@ -35,6 +35,10 @@ export const LandingPage: React.FC<LandingPageProps> = ({ sessions, rooms, itine
         videoRef.current.play();
         videoRef.current.muted = false; // Unmute when user explicitly plays
         setIsPromoPlaying(true);
+      } else if (videoRef.current.muted) {
+        // If it's playing but muted (autoplay), unmute it instead of pausing
+        videoRef.current.muted = false;
+        setIsPromoPlaying(true);
       } else {
         videoRef.current.pause();
         setIsPromoPlaying(false);
@@ -46,6 +50,9 @@ export const LandingPage: React.FC<LandingPageProps> = ({ sessions, rooms, itine
     if (residenceVideoRef.current) {
       if (residenceVideoRef.current.paused) {
         residenceVideoRef.current.play();
+        residenceVideoRef.current.muted = false;
+        setIsResidenceVideoPlaying(true);
+      } else if (residenceVideoRef.current.muted) {
         residenceVideoRef.current.muted = false;
         setIsResidenceVideoPlaying(true);
       } else {
@@ -69,14 +76,13 @@ export const LandingPage: React.FC<LandingPageProps> = ({ sessions, rooms, itine
       <header className="relative flex flex-col items-center justify-center text-center px-6 bg-[#faf9f6] overflow-hidden pb-4 sm:pb-6">
         {/* Extremely subtle background video to maintain the "clean" image look while keeping the feature available */}
         <video
+          src={HERO_VIDEO_URL}
           autoPlay
           loop
           muted
           playsInline
-          className="absolute inset-0 w-full h-full object-cover opacity-[0.03] pointer-events-none"
-        >
-          <source src={HERO_VIDEO_URL} type="video/mp4" />
-        </video>
+          className="absolute inset-0 w-full h-full object-cover opacity-30 pointer-events-none"
+        />
 
         <div className="relative z-10 max-w-5xl animate-fade-in flex flex-col items-center pt-10 sm:pt-4 pb-6">
           <div className="p-4 sm:p-6 md:p-8">
@@ -132,6 +138,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ sessions, rooms, itine
               key={promoVideoUrl}
               src={promoVideoUrl}
               poster={portalConfig.promoThumbnailUrl}
+              autoPlay
               loop
               muted
               playsInline
@@ -172,6 +179,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ sessions, rooms, itine
             key={residenceVideoUrl}
             src={residenceVideoUrl}
             poster={portalConfig.residenceThumbnailUrl}
+            autoPlay
             loop
             muted
             playsInline
