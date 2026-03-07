@@ -336,16 +336,16 @@ export const useAppState = () => {
             gateInstructions: api.arrivalLogistics?.gatedAccessInstructions || DEFAULT_PORTAL_CONFIG.logistics.gateInstructions
           },
           promoVideoUrl: api.estateNarrativeVideoPath 
-            ? (api.estateNarrativeVideoPath.startsWith('http') ? api.estateNarrativeVideoPath : `${API_ROOT}${api.estateNarrativeVideoPath}`) 
+            ? (api.estateNarrativeVideoPath.startsWith('http') ? api.estateNarrativeVideoPath : `${API_ROOT}${api.estateNarrativeVideoPath}`) + `?t=${now}`
             : DEFAULT_PORTAL_CONFIG.promoVideoUrl,
-          promoThumbnailUrl: api.estateNarrativeThumbnailPath
-            ? (api.estateNarrativeThumbnailPath.startsWith('http') ? api.estateNarrativeThumbnailPath : `${API_ROOT}${api.estateNarrativeThumbnailPath}`)
+          promoThumbnailUrl: api.estateThumbnailPath
+            ? (api.estateThumbnailPath.startsWith('http') ? api.estateThumbnailPath : `${API_ROOT}${api.estateThumbnailPath}`) + `?t=${now}`
             : "",
           residenceVideoUrl: api.residenceVideoPath
-            ? (api.residenceVideoPath.startsWith('http') ? api.residenceVideoPath : `${API_ROOT}${api.residenceVideoPath}`)
+            ? (api.residenceVideoPath.startsWith('http') ? api.residenceVideoPath : `${API_ROOT}${api.residenceVideoPath}`) + `?t=${now}`
             : DEFAULT_PORTAL_CONFIG.residenceVideoUrl,
           residenceThumbnailUrl: api.residenceThumbnailPath
-            ? (api.residenceThumbnailPath.startsWith('http') ? api.residenceThumbnailPath : `${API_ROOT}${api.residenceThumbnailPath}`)
+            ? (api.residenceThumbnailPath.startsWith('http') ? api.residenceThumbnailPath : `${API_ROOT}${api.residenceThumbnailPath}`) + `?t=${now}`
             : "",
           experiences: (Array.isArray(api.estateExperiences) && api.estateExperiences.length > 0)
             ? api.estateExperiences.map((e: any) => ({
@@ -376,7 +376,7 @@ export const useAppState = () => {
     const formData = new FormData();
     if (videoFile) formData.append('estateNarrativeVideo', videoFile);
     if (residenceVideoFile) formData.append('residenceVideo', residenceVideoFile);
-    if (promoThumbnailFile) formData.append('estateNarrativeThumbnail', promoThumbnailFile);
+    if (promoThumbnailFile) formData.append('estateThumbnail', promoThumbnailFile);
     if (residenceThumbnailFile) formData.append('residenceThumbnail', residenceThumbnailFile);
     formData.append('welcomeMessage', config.welcomeParagraph);
     formData.append('portalNote', config.portalNote || '');

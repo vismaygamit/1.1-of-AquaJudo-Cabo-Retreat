@@ -131,6 +131,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ sessions, rooms, itine
               ref={videoRef}
               key={promoVideoUrl}
               src={promoVideoUrl}
+              poster={portalConfig.promoThumbnailUrl}
               loop
               muted
               playsInline
@@ -170,6 +171,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ sessions, rooms, itine
             ref={residenceVideoRef}
             key={residenceVideoUrl}
             src={residenceVideoUrl}
+            poster={portalConfig.residenceThumbnailUrl}
             loop
             muted
             playsInline
