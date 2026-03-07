@@ -996,12 +996,13 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                     <div className="space-y-4 pt-4 border-t border-stone/5">
                       <p className="text-[8px] font-black uppercase tracking-widest text-stone/10 px-1">VIDEO THUMBNAIL (POSTER)</p>
                       <div className="flex items-center gap-4">
-                        <div className="w-20 h-20 rounded-xl bg-[#faf9f6] border border-stone/5 overflow-hidden flex-shrink-0">
+                        <div className="w-full aspect-video max-w-[280px] rounded-2xl bg-[#faf9f6] border border-stone/5 overflow-hidden flex-shrink-0 shadow-inner">
                           {portalConfig.promoThumbnailUrl ? (
                             <img src={portalConfig.promoThumbnailUrl} className="w-full h-full object-cover" alt="Thumbnail" />
                           ) : (
-                            <div className="w-full h-full flex items-center justify-center text-stone/10">
-                              <ImageIcon size={20} />
+                            <div className="w-full h-full flex flex-col items-center justify-center text-stone/10 gap-2">
+                              <ImageIcon size={32} />
+                              <span className="text-[8px] font-black uppercase tracking-widest">No Preview</span>
                             </div>
                           )}
                         </div>
@@ -1065,12 +1066,13 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                     <div className="space-y-4 pt-4 border-t border-stone/5">
                       <p className="text-[8px] font-black uppercase tracking-widest text-stone/10 px-1">VIDEO THUMBNAIL (POSTER)</p>
                       <div className="flex items-center gap-4">
-                        <div className="w-20 h-20 rounded-xl bg-[#faf9f6] border border-stone/5 overflow-hidden flex-shrink-0">
+                        <div className="w-full aspect-video max-w-[280px] rounded-2xl bg-[#faf9f6] border border-stone/5 overflow-hidden flex-shrink-0 shadow-inner">
                           {portalConfig.residenceThumbnailUrl ? (
                             <img src={portalConfig.residenceThumbnailUrl} className="w-full h-full object-cover" alt="Thumbnail" />
                           ) : (
-                            <div className="w-full h-full flex items-center justify-center text-stone/10">
-                              <ImageIcon size={20} />
+                            <div className="w-full h-full flex flex-col items-center justify-center text-stone/10 gap-2">
+                              <ImageIcon size={32} />
+                              <span className="text-[8px] font-black uppercase tracking-widest">No Preview</span>
                             </div>
                           )}
                         </div>
