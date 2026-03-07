@@ -79,10 +79,14 @@ export const AdminPage: React.FC<AdminPageProps> = ({
   const [roomVideoFiles, setRoomVideoFiles] = useState<Record<string, File>>({});
   const [stagedVideoFile, setStagedVideoFile] = useState<File | null>(null);
   const [stagedResidenceVideoFile, setStagedResidenceVideoFile] = useState<File | null>(null);
+  const [stagedPromoThumbnailFile, setStagedPromoThumbnailFile] = useState<File | null>(null);
+  const [stagedResidenceThumbnailFile, setStagedResidenceThumbnailFile] = useState<File | null>(null);
   const fileInputRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
   const videoInputRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
   const videoFileInputRef = useRef<HTMLInputElement>(null);
   const residenceVideoFileInputRef = useRef<HTMLInputElement>(null);
+  const promoThumbnailInputRef = useRef<HTMLInputElement>(null);
+  const residenceThumbnailInputRef = useRef<HTMLInputElement>(null);
   
   const initialLoadDone = useRef<Record<string, boolean>>({});
 
@@ -433,12 +437,46 @@ export const AdminPage: React.FC<AdminPageProps> = ({
     }
   };
 
+  const handlePromoThumbnailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setStagedPromoThumbnailFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPortalConfig({ ...portalConfig, promoThumbnailUrl: reader.result as string });
+      };
+      reader.readAsDataURL(file);
+      showToast("Promo thumbnail staged.", "info");
+    }
+  };
+
+  const handleResidenceThumbnailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setStagedResidenceThumbnailFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPortalConfig({ ...portalConfig, residenceThumbnailUrl: reader.result as string });
+      };
+      reader.readAsDataURL(file);
+      showToast("Residence thumbnail staged.", "info");
+    }
+  };
+
   const handleSavePortalConfig = async () => {
     setIsSaving(prev => ({ ...prev, portal: true }));
     try {
-      await savePortalConfigToApi(portalConfig, stagedVideoFile || undefined, stagedResidenceVideoFile || undefined);
+      await savePortalConfigToApi(
+        portalConfig, 
+        stagedVideoFile || undefined, 
+        stagedResidenceVideoFile || undefined,
+        stagedPromoThumbnailFile || undefined,
+        stagedResidenceThumbnailFile || undefined
+      );
       setStagedVideoFile(null);
       setStagedResidenceVideoFile(null);
+      setStagedPromoThumbnailFile(null);
+      setStagedResidenceThumbnailFile(null);
       showToast('Portal settings synchronized.', 'success');
     } catch (e: any) {
       showToast('Failed to synchronize portal settings.', 'error');
@@ -954,6 +992,28 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                       </button>
                       <p className="text-[8px] text-stone/30 font-bold uppercase tracking-widest text-center">MAX 300MB • MP4, MPEG, MOV, AVI</p>
                     </div>
+
+                    <div className="space-y-4 pt-4 border-t border-stone/5">
+                      <p className="text-[8px] font-black uppercase tracking-widest text-stone/10 px-1">VIDEO THUMBNAIL (POSTER)</p>
+                      <div className="flex items-center gap-4">
+                        <div className="w-20 h-20 rounded-xl bg-[#faf9f6] border border-stone/5 overflow-hidden flex-shrink-0">
+                          {portalConfig.promoThumbnailUrl ? (
+                            <img src={portalConfig.promoThumbnailUrl} className="w-full h-full object-cover" alt="Thumbnail" />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center text-stone/10">
+                              <ImageIcon size={20} />
+                            </div>
+                          )}
+                        </div>
+                        <div className="flex-1 space-y-2">
+                          <input type="file" ref={promoThumbnailInputRef} onChange={handlePromoThumbnailChange} accept="image/*" className="hidden" />
+                          <button onClick={() => promoThumbnailInputRef.current?.click()} className="w-full py-3 bg-[#faf9f6] text-stone rounded-xl text-[9px] font-black uppercase tracking-widest border border-stone/5 hover:bg-stone/5 transition-all">
+                            CHANGE THUMBNAIL
+                          </button>
+                          <p className="text-[7px] text-stone/30 font-bold uppercase tracking-widest">Recommended: 1280x720 JPG/PNG</p>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                   <div className="aspect-video bg-[#faf9f6] rounded-[2rem] border border-stone/5 overflow-hidden flex items-center justify-center relative">
                     {portalConfig.promoVideoUrl ? (
@@ -1000,6 +1060,28 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                         <Upload size={14} /> SELECT VIDEO FILE
                       </button>
                       <p className="text-[8px] text-stone/30 font-bold uppercase tracking-widest text-center">MAX 300MB • MP4, MPEG, MOV, AVI</p>
+                    </div>
+
+                    <div className="space-y-4 pt-4 border-t border-stone/5">
+                      <p className="text-[8px] font-black uppercase tracking-widest text-stone/10 px-1">VIDEO THUMBNAIL (POSTER)</p>
+                      <div className="flex items-center gap-4">
+                        <div className="w-20 h-20 rounded-xl bg-[#faf9f6] border border-stone/5 overflow-hidden flex-shrink-0">
+                          {portalConfig.residenceThumbnailUrl ? (
+                            <img src={portalConfig.residenceThumbnailUrl} className="w-full h-full object-cover" alt="Thumbnail" />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center text-stone/10">
+                              <ImageIcon size={20} />
+                            </div>
+                          )}
+                        </div>
+                        <div className="flex-1 space-y-2">
+                          <input type="file" ref={residenceThumbnailInputRef} onChange={handleResidenceThumbnailChange} accept="image/*" className="hidden" />
+                          <button onClick={() => residenceThumbnailInputRef.current?.click()} className="w-full py-3 bg-[#faf9f6] text-stone rounded-xl text-[9px] font-black uppercase tracking-widest border border-stone/5 hover:bg-stone/5 transition-all">
+                            CHANGE THUMBNAIL
+                          </button>
+                          <p className="text-[7px] text-stone/30 font-bold uppercase tracking-widest">Recommended: 1280x720 JPG/PNG</p>
+                        </div>
+                      </div>
                     </div>
                   </div>
                   <div className="aspect-video bg-[#faf9f6] rounded-[2rem] border border-stone/5 overflow-hidden flex items-center justify-center relative shadow-inner">

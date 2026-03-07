@@ -50,7 +50,9 @@ const DEFAULT_PORTAL_CONFIG = {
     gateInstructions: 'Present your registry ID to the Pedregal security gate. Mention "Estate Judo 104".'
   },
   promoVideoUrl: INITIAL_PROMO_VIDEO_URL,
+  promoThumbnailUrl: "",
   residenceVideoUrl: "https://player.vimeo.com/external/517089432.hd.mp4?s=1af73913914e6e665d956965413147e8003668f4&profile_id=174",
+  residenceThumbnailUrl: "",
   experiences: [
     {
       id: '1',
@@ -336,9 +338,15 @@ export const useAppState = () => {
           promoVideoUrl: api.estateNarrativeVideoPath 
             ? (api.estateNarrativeVideoPath.startsWith('http') ? api.estateNarrativeVideoPath : `${API_ROOT}${api.estateNarrativeVideoPath}`) 
             : DEFAULT_PORTAL_CONFIG.promoVideoUrl,
+          promoThumbnailUrl: api.estateNarrativeThumbnailPath
+            ? (api.estateNarrativeThumbnailPath.startsWith('http') ? api.estateNarrativeThumbnailPath : `${API_ROOT}${api.estateNarrativeThumbnailPath}`)
+            : "",
           residenceVideoUrl: api.residenceVideoPath
             ? (api.residenceVideoPath.startsWith('http') ? api.residenceVideoPath : `${API_ROOT}${api.residenceVideoPath}`)
             : DEFAULT_PORTAL_CONFIG.residenceVideoUrl,
+          residenceThumbnailUrl: api.residenceThumbnailPath
+            ? (api.residenceThumbnailPath.startsWith('http') ? api.residenceThumbnailPath : `${API_ROOT}${api.residenceThumbnailPath}`)
+            : "",
           experiences: (Array.isArray(api.estateExperiences) && api.estateExperiences.length > 0)
             ? api.estateExperiences.map((e: any) => ({
               id: e.id || Math.random().toString(36).substr(2, 9),
@@ -358,10 +366,18 @@ export const useAppState = () => {
     }
   }, []);
 
-  const savePortalConfigToApi = async (config: typeof DEFAULT_PORTAL_CONFIG, videoFile?: File, residenceVideoFile?: File) => {
+  const savePortalConfigToApi = async (
+    config: typeof DEFAULT_PORTAL_CONFIG, 
+    videoFile?: File, 
+    residenceVideoFile?: File,
+    promoThumbnailFile?: File,
+    residenceThumbnailFile?: File
+  ) => {
     const formData = new FormData();
     if (videoFile) formData.append('estateNarrativeVideo', videoFile);
     if (residenceVideoFile) formData.append('residenceVideo', residenceVideoFile);
+    if (promoThumbnailFile) formData.append('estateNarrativeThumbnail', promoThumbnailFile);
+    if (residenceThumbnailFile) formData.append('residenceThumbnail', residenceThumbnailFile);
     formData.append('welcomeMessage', config.welcomeParagraph);
     formData.append('portalNote', config.portalNote || '');
     formData.append('arrivalLogistics', JSON.stringify({
